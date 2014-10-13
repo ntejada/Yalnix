@@ -44,7 +44,7 @@ availableFramesListInit() {
 
   int i;
   for (i = 0; i < number_of_frames; i++) 
-    frames[i] = i + first_frame; // Mark all as available
+    frame_list[i] = i + first_frame; // Mark all as available
 
   return SUCCESS;
 }
