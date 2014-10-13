@@ -12,8 +12,11 @@ int vectorTableInit();
 int *availableFramesListInit();
 void pageTableInit();
 void kernelStart(char * cmd_args[], unsigned int pmem_size); //add UserContext *uctxt
+void DoIdle(void);
 
-void (*vectorTable[TRAP_VECTOR_SIZE]) (UserContext uctxt);
+
+// Initialization of vector table.
+void (*vectorTable[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
 
 void 
 KernelStart(char * cmd_args[], unsigned int pmem_size)
@@ -69,4 +72,13 @@ vectorTableInit()
 		i++;
 	}
 	return SUCCESS;
+}
+
+void
+DoIdle(void) {
+
+  while (1) {
+    TracePrintf(1, "DoIdle\n");
+    Pause();
+  }
 }
