@@ -4,19 +4,34 @@
 #include "common.h"
 #include "./include/hardware.h"
 
-
+/*********GLOBALS*********/
 // Global pointer to frame list which resides in kernel heap
 int *frame_list;
+// Initialization of vector table
+void (*vectorTable[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
+//flag for whether virtual memory is on
+int vmem_on = 0;
+void *kernel_extent;
+void *kernel_data_start;
+/************************/
 
+/*********PROTOTYPES*********/
 int vectorTableInit();
-int *availableFramesListInit();
+int availableFramesListInit();
 void pageTableInit();
 void kernelStart(char * cmd_args[], unsigned int pmem_size); //add UserContext *uctxt
 void DoIdle(void);
+void pageTableInit();
+void SetKernelData(void *_KernelDataStart, void *_KernelDataEnd);
+/***************************/
 
 
-// Initialization of vector table.
-void (*vectorTable[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
+void 
+SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
+{
+	kernel_data_start = _KernelDataStart;
+	kernel_extent = _KernelDataEnd;
+}
 
 void 
 KernelStart(char * cmd_args[], unsigned int pmem_size)
@@ -28,6 +43,33 @@ KernelStart(char * cmd_args[], unsigned int pmem_size)
 	vectorTableInit();
 	availableFramesListInit();
 	pageTableInit();
+	WriteRegister(REG_VM_ENABLE, 1);
+	vmem_on = 1;
+}
+
+//TEST IF ERROR WORKS
+int 
+SetKernelBrk(void *addr) 
+{
+	if(vmem_on){
+		pte* ptbr0 = ReadRegister(REG_PTBR0);
+		int ptlr0 = ReadRegister(REG_PTLR0);
+		//need to check if addr is outside of region
+		
+		for(int i = 0; i < (addr>>PAGESHIFT); i++) {
+			ptbr0[i].valid=1;
+		}	
+	}
+	else {
+		if(addr<KERNEL_STACK_LIMIT){
+			KernelExtent = addr;
+		}
+		else{
+			TracePrintf(1, "addr for SetKernelBrk is above stack limit\n");	
+			return ERROR;
+		}
+	}
+	return SUCCESS;
 }
 
 // Store frame list in kernel heap.
@@ -71,7 +113,61 @@ vectorTableInit()
 		vectorTable[i] = noTrap;
 		i++;
 	}
+	WriteRegister(REG_VECTOR_BASE, vectorTable);
 	return SUCCESS;
+}
+
+void
+pageTableInit()
+{
+	//region zero page table
+	int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
+	pte* reg_zero_table = (pte*)malloc(sizeof(pte)*reg_zero_limit);
+	//malloc check
+	if (reg_zero_table == NULL) {
+		TracePrintf(1, "Malloc error, pageTableInit\n");
+		return;
+	}
+
+	int i;
+	for(i = VMEM_0_BASE>>PAGESHIFT; i<(VMEM_0_LIMIT>>PAGESHIFT); i++){
+		if(i<kernel_extent>>PAGESHIFT || i>KERNEL_STACK_BASE>>PAGESHIFT){
+			reg_zero_table[i].valid = 1;
+			//kernel text protections
+			if(i<kernel_data_start){
+				reg_zero_table[i].prot = (PROT_READ|PROT_EXEC);
+			}
+			//kernel heap and globals protections
+			else{
+				reg_zero_table[i].prot = (PROT_READ|PROT_WRITE);	
+			}
+			reg_zero_table[i].pfn=i;
+		}
+		//invalid pages in between kernel stack and heap
+		else{
+			reg_zero_table[i].valid = 0;
+			reg_zero_table[i].prot = PROT_NONE;
+			reg_zero_table[i]
+		}
+	}
+	WriteRegister(REG_PTBR0, reg_zero_table);
+	WriteRegister(REG_PTLR0, reg_zero_limit);
+	
+	//region one page table
+	int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
+	pte* reg_one_table = (pte*)malloc(sizeof(pte)*reg_one_limit);
+	//malloc check
+	if(reg_one_table == NULL) {
+		TracePrintf(1, "Malloc error, pageTableInit\n");
+		return;		
+	}
+	
+	//isn't all of region 1 invalid at this point?
+	for(i=VMEM_1_BASE>>PAGESHIFT; i<(VMEM_1_LIMIT>>PAGESHIFT); i++) {
+		reg_one_table[i].valid = 0;
+	}
+	WriteRegister(REG_PTBR1, reg_one_table);
+	WriteRegister(REG_PTLR1, reg_zero_limit);
 }
 
 void
@@ -82,3 +178,6 @@ DoIdle(void) {
     Pause();
   }
 }
+
+
+
