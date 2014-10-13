@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-// Create generic node.
+// Create generic cvar node.
 Cvar_Node *createCvarNode(int *PCB,  int *lock_t) {
   Cvar_Node *cv = malloc(sizeof(Cvar_Node));
   
@@ -16,8 +16,6 @@ Cvar_Node *createCvarNode(int *PCB,  int *lock_t) {
 
   return cv;
 }
-
-
 
 
 /*******************************
@@ -81,7 +79,7 @@ void *dequeue(Queue *q_t) {
   
   int rc = isEmpty(q_t);
   if (ERROR == rc) {
-    TracePrintf(1, "isEmpty Error, enqueue\n");
+    TracePrintf(1, "isEmpty Error, dequeue\n");
     return ERROR;
   }
   else if (rc) {
@@ -142,5 +140,81 @@ int dequeueALL(Queue *q_t) {
 }
     
     
-
+/**********************************
+ * Common stack functions
+ ********************************/
   
+Stack *initStack() {
+  Queue *s_t = malloc(sizeof(Stack));
+
+  if (s_t == NULL) {
+    TracePrintf(1, "Malloc Error, initStack\n");
+    return NULL;
+  }
+
+  memset(s_t, 0, sizeof(Queue));
+  s_t->head = NULL;
+  s_t->tail = NULL;
+
+  return s_t;
+}
+
+
+int isEmpty(Stack *s_t) {
+  if (s_t == NULL) {
+    TracePrintf(1, "NULL Queue input, isEmpty\n");
+    return ERROR;
+  }
+
+  if (s_t->head == NULL) 
+    return 1;
+  return 0;
+}
+
+
+
+
+int push(Stack *s_t, void *node) {
+  if (s_t == NULL || node == NULL) {
+    TracePrintf(1, "Arguments NULL, push\n");
+    return ERROR;
+  }
+
+  int rc = isEmpty(s_t);
+  if (ERROR == rc) {
+    TracePrintf(1, "isEmpty Error, push\n");
+    return ERROR;
+  }
+  else if (rc) {
+    s_t->head = node;
+  }
+ else {
+   node->next = s_t->head; 
+   s_t->head = node;
+  }
+
+  return SUCCESS;
+}
+
+
+void *pop(Stack *s_t) {
+
+  int rc = isEmpty(q_t);
+  if (ERROR == rc) {
+    TracePrintf(1, "isEmpty Error, pop\n");
+    return ERROR;
+  }
+  else if (rc) {
+    return NULL;
+  }
+
+  void *node = s_t->head;
+
+  s_t->head = s_t->head->next;
+
+  node->next = NULL;
+  return node;
+}
+
+
+

@@ -4,15 +4,22 @@
 #define SUCCESS 1
 #define ERROR 0
 
+/*******************
+ * QUEUE/STACK
+ ***********************/
 typedef struct {
 	void * head;
 	void * tail;
 } Queue;
 
+typedef struct {
+  void * head;
+} Stack;
+
 
 /**********************
  * SYNCHRONIZATION PRIMITIVES
- ********************* */
+ **********************/
 
 typedef struct {
   int *PCB;
@@ -26,10 +33,30 @@ typedef struct {
   PCB *pcb;
 } Lock;
 
-typdef struct {
+typedef struct {
   char *buffer;
   int length_buffer;
   int identifier;
 } Pipe;
 
 	
+/*********************
+ *  PCB
+ **********************/
+typedef struct {
+  unsigned int state;
+  unsigned int exit_state;
+  unsigned int pid;
+  unsigned int ppid;
+  
+  UserContext *user_context;
+  KernelContext *kernel_context;
+
+  Stack *child_queue;
+  // Page Table
+} PCB;
+
+typedef struct {
+  unsigned int exit_status;
+  unsigned int pid;
+} Z_CB; // Zombie Control Block
