@@ -19,11 +19,13 @@ clockTrap(UserContext* uctxt)
 {
 
 }
+
 int 
 illegalTrap(UserContext* uctxt)
 {
 
 }
+
 int 
 memoryTrap(UserContext* uctxt)
 {
@@ -47,6 +49,7 @@ transmitTrap(UserContext* uctxt)
 {
 
 }
+
 int
 diskTrap(UserContext* uctxt)
 {

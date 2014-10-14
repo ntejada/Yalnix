@@ -52,8 +52,8 @@ int
 SetKernelBrk(void *addr) 
 {
 	if(vmem_on){
-		pte* ptbr0 = ReadRegister(REG_PTBR0);
-		int ptlr0 = ReadRegister(REG_PTLR0);
+	        pte* ptbr0 = (int) ReadRegister(REG_PTBR0);
+		int ptlr0 = (int) ReadRegister(REG_PTLR0);
 		//need to check if addr is outside of region
 		
 		for(int i = 0; i < (addr>>PAGESHIFT); i++) {
@@ -95,8 +95,6 @@ availableFramesListInit() {
 }
 
 
-
-
 int 
 vectorTableInit()
 {
@@ -121,7 +119,7 @@ void
 pageTableInit()
 {
 	//region zero page table
-	int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
+        unsigned int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
 	pte* reg_zero_table = (pte*)malloc(sizeof(pte)*reg_zero_limit);
 	//malloc check
 	if (reg_zero_table == NULL) {
@@ -150,11 +148,11 @@ pageTableInit()
 			reg_zero_table[i]
 		}
 	}
-	WriteRegister(REG_PTBR0, reg_zero_table);
+	WriteRegister(REG_PTBR0, (unsigned int) reg_zero_table);
 	WriteRegister(REG_PTLR0, reg_zero_limit);
 	
 	//region one page table
-	int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
+	unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
 	pte* reg_one_table = (pte*)malloc(sizeof(pte)*reg_one_limit);
 	//malloc check
 	if(reg_one_table == NULL) {
@@ -166,7 +164,7 @@ pageTableInit()
 	for(i=VMEM_1_BASE>>PAGESHIFT; i<(VMEM_1_LIMIT>>PAGESHIFT); i++) {
 		reg_one_table[i].valid = 0;
 	}
-	WriteRegister(REG_PTBR1, reg_one_table);
+	WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);
 	WriteRegister(REG_PTLR1, reg_zero_limit);
 }
 
