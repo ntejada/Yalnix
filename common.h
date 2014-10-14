@@ -7,11 +7,14 @@
 /*******************
  * QUEUE/STACK
  ***********************/
+
+// Cvar, Lock, Ready, 
 typedef struct {
 	void * head;
 	void * tail;
 } Queue;
 
+// Child processes.
 typedef struct {
   void * head;
 } Stack;
@@ -43,10 +46,15 @@ typedef struct {
 
 
 typedef struct {
-  int *PCB;
-  struct Cvar_Node* next;
-  int *lock;
+  struct Cvar_Node *next;
+  PCB *pcb;
+  struct Lock *lock;
 } Cvar_Node;
+
+typedef struct {
+  struct Lock_Node *next;
+  PCB *pcb;
+} Lock_Node;
 
 typedef struct {
   unsigned int state;
@@ -60,5 +68,16 @@ typedef struct {
   int identifier;
 } Pipe;
 
-	
+// Prototypes
+Cvar_Node *createCvarNode(PCB *, Lock *);
+Queue *InitQueue();
+int isQueueEmpty(Queue *);
+int enqueue(Queue *, void *);
+void *dequeue(Queue *);
+int dequeueAll(Queue *);
+
+Stack *initStack();
+int isStackEmpty(Stack *);
+int push(Stack *, void *);
+void *pop(Stack *);	
 
