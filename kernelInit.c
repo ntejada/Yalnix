@@ -5,8 +5,6 @@
 #include "./include/hardware.h"
 
 /*********GLOBALS*********/
-// Global pointer to frame list which resides in kernel heap
-int *frame_list;
 // Initialization of vector table
 void (*vectorTable[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
 //flag for whether virtual memory is on
@@ -17,7 +15,6 @@ void *kernel_data_start;
 
 /*********PROTOTYPES*********/
 int vectorTableInit();
-int availableFramesListInit();
 void pageTableInit();
 void kernelStart(char * cmd_args[], unsigned int pmem_size); //add UserContext *uctxt
 void DoIdle(void);
@@ -107,28 +104,6 @@ SetKernelBrk(void *addr)
 		}
 	}
 	return SUCCESS;
-}
-
-// Store frame list in kernel heap.
-int
-availableFramesListInit() {
-  int top_frame = (PMEM_LIMIT-PMEM_BASE) / PAGESIZE;
-  int first_frame = VMEM_0_LIMIT >> PAGESHIFT;
-
-  int number_of_frames = top_frame - first_frame;
-
-  frame_list  = (int *)malloc(number_of_frames * sizeof(int));
-
-  if (frame_list == NULL) {
-    TracePrintf(1, "Malloc error, availableFramesListInit\n");
-    return ERROR;
-  }
-
-  int i;
-  for (i = 0; i < number_of_frames; i++) 
-    frame_list[i] = i + first_frame; // Mark all as available
-
-  return SUCCESS;
 }
 
 
