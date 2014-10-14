@@ -1,12 +1,12 @@
-
-
-
+#include "./pageMan.h"
+#include "./common.h"
+#include "./include/hardware.h"
 
 int 
 getNextFrame() 
 {
   if (0 == number_of_frames) {
-    TracePrintf("No available frames, getNextFrame\n");
+    TracePrintf(1, "No available frames, getNextFrame\n");
     return ERROR;
   }
   
@@ -21,7 +21,7 @@ int
 addFrame(int frame)
 {
   if (frame_list == frame_list_bp) {
-    TracePrintf("Trying to add frame to full frame list, addFrame\n");
+    TracePrintf(1, "Trying to add frame to full frame list, addFrame\n");
     return ERROR;
   }
 
@@ -36,9 +36,9 @@ addFrame(int frame)
 
 // Store frame list in kernel heap.                                                                                                                                                                                                          
 int
-availableFramesListInit()
+availableFramesListInit(unsigned int pmem_size)
 {
-  int top_frame = (PMEM_LIMIT-PMEM_BASE) / PAGESIZE;
+  int top_frame = ((((int)pmem_size) + PMEM_BASE)/ PAGESIZE);
   int first_frame = VMEM_0_LIMIT >> PAGESHIFT;
 
   number_of_frames = top_frame - first_frame;
@@ -53,6 +53,8 @@ availableFramesListInit()
 
   int i;
   for (i = 0; i < number_of_frames; i++)
-    frame_list[i] = i + first_frame; // Mark all as available                                                                                                                                                                                 
+    frame_list[i] = i + first_frame; // Mark all as available
+	
+	TracePrintf(1, "frames list init frame_list is at %p\n", frame_list_bp);                                                                                                                                     
   return SUCCESS;
 }

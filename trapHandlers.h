@@ -4,7 +4,7 @@
  * descrip: header for the trapHandlers file
  */
 
-
+#include "./include/hardware.h"
 
 int kernelTrap(UserContext* uctxt);
 int clockTrap(UserContext* uctxt);

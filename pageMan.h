@@ -5,4 +5,4 @@ int number_of_frames;
 
 int addFrame(int);
 int getNextFrame();
-int availableFramesListInit();
+int availableFramesListInit(unsigned int pmem_size);
