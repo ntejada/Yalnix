@@ -2,7 +2,7 @@
 
 
 // Create generic cvar node.
-Cvar_Node *createCvarNode(int *PCB,  int *lock_t) {
+Cvar_Node *createCvarNode(PCB *pcb,  Lock *lock_t) {
   Cvar_Node *cv = malloc(sizeof(Cvar_Node));
   
   if (cv == NULL) {
@@ -11,7 +11,7 @@ Cvar_Node *createCvarNode(int *PCB,  int *lock_t) {
   }
 
   memset(cv, 0, sizeof(Cvar_Node));
-  cv->PCB = PCB;
+  cv->pcb = pcb;
   cv->lock = lock_t;
 
   return cv;
@@ -39,7 +39,7 @@ Queue *initQueue() {
 
 
   
-int isEmpty(Queue *q_t) {
+int isQueueEmpty(Queue *q_t) {
   if (q_t == NULL) {
     TracePrintf(1, "NULL Queue input, isEmpty\n");
     return ERROR;
@@ -57,19 +57,19 @@ int enqueue(Queue *q_t, void *node) {
     TracePrintf(1, "Arguments NULL, enqueue\n");
     return ERROR;
   }
-  int rc = isEmpty(q_t);
+  int rc = isQueueEmpty(q_t);
   
   if (ERROR == rc) {
     TracePrintf(1, "isEmpty Error, enqueue\n");
     return ERROR;
   }
   else if (rc) {
-    queue->head = node;
-    queue->tail = node;
+    q_t->head = node;
+    q_t->tail = node;
   } 
   else {
     q_t->tail->next = node;
-    q_t->tail = tail->next;
+    q_t->tail = node;
   }
 
   return SUCCESS;
@@ -77,10 +77,10 @@ int enqueue(Queue *q_t, void *node) {
 
 void *dequeue(Queue *q_t) {
   
-  int rc = isEmpty(q_t);
+  int rc = isQueueEmpty(q_t);
   if (ERROR == rc) {
     TracePrintf(1, "isEmpty Error, dequeue\n");
-    return ERROR;
+    return NULL;
   }
   else if (rc) {
     return NULL;
@@ -109,7 +109,7 @@ int dequeueALL(Queue *q_t) {
     return ERROR;
   }
   
-  int rc = isEmpty(q_t);
+  int rc = isQueueEmpty(q_t);
   if (ERROR == rc) {
     TracePrintf(1, "isEmpty Error, enqueue\n");
     return ERROR;
@@ -118,7 +118,8 @@ int dequeueALL(Queue *q_t) {
     return SUCCESS;
   }
 
-  (Cvar_Node *) node = q_t->head;
+
+  Cvar_Node *node = (Cvar_Node *) q_t->head;
   Cvar_Node *temp;
   while (node != NULL) {
     temp = node;
@@ -145,7 +146,7 @@ int dequeueALL(Queue *q_t) {
  ********************************/
   
 Stack *initStack() {
-  Queue *s_t = malloc(sizeof(Stack));
+  Stack *s_t = malloc(sizeof(Stack));
 
   if (s_t == NULL) {
     TracePrintf(1, "Malloc Error, initStack\n");
@@ -154,13 +155,12 @@ Stack *initStack() {
 
   memset(s_t, 0, sizeof(Queue));
   s_t->head = NULL;
-  s_t->tail = NULL;
 
   return s_t;
 }
 
 
-int isEmpty(Stack *s_t) {
+int isStackEmpty(Stack *s_t) {
   if (s_t == NULL) {
     TracePrintf(1, "NULL Queue input, isEmpty\n");
     return ERROR;
@@ -180,7 +180,7 @@ int push(Stack *s_t, void *node) {
     return ERROR;
   }
 
-  int rc = isEmpty(s_t);
+  int rc = isStackEmpty(s_t);
   if (ERROR == rc) {
     TracePrintf(1, "isEmpty Error, push\n");
     return ERROR;
@@ -199,10 +199,10 @@ int push(Stack *s_t, void *node) {
 
 void *pop(Stack *s_t) {
 
-  int rc = isEmpty(q_t);
+  int rc = isStackEmpty(s_t);
   if (ERROR == rc) {
     TracePrintf(1, "isEmpty Error, pop\n");
-    return ERROR;
+    return NULL;
   }
   else if (rc) {
     return NULL;
