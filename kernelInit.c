@@ -89,7 +89,10 @@ SetKernelBrk(void *addr)
 			if(1==ptbr0[i].valid){
 				ptbr0[i].valid = 0;
 				ptbr0[i].prot = PROT_NONE;
-				addFrame(ptbr0[i].pfn);
+				if(ERROR == addFrame(ptbr0[i].pfn)){
+					TracePrintf(1, "too many frames");
+					return ERROR;
+				}
 				ptbr0[i].pfn = -1;
 		}
 		kernel_extent = addr;		
