@@ -54,18 +54,52 @@ SetKernelBrk(void *addr)
 	if(vmem_on){
 	        pte* ptbr0 = (int) ReadRegister(REG_PTBR0);
 		int ptlr0 = (int) ReadRegister(REG_PTLR0);
-		//need to check if addr is outside of region
 		
-		for(int i = 0; i < (addr>>PAGESHIFT); i++) {
-			ptbr0[i].valid=1;
-		}	
+		//need to check if addr is outside of region
+		if(addr>KERNEL_STACK_LIMIT || addr<kernel_data_start){
+			TracePrintf(1, "addr for SetKernelBrk is above stack limit or below the heap\n");	
+			return ERROR;
+		}		
+
+		//map pages before addr if they aren't mapped already
+		for(int i = kernel_extent>>PAGESHIFT; i < (addr>>PAGESHIFT); i++) {
+			if(0==ptbr0[i].valid){
+				ptbr0[i].pfn=getNextFrame();		
+				if(ERROR == ptbr0[i].pfn){
+					TracePrintf(1, "not enough frames left for SetKernelBrk\n");	
+					return ERROR;
+				}	
+				ptbr0[i].valid=1;
+				ptbr0[i].prot=PROT_READ|PROT_WRITE;
+			}
+		}
+		//check if page addr lives in data below it and add it to the page table if so
+		if(addr & PAGEOFFSET > 0) {
+			int addrPage = addr>>PAGESHIFT;
+			ptbr0[addrPage].pfn=getNextFrame();
+			if(ERROR == ptbr0[addrPage].pfn){
+				TracePrintf(1, "not enough frame left for SetKernelBrk\n");	
+				return ERROR;
+			}	
+			ptbr0[addrPage].valid=1;
+			ptbr0[addrPage].prot=PROT_READ|PROT_WRITE;
+		}
+		//unmap pages after addr
+		for(i = (addr>>PAGESHIFT)+1){
+			if(1==ptbr0[i].valid){
+				ptbr0[i].valid = 0;
+				ptbr0[i].prot = PROT_NONE;
+				addFrame(ptbr0[i].pfn);
+				ptbr0[i].pfn = -1;
+		}
+		kernel_extent = addr;		
 	}
 	else {
-		if(addr<KERNEL_STACK_LIMIT){
-			KernelExtent = addr;
+		if(addr<KERNEL_STACK_LIMIT && addr>kernel_data_start){
+			kernel_extent = addr;
 		}
 		else{
-			TracePrintf(1, "addr for SetKernelBrk is above stack limit\n");	
+			TracePrintf(1, "addr for SetKernelBrk is above stack limit or below the heap\n");	
 			return ERROR;
 		}
 	}
