@@ -40,10 +40,19 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	vectorTableInit();
 	availableFramesListInit(pmem_size);
 	pageTableInit();
-	WriteRegister(REG_VM_ENABLE, 1);
-	TracePrintf(1, "got past enabling vm");
-	vmem_on = 1;
+
+	TracePrintf(1, "got past setting vmem to on\n");
 	uctxt->pc = DoIdle;
+	uctxt->sp = (void *)(VMEM_LIMIT-4);
+	TracePrintf(1, "Sp Page: %d\n", ((int) uctxt->sp)>>PAGESHIFT);
+	TracePrintf(1, "stack pointer is initially %p\n", uctxt->sp);
+	TracePrintf(1, "set pc pointer\n");
+
+	WriteRegister(REG_VM_ENABLE, 1);
+	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
+	TracePrintf(1, "got past enabling vm\n");
+	vmem_on = 1;
+
 	return;
 }
 
@@ -55,7 +64,7 @@ SetKernelBrk(void *addr)
 	        struct pte* ptbr0 = (struct pte*) ReadRegister(REG_PTBR0);
 		int ptlr0 = (int) ReadRegister(REG_PTLR0);
 		
-		//need to check if addr is outside of region
+		//need to check if addr is oside of region
 		if(((int)addr)>KERNEL_STACK_LIMIT || addr<kernel_data_start){
 			TracePrintf(1, "addr for SetKernelBrk is above stack limit or below the heap\n");	
 			return ERROR;
@@ -185,8 +194,18 @@ pageTableInit()
 	}
 	
 	//isn't all of region 1 invalid at this point?
+	
 	for(i=VMEM_1_BASE>>PAGESHIFT; i<(VMEM_1_LIMIT>>PAGESHIFT); i++) {
-		reg_one_table[i].valid = 0;
+	  
+	  if (i == ((VMEM_1_LIMIT>>PAGESHIFT) - 1)) {
+	      reg_one_table[i].valid = 1;
+	      reg_one_table[i].pfn = i;
+	      reg_one_table[i].prot = (PROT_READ|PROT_WRITE);
+	      TracePrintf(1, "====Created valid entry in region 1. Page: %d\n", i);
+	  } else {
+	    reg_one_table[i].valid = 0;
+	    TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
+	  }
 	}
 	WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);
 	WriteRegister(REG_PTLR1, reg_zero_limit);
@@ -195,7 +214,7 @@ pageTableInit()
 
 void
 DoIdle(void) {
-
+  TracePrintf(1, "IN IDLE PROGRAM\n");
   while (1) {
     TracePrintf(1, "DoIdle\n");
     Pause();

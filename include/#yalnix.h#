@@ -24,6 +24,7 @@
  */
 
 #ifndef	_yalnix_h
+clear
 #define	_yalnix_h
 
 
@@ -180,7 +181,7 @@ extern int Release _PARAMS((int));
 extern int CvarInit _PARAMS((int *));
 extern int CvarWait _PARAMS((int, int));
 extern int CvarSignal _PARAMS((int));
-lextern int CvarBroadcast _PARAMS((int));
+extern int CvarBroadcast _PARAMS((int));
 
 extern int Reclaim _PARAMS((int));
 

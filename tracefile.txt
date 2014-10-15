@@ -1,5 +1,18 @@
-** Yalnix level 2 tracing enabled **
+** Hardware level 0 tracing enabled **
+** Yalnix level 1 tracing enabled **
 Yalnix     Kernel brk point changed to 0x2e000
+Hardware   yalnixdisk args[1] = 1000
+Hardware   SignalHanlder(10 User defined signal 1), depth 1
+Hardware   sp 0x00000000
+Hardware   sp 0x000ffac0
+Hardware   null PTRB0
+Hardware   Preparing to pad: signals_in 1 sig 10 sp 0x000ffac0 pc = 0xf773fd70 
+Hardware   Returning from signal handler depth 1
+Hardware   SignalHanlder(11 Segmentation fault), depth 1
+Hardware   sp 0x000ffac0
+Hardware   sp 0x000ffac0
+Hardware   null PTRB0
+Hardware   Preparing to pad: signals_in 1 sig 11 sp 0x000ffac0 pc = 0xf76d9525 
 Yalnix     vector table init done
 Yalnix     frames list init frame_list is at 0x26190
 Yalnix     ==========Just created pte for page 0 with read and exec rights
@@ -130,10 +143,151 @@ Yalnix     ==========Just created pte for page 124. It is invalid and has no rig
 Yalnix     ==========Just created pte for page 125. It is invalid and has no rights
 Yalnix     ==========Just created pte for page 126 with read and write rights
 Yalnix     ==========Just created pte for page 127 with read and write rights
+Yalnix     EXTENT = 255
+Yalnix     ======Just created invalid page table entry in region 1. Page: 128.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 129.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 130.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 131.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 132.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 133.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 134.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 135.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 136.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 137.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 138.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 139.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 140.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 141.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 142.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 143.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 144.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 145.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 146.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 147.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 148.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 149.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 150.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 151.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 152.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 153.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 154.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 155.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 156.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 157.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 158.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 159.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 160.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 161.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 162.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 163.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 164.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 165.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 166.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 167.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 168.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 169.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 170.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 171.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 172.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 173.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 174.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 175.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 176.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 177.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 178.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 179.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 180.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 181.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 182.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 183.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 184.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 185.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 186.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 187.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 188.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 189.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 190.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 191.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 192.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 193.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 194.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 195.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 196.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 197.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 198.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 199.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 200.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 201.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 202.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 203.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 204.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 205.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 206.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 207.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 208.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 209.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 210.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 211.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 212.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 213.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 214.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 215.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 216.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 217.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 218.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 219.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 220.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 221.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 222.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 223.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 224.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 225.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 226.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 227.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 228.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 229.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 230.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 231.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 232.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 233.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 234.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 235.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 236.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 237.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 238.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 239.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 240.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 241.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 242.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 243.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 244.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 245.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 246.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 247.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 248.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 249.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 250.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 251.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 252.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 253.
+Yalnix     ======Just created invalid page table entry in region 1. Page: 254.
+Yalnix     ====Created valid entry in region 1. Page: 255
 Yalnix     pageTableInit done
-Yalnix     got past enabling vmHardware   >>>> 
+Yalnix     got past setting vmem to on
+Yalnix     Sp Page: 255
+Yalnix     stack pointer is initially 0x1ffffc
+Yalnix     set pc pointer
+Hardware   munmapping for Alex
+Yalnix     got past enabling vm
+Hardware   SignalHanlder(11 Segmentation fault), depth 2
+Hardware   sp 0x000ffac0
+Hardware   sp 0x000ff1c0
+Hardware   current kernel stack frames 126 127
+Hardware   Preparing to pad: signals_in 2 sig 11 sp 0x000ff1c0 pc = 0xf76da036 
+Hardware   >>>> 
 
 
  BIG GREEN SCREEN O' DEATH!!!!!!
 
 
+Hardware   Returning from signal handler depth 2
