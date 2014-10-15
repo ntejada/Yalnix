@@ -1,13 +1,14 @@
-==>> This is a TEMPLATE for how to write your own LoadProgram function.
+/*==>> This is a TEMPLATE for how to write your own LoadProgram function.
 ==>> Places where you must change this file to work with your kernel are
 ==>> marked with "==>>".  You must replace these lines with your own code.
 ==>> You might also want to save the original annotations as comments.
-
+*/
 #include <fcntl.h>
 #include <unistd.h>
 #include <hardware.h>
 #include <load_info.h>
-==>> #include anything you need for your kernel here
+//==>> #include anything you need for your kernel here
+#include "common.h"
 
 /*
  *  Load a program into an existing address space.  The program comes from
@@ -17,7 +18,7 @@
  *  is to be loaded. 
  */
 int
-LoadProgram(char *name, char *args[], proc) 
+LoadProgram(char *name, char *args[], PCB* proc) 
 /*
 ==>> Declare the argument "proc" to be a pointer to your PCB or
 ==>> process descriptor data structure.  We assume you have a member
@@ -135,15 +136,23 @@ LoadProgram(char *name, char *args[], proc)
    * Set the new stack pointer value in the process's exception frame.
    */
 
-==>> Here you replace your data structure proc
+/*==>> Here you replace your data structure proc
 ==>> proc->context.sp = cp2;
+*/
 
+proc->context.sp = cp2;
   /*
    * Now save the arguments in a separate buffer in region 0, since
    * we are about to blow away all of region 1.
    */
   cp2 = argbuf = (char *)malloc(size);
-==>> You should perhaps check that malloc returned valid space
+
+if(NULL == cp2){
+	TracePrintf(1, "malloc error in loadProg");
+	return;
+}
+//==>> You should perhaps check that malloc returned valid space
+
   for (i = 0; args[i] != NULL; i++) {
     TracePrintf(3, "saving arg %d = '%s'\n", i, args[i]);
     strcpy(cp2, args[i]);
@@ -156,7 +165,7 @@ LoadProgram(char *name, char *args[], proc)
    * allocated, and set them all to writable.
    */
 
-==>> Throw away the old region 1 virtual address space of the
+/*==>> Throw away the old region 1 virtual address space of the
 ==>> curent process by freeing
 ==>> all physical pages currently mapped to region 1, and setting all 
 ==>> region 1 PTEs to invalid.
@@ -167,11 +176,22 @@ LoadProgram(char *name, char *args[], proc)
 ==>> how many pages the new process needs and allocate or
 ==>> deallocate a few pages to fit the size of memory to the requirements
 ==>> of the new process.
+*/
+	i = 0;
+	pte * pte = proc->ptable_bp;
+	for(i; i<proc->ptable_limit; i++) {
+		pte[i].valid = 0;
+		addFrame(pte[i].pfn);
+		pte[i].prot = PROT_NONE;
+	}
+	
 
-==>> Allocate "li.t_npg" physical pages and map them starting at
+
+/*==>> Allocate "li.t_npg" physical pages and map them starting at
 ==>> the "text_pg1" page in region 1 address space.  
 ==>> These pages should be marked valid, with a protection of 
 ==>> (PROT_READ | PROT_WRITE).
+*/
 
 ==>> Allocate "data_npg" physical pages and map them starting at
 ==>> the  "data_pg1" in region 1 address space.  

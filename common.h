@@ -31,6 +31,8 @@ typedef struct {
   UserContext *user_context;
   KernelContext *kernel_context;
 
+	pte * ptable_bp;
+	int ptable_limit;
   Stack *child_queue;
   // Page Table
 } PCB;
