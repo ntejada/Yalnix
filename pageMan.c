@@ -2,6 +2,8 @@
 #include "./common.h"
 #include "./include/hardware.h"
 
+// Get next available frame. 
+// Return -1 if no frames left.
 int 
 getNextFrame() 
 {
@@ -17,6 +19,7 @@ getNextFrame()
   return available_frame;
 }
 
+// Return frame to page list. 
 int
 addFrame(int frame)
 {
@@ -24,7 +27,7 @@ addFrame(int frame)
     TracePrintf(1, "Trying to add frame to full frame list, addFrame\n");
     return ERROR;
   }
-
+  // Move back pointer.
   frame_list = frame_list-1;
   frame_list[0] = frame;
   number_of_frames++;
