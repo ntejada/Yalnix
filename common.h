@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "./include/hardware.h"
+#include "./include/yalnix.h"
 #define SUCCESS 0
 #define ERROR (-1) 
+
+
 
 /*******************
  * QUEUE/STACK
  ***********************/
 
-// Cvar, Lock, Ready, 
+// Cvar, Lock, Ready
 typedef struct {
-	void * head;
-	void * tail;
+	Node * head;
+	Node * tail;
 } Queue;
 
 // Child processes.
@@ -31,7 +34,7 @@ typedef struct {
   UserContext *user_context;
   KernelContext *kernel_context;
 
-  //	pte * ptable_bp;
+        struct pte * ptable_bp;
 	int ptable_limit;
   Stack *child_queue;
   // Page Table
@@ -46,32 +49,34 @@ typedef struct {
  * SYNCHRONIZATION PRIMITIVES
  **********************/
 
+// Generalized node to be used by cvars, locks, pipes, and ready queues / child stacks
+typedef struct {
+  struct Node *next;
+  PCB *pcb;
+  int lock_id; 
+} Node;
 
 typedef struct {
-  struct Cvar_Node *next;
-  PCB *pcb;
-  struct Lock *lock;
-} Cvar_Node;
-
-typedef struct {
-  struct Lock_Node *next;
-  PCB *pcb;
-} Lock_Node;
+  Queue *cvar_queue;
+  int cvar_id;
+} C_Var;
 
 typedef struct {
   unsigned int state;
   Queue *lock_queue;
-  PCB *pcb;
+  PCB *pcb; // Pointer to PCB that holds lock. Only valid if state == 1;
+  int identifier;
 } Lock;
 
 typedef struct {
   char *buffer;
   int length_buffer;
   int identifier;
+  Queue *pipe_queue;
 } Pipe;
 
 // Prototypes
-Cvar_Node *createCvarNode(PCB *, Lock *);
+Node *createNode(PCB *, int);
 Queue *InitQueue();
 int isQueueEmpty(Queue *);
 int enqueue(Queue *, void *);

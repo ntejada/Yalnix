@@ -2,19 +2,23 @@
 
 
 // Create generic cvar node.
-Cvar_Node *createCvarNode(PCB *pcb,  Lock *lock_t) {
-  Cvar_Node *cv = malloc(sizeof(Cvar_Node));
+Node *createNode(PCB *pcb,  int lock_id) {
+  Node *node = malloc(sizeof(Node));
   
   if (cv == NULL) {
-    TracePrintf(1, "Malloc Error, createCvarNode\n");
+    TracePrintf(1, "Malloc Error, createNode\n");
     return NULL;
   }
 
-  memset(cv, 0, sizeof(Cvar_Node));
-  cv->pcb = pcb;
-  cv->lock = lock_t;
+  memset(node, 0, sizeof(Node));
+  node->pcb = pcb;
+  // If initialized with -1, then not a lock node.
+  if (-1 == lock_id)
+    node->lock_id = lock_id;
 
-  return cv;
+  // Otherwise, check if lock even exists. 
+
+  return node;
 }
 
 
@@ -52,7 +56,7 @@ int isQueueEmpty(Queue *q_t) {
 
 
 
-int enqueue(Queue *q_t, void *node) {
+int enqueue(Queue *q_t, Node *node) {
   if (q_t == NULL || node == NULL) { 
     TracePrintf(1, "Arguments NULL, enqueue\n");
     return ERROR;
@@ -87,7 +91,7 @@ void *dequeue(Queue *q_t) {
   }
 
   
-  void *node = q_t->head;
+  Node *node = q_t->head;
   if (q_t->head->next == NULL) { // One element left in queue.
     q_t->head = NULL;
     q_t->tail = NULL;
@@ -119,14 +123,14 @@ int dequeueALL(Queue *q_t) {
   }
 
 
-  Cvar_Node *node = (Cvar_Node *) q_t->head;
-  Cvar_Node *temp;
+  Node *node = q_t->head;
+  Node *temp;
   while (node != NULL) {
     temp = node;
     node = node->next;
     temp->next = NULL;
 
-    Queue *lock_q_t = node->lock->lock_queue;
+    Queue *lock_q_t = getLock(node->lock_id); // Need to create function to find lock with corresponding lock id
     if (lock_q_t == NULL) {
       TracePrintf(1, "No Lock Queue Initialized, dequeueAll\n");
       return ERROR;
@@ -174,7 +178,7 @@ int isStackEmpty(Stack *s_t) {
 
 
 
-int push(Stack *s_t, void *node) {
+int push(Stack *s_t, Node *node) {
   if (s_t == NULL || node == NULL) {
     TracePrintf(1, "Arguments NULL, push\n");
     return ERROR;
@@ -208,7 +212,7 @@ void *pop(Stack *s_t) {
     return NULL;
   }
 
-  void *node = s_t->head;
+  Node *node = s_t->head;
 
   s_t->head = s_t->head->next;
 
