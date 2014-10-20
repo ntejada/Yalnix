@@ -139,7 +139,6 @@ LoadProgram(char *name, char *args[], PCB* proc)
 /*==>> Here you replace your data structure proc
 ==>> proc->context.sp = cp2;
 */
-
 proc->context.sp = cp2;
   /*
    * Now save the arguments in a separate buffer in region 0, since
@@ -147,11 +146,11 @@ proc->context.sp = cp2;
    */
   cp2 = argbuf = (char *)malloc(size);
 
+//==>> You should perhaps check that malloc returned valid space
 if(NULL == cp2){
 	TracePrintf(1, "malloc error in loadProg");
 	return;
 }
-//==>> You should perhaps check that malloc returned valid space
 
   for (i = 0; args[i] != NULL; i++) {
     TracePrintf(3, "saving arg %d = '%s'\n", i, args[i]);
@@ -177,38 +176,54 @@ if(NULL == cp2){
 ==>> deallocate a few pages to fit the size of memory to the requirements
 ==>> of the new process.
 */
-	i = 0;
 	pte * pte = proc->ptable_bp;
-	for(i; i<proc->ptable_limit; i++) {
+	for(i=0; i<proc->ptable_limit; i++) {
 		pte[i].valid = 0;
 		addFrame(pte[i].pfn);
 		pte[i].prot = PROT_NONE;
 	}
 	
-
-
 /*==>> Allocate "li.t_npg" physical pages and map them starting at
 ==>> the "text_pg1" page in region 1 address space.  
 ==>> These pages should be marked valid, with a protection of 
 ==>> (PROT_READ | PROT_WRITE).
 */
+	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
+		pte[i].valid = 1;
+		pte[i].pfn = getFrame();
+		pte[i].prot = (PROT_READ | PROT_WRITE);	
+	}
 
-==>> Allocate "data_npg" physical pages and map them starting at
+
+/*==>> Allocate "data_npg" physical pages and map them starting at
 ==>> the  "data_pg1" in region 1 address space.  
 ==>> These pages should be marked valid, with a protection of 
-==>> (PROT_READ | PROT_WRITE).
+==>> (PROT_READ | PROT_WRITE).*/
+
+	for(i = data_pg1; i<data_npg; i++) {
+		pte[i].valid = 1;
+		pte[i].pfn = getFrame();
+		pte[i].prot = (PROT_READ | PROT_WRITE);
+	}
   /*
    * Allocate memory for the user stack too.
    */
-==>> Allocate "stack_npg" physical pages and map them to the top
+/*==>> Allocate "stack_npg" physical pages and map them to the top
 ==>> of the region 1 virtual address space.
 ==>> These pages should be marked valid, with a
 ==>> protection of (PROT_READ | PROT_WRITE).
-
+*/
+	for(i = ((DOWN_TO_PAGE(cp2))>>PAGESHIFT); i<(VMEM_1_LIMIT>>PAGESHIFT); i++){
+		pte[i].valid = 1;
+		pte[i].pfn = getFrame();
+		pte[i].prot = (PROT_READ | PROT_WRITE);
+	}
   /*
    * All pages for the new address space are now in the page table.  
    * But they are not yet in the TLB, remember!
    */
+
+
   /*
    * Read the text from the file into memory.
    */
@@ -216,9 +231,9 @@ if(NULL == cp2){
   segment_size = li.t_npg << PAGESHIFT;
   if (read(fd, (void *) li.t_vaddr, segment_size) != segment_size) {
     close(fd);
-==>> KILL is not defined anywhere: it is an error code distinct
+/*==>> KILL is not defined anywhere: it is an error code distinct
 ==>> from ERROR because it requires different action in the caller.
-==>> Since this error code is internal to your kernel, you get to define it.
+==>> Since this error code is internal to your kernel, you get to define it.*/
     return KILL;
   }
   /*
@@ -237,7 +252,7 @@ if(NULL == cp2){
    * and executable, but not writable.
    */
 
-==>> Change the protection on the "li.t_npg" pages starting at
+/*==>> Change the protection on the "li.t_npg" pages starting at
 ==>> virtual address VMEM_1_BASE + (text_pg1 << PAGESHIFT).  Note
 ==>> that these pages will have indices starting at text_pg1 in 
 ==>> the page table for region 1.
@@ -246,6 +261,12 @@ if(NULL == cp2){
 ==>> invalidate their entries in the TLB or write the updated entries
 ==>> into the TLB.  It's nice for the TLB and the page tables to remain
 ==>> consistent.
+*/
+	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
+		pte[i].prot = (PROT_READ | PROT_EXEC);	
+	}
+	//flush the TLB
+
 
   close(fd);			/* we've read it all now */
 
@@ -257,9 +278,10 @@ if(NULL == cp2){
   /*
    * Set the entry point in the exception frame.
    */
-==>> Here you should put your data structure (PCB or process)
+/*==>> Here you should put your data structure (PCB or process)
 ==>>  proc->context.pc = (caddr_t) li.entry;
-
+*/
+	proc->context.pc = (caddr_t) li.entry;
   /*
    * Now, finally, build the argument list on the new stack.
    */
