@@ -22,19 +22,19 @@ ALL = $(KERNEL_ALL) $(USER_APPS)
 KERNEL_ALL = yalnix
 
 #List all kernel source files here.  
-KERNEL_SRCS =  ./kernelInit.c ./pageMan.c ./trapHandlers.c ./kernelCalls.c #./common.h 
+KERNEL_SRCS =  ./kernelInit.c ./pageMan.c ./trapHandlers.c ./kernelCalls.c ./common.c ./loadProg.c 
 #List the objects to be formed form the kernel source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
 KERNEL_OBJS = $(KERNEL_SRCS:.c=.o)
 #List all of the header files necessary for your kernel
-KERNEL_INCS = ./pageMan.h ./include/hardware.h ./include/yalnix.h ./trapHandlers.h #./common.h
+KERNEL_INCS = ./pageMan.h ./include/hardware.h ./include/yalnix.h ./trapHandlers.h ./common.h
 
 
 #List all user programs here.
-USER_APPS = 
+USER_APPS = ./initIdle 
 #List all user program source files here.  SHould be the same as the previous list, with ".c" added to each file
-USER_SRCS = 
+USER_SRCS = ./initIdle.c
 #List the objects to be formed form the user  source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
-USER_OBJS = 
+USER_OBJS = ./initIdle.o
 #List all of the header files necessary for your user programs
 USER_INCS = 
 

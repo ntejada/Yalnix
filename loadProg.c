@@ -9,7 +9,7 @@
 #include <load_info.h>
 //==>> #include anything you need for your kernel here
 #include "common.h"
-
+#include "./include/hardware.h"
 /*
  *  Load a program into an existing address space.  The program comes from
  *  the Linux file named "name", and its arguments come from the array at
@@ -139,7 +139,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
 /*==>> Here you replace your data structure proc
 ==>> proc->context.sp = cp2;
 */
-proc->context.sp = cp2;
+proc->user_context.sp = cp2;
   /*
    * Now save the arguments in a separate buffer in region 0, since
    * we are about to blow away all of region 1.
@@ -266,7 +266,7 @@ if(NULL == cp2){
 		pte[i].prot = (PROT_READ | PROT_EXEC);	
 	}
 	//flush the TLB
-
+	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
   close(fd);			/* we've read it all now */
 
@@ -281,7 +281,7 @@ if(NULL == cp2){
 /*==>> Here you should put your data structure (PCB or process)
 ==>>  proc->context.pc = (caddr_t) li.entry;
 */
-	proc->context.pc = (caddr_t) li.entry;
+	proc->context.pc = (void *) li.entry;
   /*
    * Now, finally, build the argument list on the new stack.
    */
