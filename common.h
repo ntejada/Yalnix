@@ -9,6 +9,17 @@
 /*******************
  * QUEUE/STACK
  ***********************/
+typedef struct PCB PCB;
+
+typedef struct Node Node;
+
+// Generalized node to be used by cvars, locks, pipes, and ready queues / child stacks
+struct Node{
+  Node *next;
+  PCB *pcb;
+  int lock_id; 
+};
+
 
 // Cvar, Lock, Ready
 typedef struct {
@@ -24,7 +35,8 @@ typedef struct {
 /*********************
  *  PCB
  **********************/
-typedef struct {
+
+struct PCB{
   unsigned int state;
   unsigned int exit_state;
   unsigned int pid;
@@ -37,7 +49,7 @@ typedef struct {
 	int ptable_limit;
   Stack *child_queue;
   // Page Table
-} PCB;
+};
 
 typedef struct {
   unsigned int exit_status;
@@ -47,13 +59,6 @@ typedef struct {
 /**********************
  * SYNCHRONIZATION PRIMITIVES
  **********************/
-
-// Generalized node to be used by cvars, locks, pipes, and ready queues / child stacks
-typedef struct {
-  struct Node *next;
-  PCB *pcb;
-  int lock_id; 
-} Node;
 
 typedef struct {
   Queue *cvar_queue;
@@ -78,12 +83,12 @@ typedef struct {
 Node *createNode(PCB *, int);
 Queue *InitQueue();
 int isQueueEmpty(Queue *);
-int enqueue(Queue *, void *);
+int enqueue(Queue *, Node *);
 void *dequeue(Queue *);
 int dequeueAll(Queue *);
 
 Stack *initStack();
 int isStackEmpty(Stack *);
-int push(Stack *, void *);
+int push(Stack *, Node *);
 void *pop(Stack *);	
 

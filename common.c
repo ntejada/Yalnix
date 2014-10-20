@@ -5,7 +5,7 @@
 Node *createNode(PCB *pcb,  int lock_id) {
   Node *node = malloc(sizeof(Node));
   
-  if (cv == NULL) {
+  if (node == NULL) {
     TracePrintf(1, "Malloc Error, createNode\n");
     return NULL;
   }
@@ -106,7 +106,7 @@ void *dequeue(Queue *q_t) {
 
 // Used for Broadcast
 // Will place each Cvar_Node onto corresponding lock queue after being dequeued from cvar queue
-int dequeueALL(Queue *q_t) {
+/*int dequeueALL(Queue *q_t) {
   
   if (q_t == NULL) {
     TracePrintf(1, "NULL Queue input, dequeueAll\n");
@@ -142,7 +142,7 @@ int dequeueALL(Queue *q_t) {
     }
   }
   return SUCCESS;
-}
+}*/
     
     
 /**********************************
@@ -201,7 +201,7 @@ int push(Stack *s_t, Node *node) {
 }
 
 
-void *pop(Stack *s_t) {
+/*void *pop(Stack *s_t) {
 
   int rc = isStackEmpty(s_t);
   if (ERROR == rc) {
@@ -218,7 +218,7 @@ void *pop(Stack *s_t) {
 
   node->next = NULL;
   return node;
-}
+}*/
 
 
 

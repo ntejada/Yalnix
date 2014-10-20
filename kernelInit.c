@@ -47,7 +47,7 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	WriteRegister(REG_VM_ENABLE, 1);
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 	vmem_on = 1;
-
+		
 	return;
 }
 
