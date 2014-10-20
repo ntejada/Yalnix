@@ -5,11 +5,12 @@ KernelContext *MyKCS(KernelContext *kc_in, void *curr_pcb_p, void *next_pcb_p)
 {
   if (curr_pcb_p == next_pcb_p) {
     TracePrintf(1, "MyKCS called without switching processes. Will now return current KernelContext\n");
+    curr_pcb_p->kernel_context = *kc_in;
     return kc_in;
   }
   TracePrintf("MyKCS called. Will switch processes and reassign page table entries\n");
 
-  curr_pcb_p->KernelContext = kc_in;
+  curr_pcb_p->kernel_context = *kc_in;
 
   // Change kernel stack entries
   // Index into PCB-stack location dictionary
@@ -20,6 +21,6 @@ KernelContext *MyKCS(KernelContext *kc_in, void *curr_pcb_p, void *next_pcb_p)
 
   WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
-  return next_pcb_p->KernelContext;
+  return &(next_pcb_p->kernel_context);
 
 }

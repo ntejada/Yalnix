@@ -25,15 +25,12 @@ int *frame_list;
 int *frame_list_bp;
 int number_of_frames;
 
-
-
-
+Queue *ready_queue;
 
 /*******************
  * QUEUE/STACK
  ***********************/
 typedef struct PCB PCB;
-
 typedef struct Node Node;
 
 
@@ -47,6 +44,10 @@ typedef struct {
 typedef struct {
   Node * head;
 } Stack;
+
+// Delay blocked queue
+// Instantiate new structure since will be handling different nodes 
+
 
 /*********************
  *  PCB
@@ -64,9 +65,6 @@ struct PCB{
   struct pte * ptable_bp;
   int ptable_limit;
 
-  struct pte *kernel_stack_1;
-  struct pte *kernel_stack_2;
-
   Stack *child_queue;
   // Page Table
 };
@@ -76,22 +74,39 @@ typedef struct {
   unsigned int pid;
 } Z_CB; // Zombie Control Block
 
+
+struct Node {
+  Node *next;
+  void *data; // Void pointer to different nodes
+} Node;
+
+typedef struct {
+  int pid;
+  int clock_count;
+} DelayData;
+
+typedef struct {
+  int pid;
+  int lock_id;
+} CvarData;
+
+typedef struct {
+  int pid;
+} PidData;
+
+
 /**********************
  * SYNCHRONIZATION PRIMITIVES
  **********************/
 
-struct Node {
-  Node *next;
-  (void *) pcb;
-  int lock_id; 
-} Node;
-
-
+// C_Var
 typedef struct {
   Queue *cvar_queue;
   int cvar_id;
 } C_Var;
 
+
+// Lock
 typedef struct {
   unsigned int state;
   Queue *lock_queue;
@@ -99,6 +114,7 @@ typedef struct {
   int identifier;
 } Lock;
 
+// Pipe
 typedef struct {
   char *buffer;
   int length_buffer;
