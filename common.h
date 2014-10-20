@@ -19,7 +19,7 @@ typedef struct {
 
 // Child processes.
 typedef struct {
-  void * head;
+  Node * head;
 } Stack;
 
 /*********************
