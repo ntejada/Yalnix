@@ -221,4 +221,18 @@ int push(Stack *s_t, Node *node) {
 }*/
 
 
+/***********************
+ * PROCESS FUNCTIONS
+ * *********************/
 
+void PCB_Init(*PCB newPcb) {
+	newPcb->state = NEW_PCB;
+	newPcb->exit_state = NEW_PCB;
+	newPcb->pid = NEW_PCB;
+	newPcb->ppid = NEW_PCB;
+	
+	newPcb->user_context = NULL;
+	newPcb->kernel_context = NULL;
+	newPcb->ptable_limit = NEW_PCB;
+	newPcb->child_queue = NULL;		
+}

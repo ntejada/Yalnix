@@ -1,5 +1,6 @@
 
 
+pte reg_zero_table[MAX_PT_LEN];
 
 int addFrame(int);
 int getNextFrame();

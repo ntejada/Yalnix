@@ -6,10 +6,15 @@
 #define ERROR (-1) 
 #define KILL 42
 
+//PCB MACROS
+#define NEW_PCB (-2)
+
+
 /**********************
  * GLOBALS 
  **********************/
 
+typedef struct PCB PCB;
 int (*vector_table[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
 
 int vmem_on = 0;
@@ -32,7 +37,6 @@ int number_of_frames;
 /*******************
  * QUEUE/STACK
  ***********************/
-typedef struct PCB PCB;
 
 typedef struct Node Node;
 
@@ -58,14 +62,11 @@ struct PCB{
   unsigned int pid;
   unsigned int ppid;
   
-  UserContext *user_context;
-  KernelContext *kernel_context;
+  UserContext user_context;
+  KernelContext kernel_context;
 
-  struct pte * ptable_bp;
+  pte reg_one_table[MAX_PT_LEN];
   int ptable_limit;
-
-  struct pte *kernel_stack_1;
-  struct pte *kernel_stack_2;
 
   Stack *child_queue;
   // Page Table

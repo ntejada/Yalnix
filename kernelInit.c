@@ -28,6 +28,8 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	
 	vectorTableInit();
 	availableFramesListInit(pmem_size);
+	PCB idlePCB;
+	PCB_Init(idlePCB);
 	pageTableInit();
 
 	// Cook things so idle process will begin running after return to userland.
@@ -135,13 +137,13 @@ pageTableInit()
 {
 	//Region zero page table
         unsigned int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
-	reg_zero_table = (struct pte*)malloc(sizeof(struct pte)*reg_zero_limit);
+	//reg_zero_table = (struct pte*)malloc(sizeof(struct pte)*reg_zero_limit);
 	//malloc check
-	if (reg_zero_table == NULL) {
+	/*if (reg_zero_table == NULL) {
 		TracePrintf(1, "Malloc error, pageTableInit\n");
 		return;
 	}
-
+*/
 	int i;
 	for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++){
 		if (i < DOWN_TO_PAGE(kernel_extent)>>PAGESHIFT || i >= KERNEL_STACK_BASE>>PAGESHIFT) {
@@ -158,7 +160,7 @@ pageTableInit()
 			}
 			reg_zero_table[i].pfn = i;
 		}
-		//invalid pages in between kernel stack and heap
+		//invalid pages in between kernel stack and heap		else {
 		else {
 			reg_zero_table[i].valid = 0;
 			reg_zero_table[i].prot = PROT_NONE;
@@ -171,12 +173,13 @@ pageTableInit()
 	
 	//region one page table
 	unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
-	reg_one_table = (struct pte*)malloc(sizeof(struct pte)*reg_one_limit);
+	//reg_one_table = (struct pte*)malloc(sizeof(struct pte)*reg_one_limit);
 	//malloc check
-	if (reg_one_table == NULL) {
+	/*if (reg_one_table == NULL) {
 		TracePrintf(1, "Malloc error, pageTableInit\n");
 		return;		
-	}
+	}*/
+	pte * reg_one_table = idlePCB.reg_one_table;
 	
 
 	// Map invalid pages in Region 1.	
@@ -192,7 +195,7 @@ pageTableInit()
 	    TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
 	  }
 	}
-	WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	WriteRegister(REG_PTLR1, reg_zero_limit);
+	WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	WriteRegister(REG_PTLR1, reg_one_limit);
 }
 
 void
