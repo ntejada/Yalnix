@@ -21,8 +21,9 @@ Wait(int *status_ptr) {
 }
 
 int
-GetPid(void) {
-
+GetPid(void) 
+{
+  return current_process->pid;
 }
 
 int

@@ -6,6 +6,29 @@
 #define ERROR (-1) 
 #define KILL 42
 
+/**********************
+ * GLOBALS 
+ **********************/
+
+int (*vector_table[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
+
+int vmem_on = 0;
+void *kernel_extent;
+void *kernel_data_start;
+
+PCB *current_process;
+
+struct *pte reg_zero_table;
+struct *pte reg_one_table;
+
+int *frame_list;
+int *frame_list_bp;
+int number_of_frames;
+
+
+
+
+
 /*******************
  * QUEUE/STACK
  ***********************/
@@ -33,8 +56,12 @@ typedef struct {
   UserContext *user_context;
   KernelContext *kernel_context;
 
-        struct pte * ptable_bp;
-	int ptable_limit;
+  struct pte * ptable_bp;
+  int ptable_limit;
+
+  struct pte *kernel_stack_1;
+  struct pte *kernel_stack_2;
+
   Stack *child_queue;
   // Page Table
 } PCB;
@@ -51,7 +78,7 @@ typedef struct {
 // Generalized node to be used by cvars, locks, pipes, and ready queues / child stacks
 typedef struct {
   struct Node *next;
-  PCB *pcb;
+  (void *) pcb;
   int lock_id; 
 } Node;
 
@@ -63,7 +90,7 @@ typedef struct {
 typedef struct {
   unsigned int state;
   Queue *lock_queue;
-  PCB *pcb; // Pointer to PCB that holds lock. Only valid if state == 1;
+  (void *) pcb; // Pointer to PCB that holds lock. Only valid if state == 1;
   int identifier;
 } Lock;
 
