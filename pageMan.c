@@ -29,7 +29,7 @@ addFrame(int frame)
   }
   // Move back pointer.
   frame_list = frame_list-1;
-  frame_list[0] = frame;
+  frame_list[frame_list] = frame;
   number_of_frames++;
 
   return SUCCESS;
