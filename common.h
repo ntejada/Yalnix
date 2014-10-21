@@ -1,3 +1,5 @@
+#ifndef _common_h
+#define _common_h
 #include <stdio.h>
 #include <stdlib.h>
 #include "./include/hardware.h"
@@ -14,6 +16,7 @@
  * GLOBALS 
  **********************/
 
+int pidCount;
 typedef struct Queue Queue;
 typedef struct PCB PCB;
 int (*vector_table[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
@@ -23,6 +26,7 @@ void *kernel_data_start;
 
 PCB *current_process;
 
+//base pointer to region zero page table
 struct pte pZeroTable[MAX_PT_LEN];
 struct pte *pOneTable;
 
@@ -139,4 +143,4 @@ Stack *initStack();
 int isStackEmpty(Stack *);
 int push(Stack *, Node *);
 void *pop(Stack *);	
-
+#endif

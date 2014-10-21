@@ -9,7 +9,7 @@
 
 typedef struct _MapData MapData;
 
-MapData *hash_table[HASH_SIZE];
+MapData *kernel_stack_table[HASH_SIZE];
 
 
 
@@ -25,8 +25,8 @@ int hash(int);
 MapData *accessMap(int);
 int insertMap(MapData *);
 int removeFromMap(int);
-MapData *createMapData(int, void *, void*);
-
+MapData *createMapData(int, void *, void *);
+int addToMap(int, void *, void *);
 #endif 
 
 

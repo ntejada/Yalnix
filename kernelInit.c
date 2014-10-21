@@ -26,23 +26,34 @@ void
 KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
-	
+	PCB dummyPCB;	
 	vectorTableInit();
 	availableFramesListInit(pmem_size);
-	PCB idlePCB;
-	PCB_Init(&idlePCB);
-	pageTableInit(&idlePCB);
-	
+	PCB_Init(&dummyPCB);
+	pageTableInit(&dummyPCB);
+		
 	// Cook things so idle process will begin running after return to userland.
 	uctxt->pc = DoIdle;
 	uctxt->sp = (void *)(VMEM_LIMIT-4);
-	idlePCB.user_context = *uctxt;
 	// Enable virtual memory.
 	WriteRegister(REG_VM_ENABLE, 1);
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 	vmem_on = 1;
-	TracePrintf(1, "PCB address: %p\n", &idlePCB);	
-	TracePrintf(1, "sp: %p\n", uctxt->sp);
+	//create map of pids to stack pfns
+	PCB idlePCB;
+	idlePCB.user_context = *uctxt;
+	pidCount = 0;
+	idlePCB.pid = pidCount++;
+
+	hashInit(kernel_stack_table);
+	addToMap(idlePCB.pid, pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT], pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1]);
+	
+	KernelContextSwitch(MyKCS, (void *) idlePCB.pid, (void *) pidCount);
+	
+	addToMap(pidCount, PZeroTable[		
+	TracePrintf(1, "kernel stack base: %p\n", KERNEL_STACK_BASE);	
+	TracePrintf(1, "pcb address: %p\n", &idlePCB);
+	
 	return;
 }
 

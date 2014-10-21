@@ -27,10 +27,10 @@ accessMap(int pid)
   int hashval = hash(pid);
   int index = hashval % HASH_SIZE;
   printf("past index\n");
-  MapData *md = hash_table[index];
+  MapData *md = kernel_stack_table[index];
   printf("%p\n", md);
   if (NULL == md) {
-    printf("MapData Node not found in accessNode\n");
+    TracePrintf(1, "MapData Node not found in accessNode\n");
     return md;
   }
 
@@ -38,7 +38,7 @@ accessMap(int pid)
     md = md->next;
 
   if (NULL == md)
-    printf("MapData Node not found in accessNode\n");
+    TracePrintf(1, "MapData Node not found in accessNode\n");
   return md;
 }
 
@@ -50,10 +50,10 @@ insertMap(MapData *md)
   int hashval = hash(md->pid);
   int index = hashval % HASH_SIZE;
 
-  MapData *temp_md = hash_table[index];
+  MapData *temp_md = kernel_stack_table[index];
 
   if (NULL == temp_md)
-    hash_table[index] = md;
+    kernel_stack_table[index] = md;
   else {
     while(temp_md->next != NULL)
       temp_md = temp_md->next;
@@ -71,11 +71,11 @@ removeFromMap(int pid)
   int hashval = hash(pid);
   int index = hashval % HASH_SIZE;
 
-  MapData *md = hash_table[index];
+  MapData *md = kernel_stack_table[index];
   if (NULL == md) 
     return ERROR;
   else if (md->pid == pid)
-    hash_table[index] = md->next;
+    kernel_stack_table[index] = md->next;
   else {
     while (md->next != NULL && md->next->pid != pid)
       md = md->next;
@@ -96,7 +96,7 @@ createMapData(int pid, void *kernelsp_1, void *kernelsp_2)
 
   MapData *mp = malloc(sizeof(MapData));
   if (NULL == mp) {
-    printf("Malloc error\n");
+    TracePrintf(1, "Malloc error, createMapData\n");
     return NULL;
   }
 

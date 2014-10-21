@@ -4,28 +4,21 @@
 
 extern unsigned int pidCount;
 
-KernelContext *MyKCS(KernelContext *kc_in, void *curr_pid, void *next_pid) 
+KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pid, void *p_next_pid) 
 {
   if (curr_pcb_p == next_pcb_p) {
+	
+	
     TracePrintf(1, "MyKCS called without switching processes. Will now return current KernelContext\n");
     curr_pcb_p->kernel_context = *kc_in;
     return kc_in;
   }
   TracePrintf(1, "MyKCS called. Will switch processes and reassign page table entries\n");
 
-  curr_pcb_p->kernel_context = *kc_in;
+	int curr_pid = (int) p_curr_pid;
+	int next_pid = (int) p_next_pid;
 
-  // Change kernel stack entries
-  // Index into PCB-stack location dictionary
-  reg_zero_table[(KERNEL_STACK_BASE>>PAGESIZE)] = next_pcb_p->kernel_stack_1;
-  reg_zero_table[(KERNEL_STACK_BASE>>PAGESIZE)+1] = next_pcb_p->kernel_stack_2;
-	     		 
-  reg_one_table = next_pcb_p->ptable_bp; // Reassign Region 1 page table
-
-  WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
-
-  return &(next_pcb_p->kernel_context);
-
+	pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT] = getNextFrame(); pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1]= getNextFrame();
 }
 
 KernelContext *CreateProcess(KernelContext *kc_in, void *curr_pid, void *next_pid)
