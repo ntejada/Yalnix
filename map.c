@@ -1,8 +1,5 @@
 #include "./map.h"
 
-#define ERROR -1
-#define SUCCESS 0
-
 int
 hashInit(MapData **hash_table)
 {
@@ -37,7 +34,7 @@ accessMap(int pid)
     return md;
   }
 
-  while (md->pid != pid && md != NULL)
+  while (md != NULL && md->pid != pid)
     md = md->next;
 
   if (NULL == md)
@@ -80,7 +77,7 @@ removeFromMap(int pid)
   else if (md->pid == pid)
     hash_table[index] = md->next;
   else {
-    while (md->next->pid != pid || md->next != NULL)
+    while (md->next != NULL && md->next->pid != pid)
       md = md->next;
     
     if (NULL == md->next)
@@ -113,28 +110,6 @@ createMapData(int pid, void *kernelsp_1, void *kernelsp_2)
 }
 
 
-int 
-main()
-{
 
-  hashInit(hash_table);
-
-  int *h;
-  int *j;
-  printf("creating mapdata\n");
-  MapData *mp1 = createMapData(42, h, j);
-  
-  printf("putting into map\n");
-  insertMap(mp1);
-
-  printf("accessing map\n");
-  MapData *new = accessMap(42);
-  printf("pid = %d\n", new->pid);
-  printf("accessing bad pid\n");
-  MapData *bad = accessMap(4);
-
-
-  return 1;
-}
 
 
