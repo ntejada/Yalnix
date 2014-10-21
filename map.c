@@ -30,7 +30,7 @@ accessMap(int pid)
   MapData *md = kernel_stack_table[index];
   printf("%p\n", md);
   if (NULL == md) {
-    printf("MapData Node not found in accessNode\n");
+    TracePrintf(1, "MapData Node not found in accessNode\n");
     return md;
   }
 
@@ -38,7 +38,7 @@ accessMap(int pid)
     md = md->next;
 
   if (NULL == md)
-    printf("MapData Node not found in accessNode\n");
+    TracePrintf(1, "MapData Node not found in accessNode\n");
   return md;
 }
 
@@ -96,7 +96,7 @@ createMapData(int pid, void *kernelsp_1, void *kernelsp_2)
 
   MapData *mp = malloc(sizeof(MapData));
   if (NULL == mp) {
-    printf("Malloc error\n");
+    TracePrintf(1, "Malloc error, createMapData\n");
     return NULL;
   }
 
