@@ -23,7 +23,7 @@ Wait(int *status_ptr) {
 int
 GetPid(void) 
 {
-  return current_process->pid;
+//  return current_process->pid;
 }
 
 int

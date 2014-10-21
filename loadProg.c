@@ -10,6 +10,7 @@
 //==>> #include anything you need for your kernel here
 #include "common.h"
 #include "./include/hardware.h"
+#include "pageMan.h"
 /*
  *  Load a program into an existing address space.  The program comes from
  *  the Linux file named "name", and its arguments come from the array at
@@ -176,11 +177,11 @@ if(NULL == cp2){
 ==>> deallocate a few pages to fit the size of memory to the requirements
 ==>> of the new process.
 */
-	pte * pte = proc->ptable_bp;
+	struct pte * ptable = proc->reg_one_table;
 	for(i=0; i<proc->ptable_limit; i++) {
-		pte[i].valid = 0;
-		addFrame(pte[i].pfn);
-		pte[i].prot = PROT_NONE;
+		ptable[i].valid = 0;
+		addFrame(ptable[i].pfn);
+		ptable[i].prot = PROT_NONE;
 	}
 	
 /*==>> Allocate "li.t_npg" physical pages and map them starting at
@@ -189,9 +190,9 @@ if(NULL == cp2){
 ==>> (PROT_READ | PROT_WRITE).
 */
 	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
-		pte[i].valid = 1;
-		pte[i].pfn = getFrame();
-		pte[i].prot = (PROT_READ | PROT_WRITE);	
+		ptable[i].valid = 1;
+		ptable[i].pfn = getNextFrame();
+		ptable[i].prot = (PROT_READ | PROT_WRITE);	
 	}
 
 
@@ -201,9 +202,9 @@ if(NULL == cp2){
 ==>> (PROT_READ | PROT_WRITE).*/
 
 	for(i = data_pg1; i<data_npg; i++) {
-		pte[i].valid = 1;
-		pte[i].pfn = getFrame();
-		pte[i].prot = (PROT_READ | PROT_WRITE);
+		ptable[i].valid = 1;
+		ptable[i].pfn = getNextFrame();
+		ptable[i].prot = (PROT_READ | PROT_WRITE);
 	}
   /*
    * Allocate memory for the user stack too.
@@ -214,9 +215,9 @@ if(NULL == cp2){
 ==>> protection of (PROT_READ | PROT_WRITE).
 */
 	for(i = ((DOWN_TO_PAGE(cp2))>>PAGESHIFT); i<(VMEM_1_LIMIT>>PAGESHIFT); i++){
-		pte[i].valid = 1;
-		pte[i].pfn = getFrame();
-		pte[i].prot = (PROT_READ | PROT_WRITE);
+		ptable[i].valid = 1;
+		ptable[i].pfn = getNextFrame();
+		ptable[i].prot = (PROT_READ | PROT_WRITE);
 	}
   /*
    * All pages for the new address space are now in the page table.  
@@ -263,7 +264,7 @@ if(NULL == cp2){
 ==>> consistent.
 */
 	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
-		pte[i].prot = (PROT_READ | PROT_EXEC);	
+		ptable[i].prot = (PROT_READ | PROT_EXEC);	
 	}
 	//flush the TLB
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
@@ -281,7 +282,7 @@ if(NULL == cp2){
 /*==>> Here you should put your data structure (PCB or process)
 ==>>  proc->context.pc = (caddr_t) li.entry;
 */
-	proc->context.pc = (void *) li.entry;
+	proc->user_context.pc = (void *) li.entry;
   /*
    * Now, finally, build the argument list on the new stack.
    */

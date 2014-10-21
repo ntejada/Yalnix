@@ -2,7 +2,7 @@
 
 
 // Create generic cvar node.
-Node *createNode(PCB *pcb,  int lock_id) {
+/*Node *createNode(PCB *pcb,  int lock_id) {
   Node *node = malloc(sizeof(Node));
   
   if (node == NULL) {
@@ -19,7 +19,7 @@ Node *createNode(PCB *pcb,  int lock_id) {
   // Otherwise, check if lock even exists. 
 
   return node;
-}
+}*/
 
 
 /*******************************
@@ -225,14 +225,12 @@ int push(Stack *s_t, Node *node) {
  * PROCESS FUNCTIONS
  * *********************/
 
-void PCB_Init(*PCB newPcb) {
+void PCB_Init(PCB *newPcb) {
 	newPcb->state = NEW_PCB;
 	newPcb->exit_state = NEW_PCB;
 	newPcb->pid = NEW_PCB;
 	newPcb->ppid = NEW_PCB;
 	
-	newPcb->user_context = NULL;
-	newPcb->kernel_context = NULL;
 	newPcb->ptable_limit = NEW_PCB;
 	newPcb->child_queue = NULL;		
 }

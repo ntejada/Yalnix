@@ -14,25 +14,23 @@
  * GLOBALS 
  **********************/
 
+typedef struct Queue Queue;
 typedef struct PCB PCB;
 int (*vector_table[TRAP_VECTOR_SIZE]) (UserContext *uctxt);
 
-int vmem_on = 0;
 void *kernel_extent;
 void *kernel_data_start;
 
 PCB *current_process;
 
-struct *pte reg_zero_table;
-struct *pte reg_one_table;
+struct pte pZeroTable[MAX_PT_LEN];
+struct pte *pOneTable;
 
 int *frame_list;
 int *frame_list_bp;
 int number_of_frames;
 
-
-
-
+Queue *ready_queue;
 
 /*******************
  * QUEUE/STACK
@@ -42,15 +40,19 @@ typedef struct Node Node;
 
 
 // Cvar, Lock, Ready
-typedef struct {
+struct Queue{
 	Node * head;
 	Node * tail;
-} Queue;
+};
 
 // Child processes.
 typedef struct {
   Node * head;
 } Stack;
+
+// Delay blocked queue
+// Instantiate new structure since will be handling different nodes 
+
 
 /*********************
  *  PCB
@@ -65,7 +67,7 @@ struct PCB{
   UserContext user_context;
   KernelContext kernel_context;
 
-  pte reg_one_table[MAX_PT_LEN];
+  struct pte reg_one_table[MAX_PT_LEN];
   int ptable_limit;
 
   Stack *child_queue;
@@ -77,29 +79,47 @@ typedef struct {
   unsigned int pid;
 } Z_CB; // Zombie Control Block
 
+
+struct Node {
+  Node *next;
+  void *data; // Void pointer to different nodes
+};
+
+typedef struct {
+  int pid;
+  int clock_count;
+} DelayData;
+
+typedef struct {
+  int pid;
+  int lock_id;
+} CvarData;
+
+typedef struct {
+  int pid;
+} PidData;
+
+
 /**********************
  * SYNCHRONIZATION PRIMITIVES
  **********************/
 
-struct Node {
-  Node *next;
-  (void *) pcb;
-  int lock_id; 
-} Node;
-
-
+// C_Var
 typedef struct {
   Queue *cvar_queue;
   int cvar_id;
 } C_Var;
 
+
+// Lock
 typedef struct {
   unsigned int state;
   Queue *lock_queue;
-  (void *) pcb; // Pointer to PCB that holds lock. Only valid if state == 1;
+//  (void *) pcb; // Pointer to PCB that holds lock. Only valid if state == 1;
   int identifier;
 } Lock;
 
+// Pipe
 typedef struct {
   char *buffer;
   int length_buffer;

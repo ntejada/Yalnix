@@ -6,13 +6,14 @@
 
 /*********PROTOTYPES*********/
 int vectorTableInit();
-void pageTableInit();
+void pageTableInit(PCB* newPcb);
 void kernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt); //add UserContext *uctxt
 void DoIdle(void);
+void LoadProgramTest();
 void pageTableInit();
 void SetKernelData(void *_KernelDataStart, void *_KernelDataEnd);
 /***************************/
-
+int vmem_on = 0;
 
 void 
 SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
@@ -29,18 +30,19 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	vectorTableInit();
 	availableFramesListInit(pmem_size);
 	PCB idlePCB;
-	PCB_Init(idlePCB);
-	pageTableInit();
-
+	PCB_Init(&idlePCB);
+	pageTableInit(&idlePCB);
+	
 	// Cook things so idle process will begin running after return to userland.
 	uctxt->pc = DoIdle;
 	uctxt->sp = (void *)(VMEM_LIMIT-4);
-
+	idlePCB.user_context = *uctxt;
 	// Enable virtual memory.
 	WriteRegister(REG_VM_ENABLE, 1);
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 	vmem_on = 1;
-		
+	TracePrintf(1, "PCB address: %p\n", &idlePCB);	
+	TracePrintf(1, "sp: %p\n", uctxt->sp);
 	return;
 }
 
@@ -133,7 +135,7 @@ vectorTableInit()
 }
 
 void
-pageTableInit()
+pageTableInit(PCB * idlePCB)
 {
 	//Region zero page table
         unsigned int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
@@ -147,28 +149,28 @@ pageTableInit()
 	int i;
 	for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++){
 		if (i < DOWN_TO_PAGE(kernel_extent)>>PAGESHIFT || i >= KERNEL_STACK_BASE>>PAGESHIFT) {
-			reg_zero_table[i].valid = 1;
+			pZeroTable[i].valid = 1;
 			//kernel text protections
 			if (i < DOWN_TO_PAGE(kernel_data_start)>>PAGESHIFT) {
-				reg_zero_table[i].prot = (PROT_READ|PROT_EXEC);
+				pZeroTable[i].prot = (PROT_READ|PROT_EXEC);
 				TracePrintf(1, "==========Just created pte for page %d with read and exec rights\n", i);
 			}
 			//kernel heap and globals protections
 			else {
-				reg_zero_table[i].prot = (PROT_READ|PROT_WRITE);
+				pZeroTable[i].prot = (PROT_READ|PROT_WRITE);
 				TracePrintf(1, "==========Just created pte for page %d with read and write rights\n", i);	
 			}
-			reg_zero_table[i].pfn = i;
+			pZeroTable[i].pfn = i;
 		}
 		//invalid pages in between kernel stack and heap		else {
 		else {
-			reg_zero_table[i].valid = 0;
-			reg_zero_table[i].prot = PROT_NONE;
-			reg_zero_table[i];
+			pZeroTable[i].valid = 0;
+			pZeroTable[i].prot = PROT_NONE;
+			pZeroTable[i];
 			TracePrintf(1, "==========Just created pte for page %d. It is invalid and has no rights\n", i);
 		}
 	}
-	WriteRegister(REG_PTBR0, (unsigned int) reg_zero_table);
+	WriteRegister(REG_PTBR0, (unsigned int) pZeroTable);
 	WriteRegister(REG_PTLR0, reg_zero_limit);
 	
 	//region one page table
@@ -179,7 +181,7 @@ pageTableInit()
 		TracePrintf(1, "Malloc error, pageTableInit\n");
 		return;		
 	}*/
-	pte * reg_one_table = idlePCB.reg_one_table;
+	struct pte * reg_one_table = idlePCB->reg_one_table;
 	
 
 	// Map invalid pages in Region 1.	
@@ -207,5 +209,10 @@ DoIdle(void) {
   }
 }
 
+void 
+LoadProgramTest() {
+//	LoadProgram("./initIdle", NULL, p_pcb); 
+
+}
 
 

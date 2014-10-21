@@ -1,6 +1,6 @@
+#include "./hardware.h"
 
-
-pte reg_zero_table[MAX_PT_LEN];
+struct pte reg_zero_table[MAX_PT_LEN];
 
 int addFrame(int);
 int getNextFrame();
