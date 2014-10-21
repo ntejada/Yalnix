@@ -19,7 +19,9 @@ struct _List {
 
 List * listAllocate();
 List * listAppend(List *list, void *data);
+List * listAppendInPlace(List *list, void *data);
 List * listPrepend(List *list, void *data);
 List * listLast(List *list);
+List * listDelayUpdate(List *list);
 
 #endif /*!_list_h*/
