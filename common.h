@@ -58,7 +58,7 @@ typedef struct {
  *  PCB
  **********************/
 
-struct PCB{
+typedef struct {
   unsigned int state;
   unsigned int exit_state;
   unsigned int pid;
@@ -72,7 +72,7 @@ struct PCB{
 
   Stack *child_queue;
   // Page Table
-};
+} PCB;
 
 typedef struct {
   unsigned int exit_status;
