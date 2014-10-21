@@ -109,7 +109,17 @@ createMapData(int pid, void *kernelsp_1, void *kernelsp_2)
 
 }
 
-
+int
+addToMap(int pid, void *kernelsp_1, void *kernelsp_2)
+{
+	MapData* newPid = createMapData(pid, kernelsp_1, kernelsp_2);
+	if(newPid == NULL) {
+		TracePrintf(1, "Malloc error\n");
+		return ERROR;
+	}
+	insertMap(newPid);
+	return SUCCESS;
+}
 
 
 

@@ -3,7 +3,7 @@
 #include "trapHandlers.h"
 #include "common.h"
 #include "./include/hardware.h"
-
+#include "map.h"
 /*********PROTOTYPES*********/
 int vectorTableInit();
 void pageTableInit(PCB* newPcb);
