@@ -9,7 +9,7 @@
 
 typedef struct _MapData MapData;
 
-MapData *hash_table[HASH_SIZE];
+MapData *kernel_stack_table[HASH_SIZE];
 
 
 
