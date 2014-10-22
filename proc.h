@@ -25,7 +25,7 @@ struct pcb_t {
     PCB *parent;        /* Pointer to the parent's PCB */
 
     /* Process's page table */
-    struct pte *pageTable;
+    struct pte pageTable[MAX_PT_LIMIT];
     /* Kernel stack pages associated with this process */
     struct pte kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
 
@@ -34,8 +34,8 @@ struct pcb_t {
     Queue *deadChildren; /* List of zombie/defunct children */
 
     /* Processor state data */
-    UserContext context;
-    KernelContext kcontext;
+    UserContext user_context;
+    KernelContext kernel_context;
 };
 
 extern PCB *current;   /* Currently running process */
