@@ -27,11 +27,11 @@ void
 KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
-	PCB dummyPCB;	
+	PCB *idlePCB = (PCB*)malloc(sizeof(PCB));	
 	vectorTableInit();
 	availableFramesListInit(pmem_size);
-	PCB_Init(&dummyPCB);
-	pageTableInit(&dummyPCB);
+	PCB_Init(idlePCB);
+	pageTableInit(idlePCB);
 		
 	// Cook things so idle process will begin running after return to userland.
 	uctxt->pc = DoIdle;
@@ -45,7 +45,6 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	ready_queue = queueNew();
 
 	//create map of pids to stack pfns
-	PCB idlePCB;
 	idlePCB.user_context = *uctxt;
 	pidCount = 0;
 	idlePCB.pid = pidCount++;
