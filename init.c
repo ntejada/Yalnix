@@ -1,4 +1,4 @@
-#include "kernelInit.h"
+#include "init.h"
 
 void 
 SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
