@@ -12,15 +12,12 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 
     TracePrintf(1, "MyKCS called. Will switch processes and reassign page table entries\n");
 
-
     curr->kernel_context = *kc_in;
-    if (curr == next)
-      TracePrintf(1, "pointers are the same\n");
 
-    if(&(next->kernel_context) == NULL){
-      TracePrintf(1, "next given kernel context\n");
-      next->kernel_context = *kc_in;
-    } 
+    if (&(next->kernel_context) == NULL){
+		TracePrintf(1, "next given kernel context\n");
+		next->kernel_context = *kc_in;
+	} 
 
     pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn = next->kStackPages[0]; 
     pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn = next->kStackPages[1];

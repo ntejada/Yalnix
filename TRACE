@@ -20,7 +20,7 @@ Yalnix     ==========Just created pte for page 14 with read and exec rights
 Yalnix     ==========Just created pte for page 15 with read and exec rights
 Yalnix     ==========Just created pte for page 16 with read and exec rights
 Yalnix     ==========Just created pte for page 17 with read and exec rights
-Yalnix     ==========Just created pte for page 18 with read and write rights
+Yalnix     ==========Just created pte for page 18 with read and exec rights
 Yalnix     ==========Just created pte for page 19 with read and write rights
 Yalnix     ==========Just created pte for page 20 with read and write rights
 Yalnix     ==========Just created pte for page 21 with read and write rights
@@ -260,12 +260,12 @@ Yalnix     ======Just created invalid page table entry in region 1. Page: 126.
 Yalnix     ====Created valid entry in region 1. Page: 127
 Yalnix     queues
 Yalnix     in LoadProg
-Yalnix     LoadProgram: argsize 11, argcount 2
+Yalnix     LoadProgram: argsize 7, argcount 2
 Yalnix     prog_size 4, text 2 data 1 bss 1 pages
 Yalnix     LoadProgram: heap_size 4, stack_size 1
+Yalnix     idle: page 127 is set to valid
 Yalnix     text page 0: valid with frame 128 and read write prots
 Yalnix     text page 1: valid with frame 129 and read write prots
-Yalnix     data_pg: 2, date_npg: 2
 Yalnix     data page 2: valid with frame 130 and read write prots
 Yalnix     data page 3: valid with frame 131 and read write prots
 Yalnix     stack pointer page bottom: 20
@@ -277,49 +277,26 @@ Yalnix     Text virtual address: 0x100000
 Yalnix     Text number of pages: 2
 Yalnix     Text page 1: 0
 Yalnix     second read
-Yalnix     changed the protectionsYalnix     LoadProgram
+Yalnix     changed the protectionsYalnix     in LoadProg
+Yalnix     LoadProgram: argsize 7, argcount 2
+Yalnix     prog_size 4, text 2 data 1 bss 1 pages
+Yalnix     LoadProgram: heap_size 4, stack_size 1
+Yalnix     text page 0: valid with frame 133 and read write prots
+Yalnix     text page 1: valid with frame 134 and read write prots
+Yalnix     data page 2: valid with frame 135 and read write prots
+Yalnix     data page 3: valid with frame 136 and read write prots
+Yalnix     stack pointer page bottom: 20
+Yalnix     limit- npg: 127
+limit: 128
+Yalnix     stack page 127: valid with frame 137 and read write prots
+Yalnix     Segment Size: 16384
+Yalnix     Text virtual address: 0x100000
+Yalnix     Text number of pages: 2
+Yalnix     Text page 1: 0
 Yalnix     current_process
 Yalnix     MyKCS called. Will switch processes and reassign page table entries
+Yalnix     pointers are the same
 Yalnix     KCS
-User Prog  In Init
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
-Yalnix     In the ClockHandler
-User Prog  DoIdle
+Yalnix     MyKCS called. Will switch processes and reassign page table entries
+Yalnix     pointers are the same
+KernelContextSwitch: Kernel function returned bogus context.

@@ -64,11 +64,12 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	current_process = idlePCB;
 	TracePrintf(1, "current_process\n");
 
-	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
-	TracePrintf(1, "created kernel context for init\n");
+	
+	
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	TracePrintf(1, "KCS\n");
-	
+	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
+	TracePrintf(1, "created kernel context for init\n");
 	return;
 }
 
