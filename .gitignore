@@ -1,0 +1,6 @@
+#*#
+*.o
+DISK
+core*
+TTY*
+TRACE
