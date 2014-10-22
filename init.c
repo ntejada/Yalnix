@@ -12,7 +12,7 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
 	PCB *idlePCB = (PCB*)malloc(sizeof(PCB));	
-	vectorTableInit();
+	InitTrapVector();
 	availableFramesListInit(pmem_size);
 	PCB_Init(idlePCB);
 	pageTableInit(idlePCB);
@@ -113,28 +113,8 @@ SetKernelBrk(void *addr)
 }
 
 
-int 
-vectorTableInit()
-{
-	vector_table[TRAP_KERNEL] = kernelTrap;
-	vector_table[TRAP_CLOCK] = clockTrap;
-	vector_table[TRAP_ILLEGAL] = illegalTrap;
-	vector_table[TRAP_MEMORY] = memoryTrap;
-	vector_table[TRAP_MATH] = mathTrap;
-	vector_table[TRAP_TTY_RECEIVE] = receiveTrap;
-	vector_table[TRAP_TTY_TRANSMIT] = transmitTrap;
-	vector_table[TRAP_DISK] = diskTrap;
-	int i = TRAP_DISK+1;
-	while(i<TRAP_VECTOR_SIZE){
-		vector_table[i] = noTrap;
-		i++;
-	}
-	WriteRegister(REG_VECTOR_BASE, (unsigned int) vector_table);
-	return SUCCESS;
-}
-
 void
-pageTableInit(PCB * idlePCB)
+PageTableInit(PCB * idlePCB)
 {
 	//Region zero page table
         unsigned int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
