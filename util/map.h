@@ -1,8 +1,6 @@
 #ifndef _map_h
 #define _map_h
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "std.h"
 
 #define HASH_SIZE 100

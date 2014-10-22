@@ -1,4 +1,15 @@
 #include "init.h"
+#include "switch.h"
+#include "proc.h"
+#include "frames.h"
+
+struct pte pZeroTable[MAX_PT_LEN];
+int vmem_on;
+void *kernel_extent;
+void *kernel_data_start;
+struct pte *pOneTable;
+
+
 
 void 
 SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
@@ -15,7 +26,7 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	InitTrapVector();
 	availableFramesListInit(pmem_size);
 	PCB_Init(idlePCB);
-	pageTableInit(idlePCB);
+	PageTableInit(idlePCB);
 		
 	pidCount = 0;
 	// Cook things so idle process will begin running after return to userland.
@@ -32,12 +43,15 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	//set up idlePCB
 	int rc = LoadProgram("./initIdle", NULL, idlePCB);	
 	*uctxt = idlePCB->user_context;
-	idlePCB->pid = pidCount++;
+	
+	idlePCB->id = pidCount++;
 	idlePCB->status = RUNNING;
-	idlePCB->stackPfn1 = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT]; idlePCB->stackPfn2 =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1];
+	idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT]; 
+	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1];
+	
 	current_process = idlePCB;
 
-	KernelContextSwitch(MyKCS, (void *) idlePCB.pid, (void *) pidCount);
+	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	
 	return;
 }
@@ -144,7 +158,7 @@ PageTableInit(PCB * idlePCB)
 	
 	//region one page table
 	unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
-	struct pte * reg_one_table = idlePCB->reg_one_table;
+	struct pte * reg_one_table = idlePCB->pageTable;
 	
 
 	// Map invalid pages in Region 1.	

@@ -8,7 +8,7 @@
 
 #include "../include/hardware.h"
 #include "proc.h"
-#include "common.h"
+
 
 PCB *current_process;
 Queue *ready_queue;
@@ -18,12 +18,15 @@ void PCB_Init(PCB *pcb) {
     pcb->deadChildren = queueNew();
 }
 
+List *delay_queue;
+unsigned int pidCount;
+
 void RestoreState(PCB *proc, UserContext *context) {
-    *context = proc->context;
+    *context = proc->user_context;
 }
 
 void SaveState(PCB *proc, UserContext *context) {
-    proc->context = *context;
+    proc->user_context = *context;
 }
 
 void Ready(PCB *proc) {
@@ -57,26 +60,26 @@ void DoExec(UserContext *context) {
 
 void DoExit(UserContext *context) {
     // Only store exit status if someone (the parent) exists to care.
-    if (current->parent)
-        current->status = context->regs[0];
+    if (current_process->parent)
+        current_process->status = context->regs[0];
 
     // Run through children and signal to them that the parent died.
-    for(List *child = current->children->head; child; child = child->next)
+    for(List *child = current_process->children->head; child; child = child->next)
         ((PCB *) child->data)->parent = NULL;
 
     // free up processes resources here
 }
 
 void DoWait(UserContext *context) {
-    if (queueIsEmpty(current->children)) {
+    if (queueIsEmpty(current_process->children)) {
         context->regs[0] = ERROR;
     } else {
-        if (queueIsEmpty(current->deadChildren)) {
+        if (queueIsEmpty(current_process->deadChildren)) {
     //     block();
     //     *status_ptr = ((PCB *)queueGetFirst(current->Children))->status;
     //     return childPid;
         } else {
-            PCB *child = queuePop(current->deadChildren);
+            PCB *child = queuePop(current_process->deadChildren);
             *(int *)context->regs[0] = child->status;
             context->regs[0] = child->id;
         }
@@ -84,7 +87,7 @@ void DoWait(UserContext *context) {
 }
 
 void DoGetPid(UserContext *context) {
-    context->regs[0] = current->id;
+    context->regs[0] = current_process->id;
 }
 
 void DoBrk(UserContext *context) {

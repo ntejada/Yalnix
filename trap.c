@@ -9,12 +9,8 @@
 #include "../include/hardware.h"
 #include "../include/yalnix.h"
 #include "proc.h"
-#include "pipe.h"
-#include "lock.h"
-#include "cvar.h"
 #include "trap.h"
-#include "tty.h"
-#include "resources.h"
+
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -59,6 +55,7 @@ void KernelCallHandler(UserContext *context) {
     case YALNIX_DELAY:
         DoDelay(context);
         break;
+	/*
     case YALNIX_TTY_READ:
         doTtyRead(context);
         break;
@@ -100,18 +97,23 @@ void KernelCallHandler(UserContext *context) {
         doReclaim(context);
         break;
 #endif // LINUX
+	*/
     }
 }
 
 void ClockHandler(UserContext *context) {
+    TracePrintf(2, "In the ClockHandler\n");
+
+    delay_queue = listDelayUpdate(delay_queue);
+
     /*
-    if (!queueIsEmpty(ready)) {
-        queuePush(ready, current);
-        current = queuePop(ready);
+    if (!queueIsEmpty(ready_queue)) {
+        queuePush(ready_queue, current);
+        current = queuePop(ready_queue);
         // context switch
     }
     */
-    TracePrintf(2, "In the ClockHandler\n");
+
 }
 
 void IllegalHandler(UserContext *context) {
@@ -149,5 +151,5 @@ void DiskHandler(UserContext *context) {
 void InvalidTrapHandler(UserContext *context) {
     context->regs[0] = ERROR;
     TracePrintf(1, "Invalid trap occurred from process %d with trap code %d\n",
-                current->id, context->vector);
+                current_process->id, context->vector);
 }
