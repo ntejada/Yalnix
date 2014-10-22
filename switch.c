@@ -14,9 +14,9 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 
 
     curr->kernel_context = *kc_in;
-    if (curr == next)
+    if (curr == next){
       TracePrintf(1, "pointers are the same\n");
-
+}
     if(&(next->kernel_context) == NULL){
       TracePrintf(1, "next given kernel context\n");
       next->kernel_context = *kc_in;
@@ -27,7 +27,7 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
     
     WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
-    return &(next->kernel_context);
+    return &(curr->kernel_context);
 }
 
 KernelContext *ForkKernel(KernelContext *kc_in, void *curr_pid, void *next_pid)

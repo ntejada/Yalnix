@@ -38,6 +38,7 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	ready_queue = queueNew();
 	delay_queue = listAllocate();
 	TracePrintf(1, "queues\n");
+	
 	//set up idlePCB
 	char* args[3];
 	args[0]="1";
@@ -47,9 +48,11 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	*uctxt = idlePCB->user_context;
 	idlePCB->id = pidCount++;
 	idlePCB->status = RUNNING;
-	idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
-	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
-	
+	//idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
+	//idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+	idlePCB->kStackPages[0] = getNextFrame();
+	idlePCB->kStackPages[1] = getNextFrame();
+
 	//set up initPCB
 	PCB *initPCB = (PCB*)malloc(sizeof(PCB));
 	PCB_Init(initPCB);
@@ -57,19 +60,21 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	rc = LoadProgram("./initIdle", args, initPCB);
 	initPCB->id = pidCount++;
 	initPCB->status = BLOCKED;
-	initPCB->kStackPages[0] = getNextFrame();
-	initPCB->kStackPages[1] = getNextFrame();
+	initPCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
+	initPCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+	//initPCB->kStackPages[0] = getNextFrame();
+	//initPCB->kStackPages[1] = getNextFrame();
 	queuePush(ready_queue, initPCB);
-
 	current_process = idlePCB;
 	TracePrintf(1, "current_process\n");
 
 	
 	
-	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
-	TracePrintf(1, "KCS\n");
 	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
 	TracePrintf(1, "created kernel context for init\n");
+	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
+	TracePrintf(1, "KCS\n");
+	 
 	return;
 }
 
