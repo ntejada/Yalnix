@@ -8,12 +8,11 @@
 
 #include "../include/hardware.h"
 #include "proc.h"
+#include "common.h"
 
-PCB *current;   /* Currently running process */
-Queue *ready;   /* Read to run */
+PCB *current_process;
+Queue *ready_queue;
 
-// Will probably need multiple blocked queues for disk and tty?
-Queue *blocked; /* Blocked for whatever reason */
 
 void RestoreState(PCB *proc, UserContext *context) {
     *context = proc->context;
@@ -24,7 +23,7 @@ void SaveState(PCB *proc, UserContext *context) {
 }
 
 void Ready(PCB *proc) {
-    queuePush(ready, proc);
+    queuePush(ready_queue, proc);
 }
 
 void DoFork(UserContext *context) {
