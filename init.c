@@ -40,7 +40,6 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	// Initialize Queues
 	ready_queue = queueNew();
 	delay_queue = listAllocate();
-
 	//set up idlePCB
 	char* args[3];
 
@@ -52,9 +51,11 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	*uctxt = idlePCB->user_context;
 	idlePCB->id = pidCount++;
 	idlePCB->status = RUNNING;
-	idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
-	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
-	
+	//idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
+	//idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+	idlePCB->kStackPages[0] = getNextFrame();
+	idlePCB->kStackPages[1] = getNextFrame();
+
 	//set up initPCB
 	PCB *initPCB = (PCB*)malloc(sizeof(PCB));
 	memset(initPCB, 0, sizeof(PCB));
@@ -68,7 +69,6 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	initPCB->kStackPages[1] = getNextFrame();
 
 	queuePush(ready_queue, initPCB);
-
 	current_process = idlePCB;
 	
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
@@ -101,7 +101,7 @@ SetKernelBrk(void *addr)
 		int ptlr0 = (int) ReadRegister(REG_PTLR0);
 		
 		//Need to check if addr is outside of region of kernel heap.
-		if(((int)addr) > KERNEL_STACK_LIMIT || addr < kernel_data_start){
+		if(((int)addr) > PF_COPIER << PAGESHIFT || addr < kernel_data_start){
 			TracePrintf(1, "Addr for SetKernelBrk is above stack limit or below the heap\n");	
 			return ERROR;
 		}		
@@ -132,7 +132,7 @@ SetKernelBrk(void *addr)
 		}
 		//unmap pages after addr
 		i = (DOWN_TO_PAGE(addr)>>PAGESHIFT);	
-		for (i; i<KERNEL_STACK_BASE>>PAGESHIFT; i++) {
+		for (i; i<PF_COPIER; i++) {
 			if (1 == ptbr0[i].valid) {
 				ptbr0[i].valid = 0;
 				ptbr0[i].prot = PROT_NONE;
