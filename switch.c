@@ -17,6 +17,8 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 
     pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT] = next->kStackPages[0]; 
     pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1] = next->kStackPages[1];
+    
+    WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
     return &(next->kernel_context);
 }

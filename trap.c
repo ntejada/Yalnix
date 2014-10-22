@@ -104,7 +104,7 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
 
-    delay_queue = listDelayUpdate(delay_queue);
+    //delay_queue = listDelayUpdate(delay_queue);
 
     /*
     if (!queueIsEmpty(ready_queue)) {

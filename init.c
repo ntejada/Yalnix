@@ -38,10 +38,15 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
 	// Initialize Queues
 	ready_queue = queueNew();
-	delay_queue = queueNew();
-	
+	delay_queue = listAllocate();
+	TracePrintf(1, "queues\n");
 	//set up idlePCB
-	int rc = LoadProgram("./initIdle", NULL, idlePCB);	
+	char* args[3];
+	args[0]="1";
+	args[1]="initIdle";
+	args[2]=NULL;
+	int rc = LoadProgram("./initIdle", args, idlePCB);	
+	TracePrintf(1, "LoadProgram\n");
 	*uctxt = idlePCB->user_context;
 	
 	idlePCB->id = pidCount++;
@@ -50,8 +55,10 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1];
 	
 	current_process = idlePCB;
+	TracePrintf(1, "current_process\n");
 
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
+	TracePrintf(1, "KCS\n");
 	
 	return;
 }
@@ -166,7 +173,7 @@ PageTableInit(PCB * idlePCB)
 	  // Create valid entry for idle process.
 	  if (i == ((VMEM_0_LIMIT>>PAGESHIFT) - 1)) {
 	      reg_one_table[i].valid = 1;
-	      reg_one_table[i].pfn = (i+(VMEM_0_LIMIT>>PAGESHIFT));
+	      reg_one_table[i].pfn = getNextFrame(); 
 	      reg_one_table[i].prot = (PROT_READ|PROT_WRITE);
 	      TracePrintf(1, "====Created valid entry in region 1. Page: %d\n", i);
 	  } else {

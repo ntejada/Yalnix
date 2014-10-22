@@ -50,7 +50,7 @@ extern Queue *ready_queue;
 
 extern List *delay_queue;
 /* Prototypes of process helper functions */
-extern void *PCB_Init(PCB *)
+extern void PCB_Init(PCB *);
 extern void RestoreState(PCB *, UserContext *);
 extern void SaveState(PCB *, UserContext *);
 extern void Ready(PCB *);

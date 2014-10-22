@@ -28,6 +28,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
        ==>> for the process holding the new program.  
        */
 {
+  TracePrintf(0, "in LoadProg\n");
   int fd;
   int (*entry)();
   struct load_info li;
@@ -44,6 +45,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
   long segment_size;
   char *argbuf;
 
+  TracePrintf(0, "in LoadProg\n");
   
   /*
    * Open the executable file 
@@ -53,12 +55,14 @@ LoadProgram(char *name, char *args[], PCB* proc)
     return ERROR;
   }
 
+  TracePrintf(0, "in LoadProg\n");
   if (LoadInfo(fd, &li) != LI_NO_ERROR) {
     TracePrintf(0, "LoadProgram: '%s' not in Yalnix format\n", name);
     close(fd);
     return (-1);
   }
 
+  TracePrintf(0, "in LoadProg\n");
   if (li.entry < VMEM_1_BASE) {
     TracePrintf(0, "LoadProgram: '%s' not linked for Yalnix\n", name);
     close(fd);
@@ -72,6 +76,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
   text_pg1 = (li.t_vaddr - VMEM_1_BASE) >> PAGESHIFT;
   data_pg1 = (li.id_vaddr - VMEM_1_BASE) >> PAGESHIFT;
   data_npg = li.id_npg + li.ud_npg;
+  TracePrintf(0, "in LoadProg\n");
   /*
    *  Figure out how many bytes are needed to hold the arguments on
    *  the new stack that we are building.  Also count the number of
@@ -79,6 +84,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
    */
   size = 0;
   for (i = 0; args[i] != NULL; i++) {
+  TracePrintf(0, "in LoadProg\n");
     TracePrintf(3, "counting arg %d = '%s'\n", i, args[i]);
     size += strlen(args[i]) + 1;
   }
@@ -180,9 +186,11 @@ if(NULL == cp2){
 */
 	struct pte * ptable = proc->pageTable;
 	for(i=0; i<MAX_PT_LEN; i++) {
-		ptable[i].valid = 0;
-		addFrame(ptable[i].pfn);
-		ptable[i].prot = PROT_NONE;
+		if(ptable[i].valid == 1){
+			ptable[i].valid = 0;
+			addFrame(ptable[i].pfn);
+			ptable[i].prot = PROT_NONE;
+		}
 	}
 	
 /*==>> Allocate "li.t_npg" physical pages and map them starting at
