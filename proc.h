@@ -43,7 +43,7 @@ struct pcb_t {
 extern PCB *current_process;
 extern Queue *ready_queue;
 
-extern Queue *blocked_queue;
+extern Queue *delay_queue;
 /* Prototypes of process helper functions */
 extern void RestoreState(PCB *, UserContext *);
 extern void SaveState(PCB *, UserContext *);
