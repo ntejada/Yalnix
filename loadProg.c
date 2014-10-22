@@ -45,7 +45,6 @@ LoadProgram(char *name, char *args[], PCB* proc)
   long segment_size;
   char *argbuf;
 
-  TracePrintf(0, "in LoadProg\n");
   
   /*
    * Open the executable file 
@@ -55,14 +54,12 @@ LoadProgram(char *name, char *args[], PCB* proc)
     return ERROR;
   }
 
-  TracePrintf(0, "in LoadProg\n");
   if (LoadInfo(fd, &li) != LI_NO_ERROR) {
     TracePrintf(0, "LoadProgram: '%s' not in Yalnix format\n", name);
     close(fd);
     return (-1);
   }
 
-  TracePrintf(0, "in LoadProg\n");
   if (li.entry < VMEM_1_BASE) {
     TracePrintf(0, "LoadProgram: '%s' not linked for Yalnix\n", name);
     close(fd);
@@ -76,7 +73,6 @@ LoadProgram(char *name, char *args[], PCB* proc)
   text_pg1 = (li.t_vaddr - VMEM_1_BASE) >> PAGESHIFT;
   data_pg1 = (li.id_vaddr - VMEM_1_BASE) >> PAGESHIFT;
   data_npg = li.id_npg + li.ud_npg;
-  TracePrintf(0, "in LoadProg\n");
   /*
    *  Figure out how many bytes are needed to hold the arguments on
    *  the new stack that we are building.  Also count the number of
@@ -84,7 +80,6 @@ LoadProgram(char *name, char *args[], PCB* proc)
    */
   size = 0;
   for (i = 0; args[i] != NULL; i++) {
-  TracePrintf(0, "in LoadProg\n");
     TracePrintf(3, "counting arg %d = '%s'\n", i, args[i]);
     size += strlen(args[i]) + 1;
   }
@@ -223,30 +218,39 @@ if(NULL == cp2){
 ==>> These pages should be marked valid, with a
 ==>> protection of (PROT_READ | PROT_WRITE).
 */
-	for(i = ((DOWN_TO_PAGE(cp2))>>PAGESHIFT); i<(VMEM_1_LIMIT>>PAGESHIFT); i++){
+	TracePrintf(1, "stack pointer page bottom: %d\n", (DOWN_TO_PAGE(cp2))>>PAGESHIFT);
+	TracePrintf(1, "limit- npg: %d\nlimit: %d\n", (VMEM_0_LIMIT>>PAGESHIFT)-stack_npg, VMEM_0_LIMIT>>PAGESHIFT);
+	for(i = (VMEM_0_LIMIT>>PAGESHIFT)-stack_npg; i<(VMEM_0_LIMIT>>PAGESHIFT); i++){
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);
+		TracePrintf(1, "page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
 	}
   /*
    * All pages for the new address space are now in the page table.  
    * But they are not yet in the TLB, remember!
    */
-
-
+	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
+	
   /*
    * Read the text from the file into memory.
    */
   lseek(fd, li.t_faddr, SEEK_SET);
   segment_size = li.t_npg << PAGESHIFT;
+	TracePrintf(1, "Segment Size: %ld\n", segment_size);
+	TracePrintf(1, "Text virtual address: %p\n", li.t_vaddr);
+	TracePrintf(1, "Text number of pages: %d\n", li.t_npg);
+	TracePrintf(1, "Text page 1: %d\n", text_pg1); 
   if (read(fd, (void *) li.t_vaddr, segment_size) != segment_size) {
     close(fd);
+
 /*==>> KILL is not defined anywhere: it is an error code distinct
 ==>> from ERROR because it requires different action in the caller.
 ==>> Since this error code is internal to your kernel, you get to define it.*/
     return KILL;
   }
-  /*
+  
+/*
    * Read the data from the file into memory.
    */
   lseek(fd, li.id_faddr, 0);
@@ -275,6 +279,7 @@ if(NULL == cp2){
 	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
 		ptable[i].prot = (PROT_READ | PROT_EXEC);	
 	}
+	TracePrintf(1, "changed the protections");
 	//flush the TLB
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
