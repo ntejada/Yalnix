@@ -49,7 +49,9 @@ extern PCB *current_process;
 extern Queue *ready_queue;
 
 extern Queue *blocked_queue;
+
 /* Prototypes of process helper functions */
+extern void *PCB_Init(PCB *)
 extern void RestoreState(PCB *, UserContext *);
 extern void SaveState(PCB *, UserContext *);
 extern void Ready(PCB *);

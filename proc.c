@@ -13,6 +13,10 @@
 PCB *current_process;
 Queue *ready_queue;
 
+void PCB_Init(PCB *pcb) {
+    pcb->children = queueNew();
+    pcb->deadChildren = queueNew();
+}
 
 void RestoreState(PCB *proc, UserContext *context) {
     *context = proc->context;
