@@ -9,8 +9,6 @@ void *kernel_extent;
 void *kernel_data_start;
 struct pte *pOneTable;
 
-
-
 void 
 SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
 {

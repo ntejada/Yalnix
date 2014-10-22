@@ -194,10 +194,11 @@ if(NULL == cp2){
 ==>> These pages should be marked valid, with a protection of 
 ==>> (PROT_READ | PROT_WRITE).
 */
-	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
+	for(i=text_pg1;	i<li.t_npg+text_pg1; i++) {	// not sure if it should be ++ or --
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);	
+		TracePrintf(1, "text page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
 	}
 
 
@@ -205,11 +206,11 @@ if(NULL == cp2){
 ==>> the  "data_pg1" in region 1 address space.  
 ==>> These pages should be marked valid, with a protection of 
 ==>> (PROT_READ | PROT_WRITE).*/
-
 	for(i = data_pg1; i<data_npg+data_pg1; i++) {
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);
+		TracePrintf(1, "data page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
 	}
   /*
    * Allocate memory for the user stack too.
@@ -225,7 +226,7 @@ if(NULL == cp2){
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);
-		TracePrintf(1, "page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
+		TracePrintf(1, "stack page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
 	}
   /*
    * All pages for the new address space are now in the page table.  
@@ -256,7 +257,7 @@ if(NULL == cp2){
    */
   lseek(fd, li.id_faddr, 0);
   segment_size = li.id_npg << PAGESHIFT;
-
+  TracePrintf(1, "second read\n");
   if (read(fd, (void *) li.id_vaddr, segment_size) != segment_size) {
     close(fd);
     return KILL;
