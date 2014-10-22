@@ -6,7 +6,7 @@
 #include "./include/hardware.h"
 #include "./include/yalnix.h"
 #include "queue.h"
-#include "common.h"
+#include "std.h"
 #include "trap.h"
 
 extern int vmem_on;

@@ -1,4 +1,5 @@
-#include "common.h"
+#include "std.h"
+#include "proc.h"
 #include "./include/hardware.h"
 //#include "./kernelInit.h"
 
