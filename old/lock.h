@@ -15,6 +15,7 @@ typedef struct lock_t Lock;
 struct lock_t {
     int id;     /* Lock identifier */
     int owner;  /* PID of the process that currently owns this lock */
+    Queue *lock_queue;
 };
 
 extern void doLockInit(UserContext *);

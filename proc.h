@@ -16,6 +16,8 @@
 #include "util/list.h"
 #include "util/queue.h"
 
+
+
 typedef struct pcb_t PCB;
 
 struct pcb_t {
@@ -38,12 +40,10 @@ struct pcb_t {
     KernelContext kernel_context;
 };
 
-extern PCB *current;   /* Currently running process */
-extern Queue *ready;   /* Read to run */
+extern PCB *current_process;
+extern Queue *ready_queue;
 
-// Will probably need multiple blocked queues for disk and tty?
-extern Queue *blocked; /* Blocked for whatever reason */
-
+extern Queue *blocked_queue;
 /* Prototypes of process helper functions */
 extern void RestoreState(PCB *, UserContext *);
 extern void SaveState(PCB *, UserContext *);
