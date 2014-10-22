@@ -16,28 +16,33 @@
 #include "util/list.h"
 #include "util/queue.h"
 
+/*****STATES*****/
+#define RUNNING 1
+#define BLOCKED 2
 
 
 typedef struct pcb_t PCB;
 
 struct pcb_t {
-    /* Process identification data */
-    int id;             /* Process identifier */
-    int status;         /* Running, blocked, or exit status */
-    PCB *parent;        /* Pointer to the parent's PCB */
+	/* Process identification data */
+	int id;             /* Process identifier */
+	int status;         /* Running, blocked, or exit status */
+	PCB *parent;        /* Pointer to the parent's PCB */
 
-    /* Process's page table */
-    struct pte pageTable[MAX_PT_LIMIT];
-    /* Kernel stack pages associated with this process */
-    struct pte kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
+	/* Process's page table */
+	struct pte pageTable[MAX_PT_LIMIT];
+    
+	/* Kernel stack pfns associated with this process */
+	int stackPfn1;
+	int stackPfn2;
 
-    /* Process control data */
-    Queue *children;     /* List of children */ 
-    Queue *deadChildren; /* List of zombie/defunct children */
+	/* Process control data */
+	Queue *children;     /* List of children */ 
+	Queue *deadChildren; /* List of zombie/defunct children */
 
-    /* Processor state data */
-    UserContext user_context;
-    KernelContext kernel_context;
+	/* Processor state data */
+	UserContext user_context;
+	KernelContext kernel_context;
 };
 
 extern PCB *current_process;

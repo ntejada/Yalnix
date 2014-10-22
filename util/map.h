@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "./common.h"
+#include "std.h"
 
 #define HASH_SIZE 100
 

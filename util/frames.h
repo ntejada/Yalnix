@@ -4,7 +4,7 @@
 #include "./hardware.h"
 
 extern int *frame_list;
-extern *frame_list bp;
+extern int *frame_list_bp;
 extern int number_of_frames;
 
 
