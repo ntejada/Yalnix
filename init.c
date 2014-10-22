@@ -17,30 +17,27 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	PCB_Init(idlePCB);
 	pageTableInit(idlePCB);
 		
+	pidCount = 0;
 	// Cook things so idle process will begin running after return to userland.
-	uctxt->pc = DoIdle;
-	uctxt->sp = (void *)(VMEM_LIMIT-4);
+	
 	// Enable virtual memory.
 	WriteRegister(REG_VM_ENABLE, 1);
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 	vmem_on = 1;
 
-	// Initialize Queue
+	// Initialize Queues
 	ready_queue = queueNew();
-
-	//create map of pids to stack pfns
-	idlePCB.user_context = *uctxt;
-	pidCount = 0;
-	idlePCB.pid = pidCount++;
-
-	hashInit(kernel_stack_table);
-	addToMap(idlePCB.pid, pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT], pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1]);
+	delay_queue = queueNew();
 	
+	//set up idlePCB
+	int rc = LoadProgram("./initIdle", NULL, idlePCB);	
+	*uctxt = idlePCB->user_context;
+	idlePCB->pid = pidCount++;
+	idlePCB->status = RUNNING;
+	idlePCB->stackPfn1 = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT]; idlePCB->stackPfn2 =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1];
+	current_process = idlePCB;
+
 	KernelContextSwitch(MyKCS, (void *) idlePCB.pid, (void *) pidCount);
-	
-	addToMap(pidCount, PZeroTable[		
-	TracePrintf(1, "kernel stack base: %p\n", KERNEL_STACK_BASE);	
-	TracePrintf(1, "pcb address: %p\n", &idlePCB);
 	
 	return;
 }
@@ -118,13 +115,6 @@ PageTableInit(PCB * idlePCB)
 {
 	//Region zero page table
         unsigned int reg_zero_limit = (VMEM_0_LIMIT-VMEM_0_BASE)>>PAGESHIFT;
-	//reg_zero_table = (struct pte*)malloc(sizeof(struct pte)*reg_zero_limit);
-	//malloc check
-	/*if (reg_zero_table == NULL) {
-		TracePrintf(1, "Malloc error, pageTableInit\n");
-		return;
-	}
-*/
 	int i;
 	for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++){
 		if (i < DOWN_TO_PAGE(kernel_extent)>>PAGESHIFT || i >= KERNEL_STACK_BASE>>PAGESHIFT) {
@@ -154,12 +144,6 @@ PageTableInit(PCB * idlePCB)
 	
 	//region one page table
 	unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
-	//reg_one_table = (struct pte*)malloc(sizeof(struct pte)*reg_one_limit);
-	//malloc check
-	/*if (reg_one_table == NULL) {
-		TracePrintf(1, "Malloc error, pageTableInit\n");
-		return;		
-	}*/
 	struct pte * reg_one_table = idlePCB->reg_one_table;
 	
 
