@@ -1,6 +1,6 @@
 #include "list.h"
 #include "std.h"
-#include "common.h"
+#include "proc.h"
 
 List *
 listAllocate() {
@@ -39,7 +39,7 @@ listAppendInPlace(List *list,
 
   if (list) {
 
-    while (list->next != NULL && ((DelayData *)newList->next->data)->clock_count > ((DelayData *)list->next->data)->clock_count)
+    while (list->next != NULL && ((PCB *)newList->next->data)->clock_count > ((PCB *)list->next->data)->clock_count)
       list = list->next;
 
     if (list->next == NULL) { // Append at end of list.
@@ -98,21 +98,20 @@ List *
 listDelayUpdate(List *list) {
   List *start = list;
   while (list) {
-    ((DelayData *) list->data)->clock_count--;
+    ((PCB *) list->data)->clock_count--;
     list = list->next;
   }
   list = start;
-  while (list != NULL && ((DelayData *) list->data)->clock_count == 0) {
+  while (list != NULL && ((PCB *) list->data)->clock_count == 0) {
     if (list->next) {
       list = list->next;
       list->prev->next = NULL;
       // Place list->prev->data->pid on ready queue.
-      queuePush(ready_queue, ((DelayData *) list->prev->data)->pid);
+      queuePush(ready_queue, ((PCB *) list->prev->data)->id);
       list->prev = NULL;
-      return list;
     } else {
       // Place list->data->pid on ready queue.
-      queuePush(ready_queue, ((DelayData *) list->data)->pid);
+      queuePush(ready_queue, ((PCB *) list->data)->id);
       return NULL;
     }
   }

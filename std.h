@@ -11,6 +11,6 @@
 
 #define SUCCESS 0
 #define KILL 42
-
+#define ERROR (-1)
 
 #endif

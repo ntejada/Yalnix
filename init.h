@@ -1,13 +1,12 @@
 #ifndef _init_h
 #define _init_h
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "./include/hardware.h"
 #include "./include/yalnix.h"
-#include "queue.h"
+#include "./util/queue.h"
 #include "std.h"
 #include "trap.h"
+#include "proc.h"
 
 extern int vmem_on;
 

@@ -1,4 +1,4 @@
-#include <stdio.h>
+
 void
 DoIdle(void) {
   TracePrintf(1, "In Init\n");

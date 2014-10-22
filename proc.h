@@ -11,15 +11,14 @@
 #ifndef _proc_h
 #define _proc_h
 
-#include "../include/yalnix.h"
-#include "../include/hardware.h"
+#include "./include/yalnix.h"
+#include "./include/hardware.h"
 #include "util/list.h"
 #include "util/queue.h"
 
 /*****STATES*****/
 #define RUNNING 1
 #define BLOCKED 2
-
 
 typedef struct pcb_t PCB;
 
@@ -28,13 +27,12 @@ struct pcb_t {
 	int id;             /* Process identifier */
 	int status;         /* Running, blocked, or exit status */
 	PCB *parent;        /* Pointer to the parent's PCB */
-
+  int clock_count;
 	/* Process's page table */
-	struct pte pageTable[MAX_PT_LIMIT];
+	struct pte pageTable[MAX_PT_LEN];
     
 	/* Kernel stack pfns associated with this process */
-	int stackPfn1;
-	int stackPfn2;
+        struct pte kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
 
 	/* Process control data */
 	Queue *children;     /* List of children */ 
@@ -45,10 +43,12 @@ struct pcb_t {
 	KernelContext kernel_context;
 };
 
+extern unsigned int pidCount;
+
 extern PCB *current_process;
 extern Queue *ready_queue;
 
-extern Queue *delay_queue;
+extern List *delay_queue;
 /* Prototypes of process helper functions */
 extern void RestoreState(PCB *, UserContext *);
 extern void SaveState(PCB *, UserContext *);

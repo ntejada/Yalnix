@@ -8,9 +8,10 @@
 #include <hardware.h>
 #include <load_info.h>
 //==>> #include anything you need for your kernel here
-#include "common.h"
 #include "./include/hardware.h"
-#include "pageMan.h"
+#include "frames.h"
+#include "proc.h"
+#include "std.h"
 /*
  *  Load a program into an existing address space.  The program comes from
  *  the Linux file named "name", and its arguments come from the array at
@@ -177,8 +178,8 @@ if(NULL == cp2){
 ==>> deallocate a few pages to fit the size of memory to the requirements
 ==>> of the new process.
 */
-	struct pte * ptable = proc->reg_one_table;
-	for(i=0; i<proc->ptable_limit; i++) {
+	struct pte * ptable = proc->pageTable;
+	for(i=0; i<MAX_PT_LEN; i++) {
 		ptable[i].valid = 0;
 		addFrame(ptable[i].pfn);
 		ptable[i].prot = PROT_NONE;
