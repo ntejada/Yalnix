@@ -21,11 +21,11 @@ typedef struct pcb_t PCB;
 struct pcb_t {
     /* Process identification data */
     int id;             /* Process identifier */
-    int status;         /* Running, blocked, or exit status */
+    int status;         /* Exit status */
     PCB *parent;        /* Pointer to the parent's PCB */
 
     /* Process's page table */
-    struct pte pageTable[MAX_PT_LIMIT];
+    struct pte *pageTable;
     /* Kernel stack pages associated with this process */
     struct pte kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
 
@@ -34,10 +34,15 @@ struct pcb_t {
     Queue *deadChildren; /* List of zombie/defunct children */
 
     /* Processor state data */
-    UserContext user_context;
-    KernelContext kernel_context;
+    UserContext context;
+    KernelContext kcontext;
 };
 
+extern PCB *current;   /* Currently running process */
+extern Queue *ready;   /* Read to run */
+
+// Will probably need multiple blocked queues for disk and tty?
+extern Queue *blocked; /* Blocked for whatever reason */
 
 /* Prototypes of process helper functions */
 extern void RestoreState(PCB *, UserContext *);
