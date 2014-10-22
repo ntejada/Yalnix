@@ -182,6 +182,7 @@ if(NULL == cp2){
 	struct pte * ptable = proc->pageTable;
 	for(i=0; i<MAX_PT_LEN; i++) {
 		if(ptable[i].valid == 1){
+			TracePrintf(1, "%s: page %d is set to valid\n", args[1], i);
 			ptable[i].valid = 0;
 			addFrame(ptable[i].pfn);
 			ptable[i].prot = PROT_NONE;
@@ -205,7 +206,7 @@ if(NULL == cp2){
 ==>> These pages should be marked valid, with a protection of 
 ==>> (PROT_READ | PROT_WRITE).*/
 
-	for(i = data_pg1; i<data_npg; i++) {
+	for(i = data_pg1; i<data_npg+data_pg1; i++) {
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);

@@ -10,7 +10,7 @@
 #include "../include/yalnix.h"
 #include "proc.h"
 #include "trap.h"
-
+#include "switch.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -104,16 +104,20 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
 
-    //delay_queue = listDelayUpdate(delay_queue);
+   // delay_queue = listDelayUpdate(delay_queue);
 
-    /*
-    if (!queueIsEmpty(ready_queue)) {
+    
+    /*if (!queueIsEmpty(ready_queue)) {
         queuePush(ready_queue, current);
         current = queuePop(ready_queue);
         // context switch
-    }
-    */
+    }*/
 
+	queuePush(ready_queue, current_process);
+	PCB *next = queuePop(ready_queue);
+	KernelContextSwitch(MyKCS, current_process, next);
+   	WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
+	current_process = next;
 }
 
 void IllegalHandler(UserContext *context) {

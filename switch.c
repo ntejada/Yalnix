@@ -13,10 +13,13 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
     TracePrintf(1, "MyKCS called. Will switch processes and reassign page table entries\n");
 
     curr->kernel_context = *kc_in;
-   
+	if(&(next->kernel_context) == NULL){
+		TracePrintf(1, "next given kernel context\n");
+		next->kernel_context = *kc_in;
+	} 
 
-    pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT] = next->kStackPages[0]; 
-    pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1] = next->kStackPages[1];
+    pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn = next->kStackPages[0]; 
+    pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn = next->kStackPages[1];
     
     WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 

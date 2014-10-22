@@ -16,6 +16,10 @@ Queue *ready_queue;
 void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
     pcb->deadChildren = queueNew();
+	for(int i=0; i<MAX_PT_LEN; i++){
+		pcb->pageTable[i].valid=0;
+	}
+
 }
 
 List *delay_queue;

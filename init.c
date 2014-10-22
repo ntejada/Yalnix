@@ -43,20 +43,31 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	//set up idlePCB
 	char* args[3];
 	args[0]="1";
-	args[1]="initIdle";
+	args[1]="idle";
 	args[2]=NULL;
 	int rc = LoadProgram("./initIdle", args, idlePCB);	
-	TracePrintf(1, "LoadProgram\n");
 	*uctxt = idlePCB->user_context;
-	
 	idlePCB->id = pidCount++;
 	idlePCB->status = RUNNING;
-	idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT]; 
-	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1];
+	idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
+	idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
 	
+	//set up initPCB
+	PCB *initPCB = (PCB*)malloc(sizeof(PCB));
+	PCB_Init(initPCB);
+	args[1]="init";
+	rc = LoadProgram("./initIdle", args, initPCB);
+	initPCB->id = pidCount++;
+	initPCB->status = BLOCKED;
+	initPCB->kStackPages[0] = getNextFrame();
+	initPCB->kStackPages[1] = getNextFrame();
+	queuePush(ready_queue, initPCB);
+
 	current_process = idlePCB;
 	TracePrintf(1, "current_process\n");
 
+	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
+	TracePrintf(1, "created kernel context for init\n");
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	TracePrintf(1, "KCS\n");
 	

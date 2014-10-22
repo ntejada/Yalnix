@@ -32,7 +32,7 @@ struct pcb_t {
 	struct pte pageTable[MAX_PT_LEN];
     
 	/* Kernel stack pfns associated with this process */
-        struct pte kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
+        int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
 
 	/* Process control data */
 	Queue *children;     /* List of children */ 
