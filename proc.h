@@ -38,11 +38,6 @@ struct pcb_t {
     KernelContext kcontext;
 };
 
-extern PCB *current;   /* Currently running process */
-extern Queue *ready;   /* Read to run */
-
-// Will probably need multiple blocked queues for disk and tty?
-extern Queue *blocked; /* Blocked for whatever reason */
 
 /* Prototypes of process helper functions */
 extern void RestoreState(PCB *, UserContext *);
