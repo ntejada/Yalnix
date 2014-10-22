@@ -27,11 +27,12 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 >>>>>>> 0415592492db913371d669e8b91c5a47b060b1e8
       TracePrintf(1, "next given kernel context\n");
       next->kernel_context = *kc_in;
+      next->status = RUNNING;
     } 
 
     pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn = next->kStackPages[0]; 
     pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn = next->kStackPages[1];
-    
+
     WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
     return &(curr->kernel_context);

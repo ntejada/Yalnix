@@ -62,9 +62,9 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	PCB_Init(initPCB);
 	args[1]="init";
 	rc = LoadProgram("./initIdle", args, initPCB);
+
 	initPCB->id = pidCount++;
 	initPCB->status = NEW;
-
 	initPCB->kStackPages[0] = getNextFrame();
 	initPCB->kStackPages[1] = getNextFrame();
 
@@ -73,9 +73,24 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	TracePrintf(1, "KCS\n");
-	//	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
-	//	TracePrintf(1, "created kernel context for init\n");
+	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
+	TracePrintf(1, "created kernel context for init\n");
 	return;
+}
+
+int 
+CopyPages(PCB *pcb)
+{
+    for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
+        int newPfn = getNextFrame();
+        pZeroTable[PF_COPIER].pfn = newPfn;
+        for (int *p = PF_COPIER << PAGESHIFT, *q = VMEM_1_BASE + (vpn << PAGESHIFT);
+             p < PAGESIZE; 
+             p++, q++) {
+            *p = *q;
+        }
+        pcb->pageTable[vpn].pfn = newPfn;
+    }
 }
 
 

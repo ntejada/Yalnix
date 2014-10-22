@@ -1,7 +1,7 @@
 /* 
  * Yalnix for Linux/x86, COSC 058 Fall 2014
  *
- * Authors: Shuo Zheng and Brian Kim
+ * Authors: Shuo Zheng, Garrett Watamull, Nic Tejada
  *
  * created October 8, 2014  szheng
  */
@@ -118,6 +118,7 @@ void ClockHandler(UserContext *context) {
 	KernelContextSwitch(MyKCS, current_process, next);
    	WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
 	current_process = next;
+    *context = next->user_context;
 }
 
 void IllegalHandler(UserContext *context) {
