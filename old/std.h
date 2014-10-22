@@ -9,4 +9,8 @@
 #include <sys/param.h>
 #define ever (;;) // so I say "for ever" :)
 
+#define SUCCESS 0
+#define KILL 42
+
+
 #endif

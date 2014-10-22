@@ -16,7 +16,7 @@ typedef struct cvar_t Cvar;
 
 struct cvar_t {
     int id;         /* Cvar identifier */
-    Queue *waiting; /* List of processes waiting on this cvar */
+    Queue *cvar_queue; /* List of processes waiting on this cvar */
 };
 
 extern void doCvarInit(UserContext *);

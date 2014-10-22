@@ -1,20 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h> 
-#include "trapHandlers.h"
-#include "common.h"
-#include "./include/hardware.h"
-#include "queue.h"
-#include "map.h"
-/*********PROTOTYPES*********/
-int vectorTableInit();
-void pageTableInit(PCB* newPcb);
-void kernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt); //add UserContext *uctxt
-void DoIdle(void);
-void LoadProgramTest();
-void pageTableInit();
-void SetKernelData(void *_KernelDataStart, void *_KernelDataEnd);
-/***************************/
-int vmem_on = 0;
+#include "kernelInit.h"
 
 void 
 SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)

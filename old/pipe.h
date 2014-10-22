@@ -15,6 +15,8 @@ typedef struct pipe_t Pipe;
 struct pipe_t {
     int id;     /* Pipe identifier */
     void *buf;  /* Buffer to hold contents */
+    int len_buf;
+    Queue *pipe_queue;
 };
 
 extern void doPipeInit(UserContext *);

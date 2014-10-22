@@ -10,6 +10,10 @@
 #include "proc.h"
 #include "common.h"
 
+PCB *current_process;
+Queue *ready_queue;
+
+
 void RestoreState(PCB *proc, UserContext *context) {
     *context = proc->context;
 }
