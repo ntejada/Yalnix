@@ -21,10 +21,13 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
 	PCB *idlePCB = (PCB*)malloc(sizeof(PCB));	
+	memset(idlePCB, 0, sizeof(PCB));
+
 	InitTrapVector();
 	availableFramesListInit(pmem_size);
 	PCB_Init(idlePCB);
 	PageTableInit(idlePCB);
+	
 		
 	pidCount = 0;
 	// Cook things so idle process will begin running after return to userland.
@@ -37,12 +40,14 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	// Initialize Queues
 	ready_queue = queueNew();
 	delay_queue = listAllocate();
-	TracePrintf(1, "queues\n");
+
 	//set up idlePCB
 	char* args[3];
+
 	args[0]="1";
 	args[1]="idle";
 	args[2]=NULL;
+
 	int rc = LoadProgram("./initIdle", args, idlePCB);	
 	*uctxt = idlePCB->user_context;
 	idlePCB->id = pidCount++;
@@ -52,24 +57,24 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	
 	//set up initPCB
 	PCB *initPCB = (PCB*)malloc(sizeof(PCB));
+	memset(initPCB, 0, sizeof(PCB));
 	PCB_Init(initPCB);
 	args[1]="init";
 	rc = LoadProgram("./initIdle", args, initPCB);
 	initPCB->id = pidCount++;
-	initPCB->status = BLOCKED;
+	initPCB->status = NEW;
+
 	initPCB->kStackPages[0] = getNextFrame();
 	initPCB->kStackPages[1] = getNextFrame();
+
 	queuePush(ready_queue, initPCB);
 
 	current_process = idlePCB;
-	TracePrintf(1, "current_process\n");
-
-	
 	
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	TracePrintf(1, "KCS\n");
-	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
-	TracePrintf(1, "created kernel context for init\n");
+	//	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
+	//	TracePrintf(1, "created kernel context for init\n");
 	return;
 }
 

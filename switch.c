@@ -14,10 +14,10 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 
 
     curr->kernel_context = *kc_in;
-    if (curr == next)
-      TracePrintf(1, "pointers are the same\n");
 
-    if(&(next->kernel_context) == NULL){
+    TracePrintf(1, "status: %d\n", next->status);
+
+    if((next->status) == NEW){
       TracePrintf(1, "next given kernel context\n");
       next->kernel_context = *kc_in;
     } 

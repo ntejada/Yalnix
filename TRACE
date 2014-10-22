@@ -20,7 +20,7 @@ Yalnix     ==========Just created pte for page 14 with read and exec rights
 Yalnix     ==========Just created pte for page 15 with read and exec rights
 Yalnix     ==========Just created pte for page 16 with read and exec rights
 Yalnix     ==========Just created pte for page 17 with read and exec rights
-Yalnix     ==========Just created pte for page 18 with read and exec rights
+Yalnix     ==========Just created pte for page 18 with read and write rights
 Yalnix     ==========Just created pte for page 19 with read and write rights
 Yalnix     ==========Just created pte for page 20 with read and write rights
 Yalnix     ==========Just created pte for page 21 with read and write rights
@@ -258,7 +258,6 @@ Yalnix     ======Just created invalid page table entry in region 1. Page: 124.
 Yalnix     ======Just created invalid page table entry in region 1. Page: 125.
 Yalnix     ======Just created invalid page table entry in region 1. Page: 126.
 Yalnix     ====Created valid entry in region 1. Page: 127
-Yalnix     queues
 Yalnix     in LoadProg
 Yalnix     LoadProgram: argsize 7, argcount 2
 Yalnix     prog_size 4, text 2 data 1 bss 1 pages
@@ -293,10 +292,12 @@ Yalnix     Segment Size: 16384
 Yalnix     Text virtual address: 0x100000
 Yalnix     Text number of pages: 2
 Yalnix     Text page 1: 0
-Yalnix     current_process
 Yalnix     MyKCS called. Will switch processes and reassign page table entries
-Yalnix     pointers are the same
+Yalnix     status: 1
 Yalnix     KCS
+User Prog  in idle
+Yalnix     In the ClockHandler
 Yalnix     MyKCS called. Will switch processes and reassign page table entries
-Yalnix     pointers are the same
+Yalnix     status: 12
+Yalnix     next given kernel context
 KernelContextSwitch: Kernel function returned bogus context.
