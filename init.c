@@ -21,10 +21,13 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
 	PCB *idlePCB = (PCB*)malloc(sizeof(PCB));	
+	memset(idlePCB, 0, sizeof(PCB));
+
 	InitTrapVector();
 	availableFramesListInit(pmem_size);
 	PCB_Init(idlePCB);
 	PageTableInit(idlePCB);
+	
 		
 	pidCount = 0;
 	// Cook things so idle process will begin running after return to userland.
@@ -37,13 +40,13 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	// Initialize Queues
 	ready_queue = queueNew();
 	delay_queue = listAllocate();
-	TracePrintf(1, "queues\n");
-	
 	//set up idlePCB
 	char* args[3];
+
 	args[0]="1";
 	args[1]="idle";
 	args[2]=NULL;
+
 	int rc = LoadProgram("./initIdle", args, idlePCB);	
 	*uctxt = idlePCB->user_context;
 	idlePCB->id = pidCount++;
@@ -55,26 +58,23 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
 	//set up initPCB
 	PCB *initPCB = (PCB*)malloc(sizeof(PCB));
+	memset(initPCB, 0, sizeof(PCB));
 	PCB_Init(initPCB);
 	args[1]="init";
 	rc = LoadProgram("./initIdle", args, initPCB);
 	initPCB->id = pidCount++;
-	initPCB->status = BLOCKED;
-	initPCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
-	initPCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
-	//initPCB->kStackPages[0] = getNextFrame();
-	//initPCB->kStackPages[1] = getNextFrame();
+	initPCB->status = NEW;
+
+	initPCB->kStackPages[0] = getNextFrame();
+	initPCB->kStackPages[1] = getNextFrame();
+
 	queuePush(ready_queue, initPCB);
 	current_process = idlePCB;
-	TracePrintf(1, "current_process\n");
-
 	
-	
-	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
-	TracePrintf(1, "created kernel context for init\n");
 	KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
 	TracePrintf(1, "KCS\n");
-	 
+	//	KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
+	//	TracePrintf(1, "created kernel context for init\n");
 	return;
 }
 
@@ -87,7 +87,7 @@ SetKernelBrk(void *addr)
 		int ptlr0 = (int) ReadRegister(REG_PTLR0);
 		
 		//Need to check if addr is outside of region of kernel heap.
-		if(((int)addr) > KERNEL_STACK_LIMIT || addr < kernel_data_start){
+		if(((int)addr) > PF_COPIER << PAGESHIFT || addr < kernel_data_start){
 			TracePrintf(1, "Addr for SetKernelBrk is above stack limit or below the heap\n");	
 			return ERROR;
 		}		
@@ -118,7 +118,7 @@ SetKernelBrk(void *addr)
 		}
 		//unmap pages after addr
 		i = (DOWN_TO_PAGE(addr)>>PAGESHIFT);	
-		for (i; i<KERNEL_STACK_BASE>>PAGESHIFT; i++) {
+		for (i; i<PF_COPIER; i++) {
 			if (1 == ptbr0[i].valid) {
 				ptbr0[i].valid = 0;
 				ptbr0[i].prot = PROT_NONE;

@@ -17,8 +17,10 @@
 #include "util/queue.h"
 
 /*****STATES*****/
+
 #define RUNNING 1
 #define BLOCKED 2
+#define NEW 12
 
 typedef struct pcb_t PCB;
 
@@ -41,6 +43,7 @@ struct pcb_t {
 	/* Processor state data */
 	UserContext user_context;
 	KernelContext kernel_context;
+ 
 };
 
 extern unsigned int pidCount;
