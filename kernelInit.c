@@ -3,6 +3,7 @@
 #include "trapHandlers.h"
 #include "common.h"
 #include "./include/hardware.h"
+#include "queue.h"
 #include "map.h"
 /*********PROTOTYPES*********/
 int vectorTableInit();
@@ -39,6 +40,10 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 	WriteRegister(REG_VM_ENABLE, 1);
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 	vmem_on = 1;
+
+	// Initialize Queue
+	ready_queue = queueNew();
+
 	//create map of pids to stack pfns
 	PCB idlePCB;
 	idlePCB.user_context = *uctxt;

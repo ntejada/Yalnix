@@ -1,5 +1,6 @@
 #include "list.h"
 #include "std.h"
+#include "common.h"
 
 List *
 listAllocate() {
@@ -106,12 +107,15 @@ listDelayUpdate(List *list) {
       list = list->next;
       list->prev->next = NULL;
       // Place list->prev->data->pid on ready queue.
+      queuePush(ready_queue, ((DelayData *) list->prev->data)->pid);
       list->prev = NULL;
       return list;
     } else {
       // Place list->data->pid on ready queue.
+      queuePush(ready_queue, ((DelayData *) list->data)->pid);
       return NULL;
     }
   }
   return list;
 }
+

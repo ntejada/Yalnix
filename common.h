@@ -43,19 +43,10 @@ Queue *ready_queue;
 typedef struct Node Node;
 
 
-// Cvar, Lock, Ready
-struct Queue{
-	Node * head;
-	Node * tail;
-};
-
 // Child processes.
 typedef struct {
   Node * head;
 } Stack;
-
-// Delay blocked queue
-// Instantiate new structure since will be handling different nodes 
 
 
 /*********************
@@ -113,7 +104,6 @@ typedef struct {
   Queue *cvar_queue;
   int cvar_id;
 } C_Var;
-
 
 // Lock
 typedef struct {
