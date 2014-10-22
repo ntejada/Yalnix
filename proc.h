@@ -21,7 +21,7 @@ typedef struct pcb_t PCB;
 struct pcb_t {
     /* Process identification data */
     int id;             /* Process identifier */
-    int status;         /* Exit status */
+    int status;         /* Running, blocked, or exit status */
     PCB *parent;        /* Pointer to the parent's PCB */
 
     /* Process's page table */
