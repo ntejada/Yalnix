@@ -17,11 +17,12 @@ struct _List {
   List *prev;
 };
 
-List * listAllocate();
-List * listAppend(List *list, void *data);
-List * listAppendInPlace(List *list, void *data);
-List * listPrepend(List *list, void *data);
-List * listLast(List *list);
-List * listDelayUpdate(List *list);
+extern List * listAllocate();
+extern List * listAppend(List *list, void *data);
+extern List * listAppendInPlace(List *list, void *data);
+extern List * listPrepend(List *list, void *data);
+extern List * listLast(List *list);
+extern void DelayUpdate(List *list);
+extern List * DelayPop(List *list);
 
 #endif /*!_list_h*/

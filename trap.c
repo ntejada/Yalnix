@@ -11,6 +11,7 @@
 #include "proc.h"
 #include "trap.h"
 #include "switch.h"
+#include "./util/list.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -104,8 +105,7 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
 
-    TracePrintf(2, "delay_queue pointer: %p\n", delay_queue);
-    delay_queue = listDelayUpdate(delay_queue);
+    DelayUpdate(delay_queue);
     TracePrintf(2, "passed delayUpdate\n");
     LoadNextProc(context);
 }

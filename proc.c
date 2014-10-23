@@ -9,6 +9,7 @@
 #include "../include/hardware.h"
 #include "proc.h"
 #include "switch.h"
+#include "./util/list.h"
 
 PCB *current_process;
 Queue *ready_queue;
@@ -101,7 +102,7 @@ void DoBrk(UserContext *context) {
 void DoDelay(UserContext *context) {
     TracePrintf(1, "in DoDelay\n");
     int delay = context->regs[0];
-    listAppendInPlace(delay_queue, current_process);
+    delay_queue = listAppendInPlace(delay_queue, current_process);
     LoadNextProc(context);
 }
 
@@ -110,6 +111,7 @@ void DoBlock(UserContext *context) {
 }
 
 void LoadNextProc(UserContext *context) {
+    delay_queue = DelayPop(delay_queue);
     if (!queueIsEmpty(ready_queue)) {
         current_process->user_context = *context;
         queuePush(ready_queue, current_process);

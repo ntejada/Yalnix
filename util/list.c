@@ -37,7 +37,7 @@ listAppendInPlace(List *list,
   newList->data = data;
   newList->next = NULL;
 
-  if (list) {
+  if (list->data) {
 
     while (list->next != NULL && ((PCB *)newList->next->data)->clock_count > ((PCB *)list->next->data)->clock_count)
       list = list->next;
@@ -94,16 +94,25 @@ listLast(List *list) {
   return list;
 }
 
-List *
-listDelayUpdate(List *list) {
+void
+DelayUpdate(List *list) {
+  TracePrintf(1, "IN DELAYUPDATE\n");
+
   List *start = list;
-  TracePrintf(1, "list->data: %p\n", list->data); 
+  // Allocated list from append to list outside memory that this process can access
+  TracePrintf(1, "list: %p\n", list->data); 
+  TracePrintf(1, "list->data: %p\n", list->data);
+
   while (list->data) {
     ((PCB *) list->data)->clock_count--;
+
     TracePrintf(1, "got past decrement\n");
     list = list->next;
   }
-  list = start;
+}
+
+List *
+DelayPop(List *list) {
   while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
     if (list->next) {
       list = list->next;
