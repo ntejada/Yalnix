@@ -12,23 +12,23 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
 
     TracePrintf(1, "MyKCS called. Will switch processes and reassign page table entries\n");
 
-
     curr->kernel_context = *kc_in;
 
-    TracePrintf(1, "status: %d\n", next->status);
+    if (p_curr_pcb != p_next_pcb) {
+        TracePrintf(1, "status: %d\n", next->status);
 
-    if((next->status) == NEW){
-      TracePrintf(1, "next given kernel context\n");
-      next->kernel_context = *kc_in;
-      next->status = RUNNING;
-    } 
+        for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
+                vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
+                vpn++, ki++) {
+            pZeroTable[vpn].pfn = next->kStackPages[ki];
+        }
 
-    pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn = next->kStackPages[0]; 
-    pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn = next->kStackPages[1];
+        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
-    WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
-
-    return &(curr->kernel_context);
+        return &(next->kernel_context);
+    } else {
+        return kc_in;
+    }
 }
 
 KernelContext *ForkKernel(KernelContext *kc_in, void *curr_pid, void *next_pid)

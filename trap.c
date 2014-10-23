@@ -107,18 +107,15 @@ void ClockHandler(UserContext *context) {
    // delay_queue = listDelayUpdate(delay_queue);
 
     
-    /*if (!queueIsEmpty(ready_queue)) {
-        queuePush(ready_queue, current);
-        current = queuePop(ready_queue);
-        // context switch
-    }*/
-
-	queuePush(ready_queue, current_process);
-	PCB *next = queuePop(ready_queue);
-	KernelContextSwitch(MyKCS, current_process, next);
-   	WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
-	current_process = next;
-    *context = next->user_context;
+    if (!queueIsEmpty(ready_queue)) {
+        queuePush(ready_queue, current_process);
+        PCB *next = queuePop(ready_queue);
+        KernelContextSwitch(MyKCS, current_process, next);
+        WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
+        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
+        current_process = next;
+        *context = next->user_context;
+    }
 }
 
 void IllegalHandler(UserContext *context) {

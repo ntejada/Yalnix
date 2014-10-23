@@ -2,7 +2,6 @@
 #include "switch.h"
 #include "proc.h"
 #include "frames.h"
-#include "loadProg.h"
 
 struct pte pZeroTable[MAX_PT_LEN];
 int vmem_on;
@@ -49,12 +48,13 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     args[2]=NULL;
 
     int rc = LoadProgram("./initIdle", args, idlePCB);	
-    TracePrintf(1, "rc: %d, idlePCB pc: %d\n", rc, idlePCB->user_context.pc);
     *uctxt = idlePCB->user_context;
     idlePCB->id = pidCount++;
     idlePCB->status = RUNNING;
-    idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
-    idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+    //idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
+    //idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+    idlePCB->kStackPages[0] = getNextFrame();
+    idlePCB->kStackPages[1] = getNextFrame();
 
     //set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));
@@ -62,60 +62,46 @@ KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     PCB_Init(initPCB);
     args[1]="init";
     rc = LoadProgram("./initIdle", args, initPCB);
-    TracePrintf(1, "rc: %d, initPCB pc: %d\n", rc, initPCB->user_context.pc);
 
     initPCB->id = pidCount++;
-    initPCB->status = RUNNING;
+    initPCB->status = NEW;
+    initPCB->kStackPages[0] = getNextFrame();
+    initPCB->kStackPages[1] = getNextFrame();
 
     queuePush(ready_queue, initPCB);
     current_process = idlePCB;
 
     KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
     TracePrintf(1, "KCS\n");
-
-    CopyStack(initPCB);
-
     KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
     TracePrintf(1, "created kernel context for init\n");
     return;
 }
 
 int CopyStack(PCB *pcb) {
-    pZeroTable[PF_COPIER].valid = 1;
-    pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
-
-    for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
-         vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
-         vpn++, ki++) {
-        TracePrintf(1, "vpn: %d, kstackIndex: %d\n", vpn, ki);
-        int newPfn = getNextFrame();
-        pZeroTable[PF_COPIER].pfn = newPfn;
-        memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        pcb->kStackPages[ki] = newPfn;
-    }
-
-    pZeroTable[PF_COPIER].prot = PROT_NONE;
-    pZeroTable[PF_COPIER].valid = 0;
+    for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT
 }
 
 int CopyPages(PCB *pcb)
 {
     pZeroTable[PF_COPIER].valid = 1;
-    pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
 
     for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
+        int newPfn = getNextFrame();
+        pZeroTable[PF_COPIER].pfn = newPfn;
         if (current_process->pageTable[vpn].valid) {
-            int newPfn = getNextFrame();
-            pZeroTable[PF_COPIER].pfn = newPfn;
-            memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
+            for (int *p = PF_COPIER << PAGESHIFT, *q = VMEM_1_BASE + (vpn << PAGESHIFT);
+                    p < PAGESIZE; 
+                    p++, q++) {
+                *p = *q;
+            }
+
             pcb->pageTable[vpn].valid = 1;
             pcb->pageTable[vpn].prot = current_process->pageTable[vpn].prot;
             pcb->pageTable[vpn].pfn = newPfn;
         }
     }
 
-    pZeroTable[PF_COPIER].prot = PROT_NONE;
     pZeroTable[PF_COPIER].valid = 0;
 }
 
@@ -169,10 +155,12 @@ int SetKernelBrk(void *addr)
             }
         }
         kernel_extent = addr;		
-    } else {
+    }
+    else {
         if ((int)addr < KERNEL_STACK_LIMIT && addr > kernel_data_start) {
             kernel_extent = addr;
-        } else {
+        }
+        else {
             TracePrintf(1, "addr for SetKernelBrk is above stack limit or below the heap\n");	
             return ERROR;
         }
@@ -232,19 +220,20 @@ void PageTableInit(PCB * idlePCB)
             TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
         }
     }
-    WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	
-    WriteRegister(REG_PTLR1, reg_one_limit);
-}
-
-void DoIdle() {
-    TracePrintf(1, "IN IDLE PROGRAM\n");
-    while (1) {
-        TracePrintf(1, "DoIdle\n");
-        Pause();
+    WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	WriteRegister(REG_PTLR1, reg_one_limit);
     }
-}
 
-void LoadProgramTest() {
-    //	LoadProgram("./initIdle", NULL, p_pcb); 
+    void DoIdle(void) {
+            TracePrintf(1, "IN IDLE PROGRAM\n");
+            while (1) {
+                TracePrintf(1, "DoIdle\n");
+                Pause();
+            }
+        }
 
-}
+    void LoadProgramTest() {
+            //	LoadProgram("./initIdle", NULL, p_pcb); 
+
+        }
+
+
