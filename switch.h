@@ -4,6 +4,6 @@
 #include "./include/hardware.h"
 
 extern KernelContext *MyKCS(KernelContext *, void *, void *);
-extern KernelContext *ForkKernel(KernelContext *, void *, void *);
+extern KernelContext *FirstSwitch(KernelContext *, void *, void *);
 
 #endif

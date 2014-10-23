@@ -8,7 +8,7 @@
 
 #include "../include/hardware.h"
 #include "proc.h"
-
+#include "switch.h"
 
 PCB *current_process;
 Queue *ready_queue;
@@ -23,7 +23,7 @@ void PCB_Init(PCB *pcb) {
 }
 
 List *delay_queue;
-unsigned int pidCount;
+unsigned int pidCount = 0;
 
 void RestoreState(PCB *proc, UserContext *context) {
     *context = proc->user_context;
@@ -99,8 +99,27 @@ void DoBrk(UserContext *context) {
 }
 
 void DoDelay(UserContext *context) {
+    TracePrintf(1, "in DoDelay\n");
+    int delay = context->regs[0];
+    listAppendInPlace(delay_queue, current_process);
+    LoadNextProc(context);
 }
 
 void DoBlock(UserContext *context) {
     // Move current to blocked queue
+}
+
+void LoadNextProc(UserContext *context) {
+    if (!queueIsEmpty(ready_queue)) {
+        current_process->user_context = *context;
+        queuePush(ready_queue, current_process);
+        PCB *next = queuePop(ready_queue);
+        TracePrintf(1, "Next Process Id: %d\n", next->id);
+        WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
+        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
+
+        KernelContextSwitch(MyKCS, current_process, next);
+        TracePrintf(1, "Got past MyKCS\n");
+        *context = current_process->user_context;
+    }
 }

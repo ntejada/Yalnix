@@ -30,11 +30,11 @@ KERNEL_INCS = ./frames.h ./include/hardware.h ./include/yalnix.h ./trap.h ./std.
 
 
 #List all user programs here.
-USER_APPS = ./initIdle 
+USER_APPS = ./initIdle initInit
 #List all user program source files here.  SHould be the same as the previous list, with ".c" added to each file
-USER_SRCS = ./initIdle.c
+USER_SRCS = ./initIdle.c initInit.c
 #List the objects to be formed form the user  source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
-USER_OBJS = ./initIdle.o
+USER_OBJS = ./initIdle.o initInit.o
 #List all of the header files necessary for your user programs
 USER_INCS = 
 

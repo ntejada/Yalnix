@@ -10,74 +10,80 @@ void *kernel_extent;
 void *kernel_data_start;
 struct pte *pOneTable;
 
-    void 
-SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
+void SetKernelData(void *_KernelDataStart, void *_KernelDataEnd)
 {
     kernel_data_start = _KernelDataStart;
     kernel_extent = _KernelDataEnd;
 }
 
-    void 
-KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
+void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
-
-    PCB *idlePCB = (PCB*)malloc(sizeof(PCB));	
-    memset(idlePCB, 0, sizeof(PCB));
 
     InitTrapVector();
     availableFramesListInit(pmem_size);
+    //
+    // Set up idlePCB                                                                                                 
+    PCB *idlePCB = (PCB*)malloc(sizeof(PCB));
+    memset(idlePCB, 0, sizeof(PCB));
     PCB_Init(idlePCB);
+    idlePCB->status = NEW;
+    idlePCB->id = pidCount++;
+    current_process = idlePCB;
+
     PageTableInit(idlePCB);
-
-
-    pidCount = 0;
-    // Cook things so idle process will begin running after return to userland.
-
-    // Enable virtual memory.
+    idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn;
+    idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
+    // Enable virtual memory.                                                                                         
     WriteRegister(REG_VM_ENABLE, 1);
     WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
     vmem_on = 1;
 
-    // Initialize Queues
+    // Initialize Queues                                                                                             
+    TracePrintf(1, "Initialize queues\n");
     ready_queue = queueNew();
     delay_queue = listAllocate();
-    //set up idlePCB
-    char* args[3];
 
-    args[0]="1";
-    args[1]="idle";
-    args[2]=NULL;
-
-    int rc = LoadProgram("./initIdle", args, idlePCB);	
-    TracePrintf(1, "rc: %d, idlePCB pc: %d\n", rc, idlePCB->user_context.pc);
-    *uctxt = idlePCB->user_context;
-    idlePCB->id = pidCount++;
-    idlePCB->status = RUNNING;
-    idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn; 
-    idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
-
-    //set up initPCB
+    // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));
     memset(initPCB, 0, sizeof(PCB));
     PCB_Init(initPCB);
-    args[1]="init";
-    rc = LoadProgram("./initIdle", args, initPCB);
-    TracePrintf(1, "rc: %d, initPCB pc: %d\n", rc, initPCB->user_context.pc);
-
+    initPCB->status = NEW;
     initPCB->id = pidCount++;
-    initPCB->status = RUNNING;
-
     queuePush(ready_queue, initPCB);
-    current_process = idlePCB;
+    TracePrintf(1, "Init Process Id: %d\n", initPCB->id);
+    TracePrintf(1, "pidCount: %d\n", pidCount);
 
-    KernelContextSwitch(MyKCS, (void *) idlePCB, (void *) idlePCB);
-    TracePrintf(1, "KCS\n");
+    char* args[3];
+    args[0]="1";
+    args[2]=NULL;
 
+    // Put same kernel context into both PCB's. 
     CopyStack(initPCB);
+    if (current_process->id == 0) {
+        KernelContextSwitch(FirstSwitch, (void *) idlePCB, (void *) initPCB);
+    }
+    TracePrintf(1, "Current Process Id: %d\n", current_process->id);
+    int rc;
 
-    KernelContextSwitch(MyKCS, (void *) initPCB, (void *) initPCB);
-    TracePrintf(1, "created kernel context for init\n");
-    return;
+    if (current_process->id == 0) {
+        args[1] = "idle";
+        TracePrintf(1, "idlePCB\n");
+        rc = LoadProgram("./initIdle", args, idlePCB);
+        TracePrintf(1, "rc: %d, idlePCB pc: %d\n", rc, idlePCB->user_context.pc);
+
+        *uctxt = idlePCB->user_context;
+
+        return;
+    } else {
+        args[1]="init";
+        TracePrintf(1, "initPCB\n");
+        rc = LoadProgram("./initInit", args, initPCB);
+        TracePrintf(1, "rc: %d, initPCB pc: %d\n", rc, initPCB->user_context.pc);
+
+        *uctxt = initPCB->user_context;
+
+        return;
+    }
 }
 
 int CopyStack(PCB *pcb) {
@@ -85,14 +91,20 @@ int CopyStack(PCB *pcb) {
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
 
     for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
-         vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
-         vpn++, ki++) {
+            vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
+            vpn++, ki++) {
         TracePrintf(1, "vpn: %d, kstackIndex: %d\n", vpn, ki);
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
         TracePrintf(1, "memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
+        TracePrintf(1, "saving physical frame number %d\n", newPfn);
         pcb->kStackPages[ki] = newPfn;
+        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_0);
+    }
+
+    for (int i = 0; i < 2; i++) {
+        TracePrintf(1, "saved frame number %d\n", pcb->kStackPages[i]);
     }
 
     pZeroTable[PF_COPIER].prot = PROT_NONE;
@@ -112,6 +124,7 @@ int CopyPages(PCB *pcb)
             pcb->pageTable[vpn].valid = 1;
             pcb->pageTable[vpn].prot = current_process->pageTable[vpn].prot;
             pcb->pageTable[vpn].pfn = newPfn;
+            WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
         }
     }
 
@@ -219,6 +232,7 @@ void PageTableInit(PCB * idlePCB)
     struct pte * reg_one_table = idlePCB->pageTable;
 
 
+    /*
     // Map invalid pages in Region 1.	
     for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++) {
         // Create valid entry for idle process.
@@ -232,19 +246,20 @@ void PageTableInit(PCB * idlePCB)
             TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
         }
     }
+    */
     WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	
     WriteRegister(REG_PTLR1, reg_one_limit);
-}
-
-void DoIdle() {
-    TracePrintf(1, "IN IDLE PROGRAM\n");
-    while (1) {
-        TracePrintf(1, "DoIdle\n");
-        Pause();
     }
-}
 
-void LoadProgramTest() {
-    //	LoadProgram("./initIdle", NULL, p_pcb); 
+    void DoIdle() {
+        TracePrintf(1, "IN IDLE PROGRAM\n");
+        while (1) {
+            TracePrintf(1, "DoIdle\n");
+            Pause();
+        }
+    }
 
-}
+    void LoadProgramTest() {
+        //	LoadProgram("./initIdle", NULL, p_pcb); 
+
+    }

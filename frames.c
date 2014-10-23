@@ -18,6 +18,8 @@ getNextFrame()
   int available_frame = frame_list[0];
   frame_list = frame_list+1; // Move array pointer.
   number_of_frames--;
+
+  TracePrintf(3, "getNextFrame: base pointer set to %d\n", *frame_list);
  
   return available_frame;
 }
@@ -35,6 +37,8 @@ addFrame(int frame)
   *frame_list = frame;
   number_of_frames++;
 
+  TracePrintf(3, "addFrame: base pointer set to %d\n", *frame_list);
+ 
   return SUCCESS;
 }
 

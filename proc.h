@@ -66,5 +66,6 @@ extern void DoWait(UserContext *);
 extern void DoGetPid(UserContext *);
 extern void DoBrk(UserContext *);
 extern void DoDelay(UserContext *);
+extern void LoadNextProc(UserContext *);
 
 #endif /*!_proc_h*/

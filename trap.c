@@ -104,18 +104,10 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
 
-   // delay_queue = listDelayUpdate(delay_queue);
-
-    
-    if (!queueIsEmpty(ready_queue)) {
-        queuePush(ready_queue, current_process);
-        PCB *next = queuePop(ready_queue);
-        KernelContextSwitch(MyKCS, current_process, next);
-        WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
-        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
-        current_process = next;
-        *context = next->user_context;
-    }
+    TracePrintf(2, "delay_queue pointer: %p\n", delay_queue);
+    delay_queue = listDelayUpdate(delay_queue);
+    TracePrintf(2, "passed delayUpdate\n");
+    LoadNextProc(context);
 }
 
 void IllegalHandler(UserContext *context) {

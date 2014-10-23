@@ -97,12 +97,14 @@ listLast(List *list) {
 List *
 listDelayUpdate(List *list) {
   List *start = list;
-  while (list) {
+  TracePrintf(1, "list->data: %p\n", list->data); 
+  while (list->data) {
     ((PCB *) list->data)->clock_count--;
+    TracePrintf(1, "got past decrement\n");
     list = list->next;
   }
   list = start;
-  while (list != NULL && ((PCB *) list->data)->clock_count == 0) {
+  while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
     if (list->next) {
       list = list->next;
       list->prev->next = NULL;

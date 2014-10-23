@@ -28,7 +28,7 @@ LoadProgram(char *name, char *args[], PCB* proc)
        ==>> for the process holding the new program.  
        */
 {
-  TracePrintf(0, "in LoadProg\n");
+  //TracePrintf(0, "in LoadProg\n");
   int fd;
   int (*entry)();
   struct load_info li;
@@ -80,12 +80,12 @@ LoadProgram(char *name, char *args[], PCB* proc)
    */
   size = 0;
   for (i = 0; args[i] != NULL; i++) {
-    TracePrintf(3, "counting arg %d = '%s'\n", i, args[i]);
+    //TracePrintf(3, "counting arg %d = '%s'\n", i, args[i]);
     size += strlen(args[i]) + 1;
   }
   argcount = i;
 
- TracePrintf(2, "LoadProgram: argsize %d, argcount %d\n", size, argcount);
+ //TracePrintf(2, "LoadProgram: argsize %d, argcount %d\n", size, argcount);
   
   /*
    *  The arguments will get copied starting at "cp", and the argv
@@ -220,8 +220,8 @@ if(NULL == cp2){
 ==>> These pages should be marked valid, with a
 ==>> protection of (PROT_READ | PROT_WRITE).
 */
-	TracePrintf(1, "stack pointer page bottom: %d\n", (DOWN_TO_PAGE(cp2))>>PAGESHIFT);
-	TracePrintf(1, "limit- npg: %d\nlimit: %d\n", (VMEM_0_LIMIT>>PAGESHIFT)-stack_npg, VMEM_0_LIMIT>>PAGESHIFT);
+	//TracePrintf(1, "stack pointer page bottom: %d\n", (DOWN_TO_PAGE(cp2))>>PAGESHIFT);
+	//TracePrintf(1, "limit- npg: %d\nlimit: %d\n", (VMEM_0_LIMIT>>PAGESHIFT)-stack_npg, VMEM_0_LIMIT>>PAGESHIFT);
 	for(i = (VMEM_0_LIMIT>>PAGESHIFT)-stack_npg; i<(VMEM_0_LIMIT>>PAGESHIFT); i++){
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
@@ -239,10 +239,10 @@ if(NULL == cp2){
    */
   lseek(fd, li.t_faddr, SEEK_SET);
   segment_size = li.t_npg << PAGESHIFT;
-	TracePrintf(1, "Segment Size: %ld\n", segment_size);
-	TracePrintf(1, "Text virtual address: %p\n", li.t_vaddr);
-	TracePrintf(1, "Text number of pages: %d\n", li.t_npg);
-	TracePrintf(1, "Text page 1: %d\n", text_pg1); 
+	//TracePrintf(1, "Segment Size: %ld\n", segment_size);
+	//TracePrintf(1, "Text virtual address: %p\n", li.t_vaddr);
+	//TracePrintf(1, "Text number of pages: %d\n", li.t_npg);
+	//TracePrintf(1, "Text page 1: %d\n", text_pg1); 
   if (read(fd, (void *) li.t_vaddr, segment_size) != segment_size) {
     close(fd);
 
@@ -257,7 +257,7 @@ if(NULL == cp2){
    */
   lseek(fd, li.id_faddr, 0);
   segment_size = li.id_npg << PAGESHIFT;
-  TracePrintf(1, "second read\n");
+  //TracePrintf(1, "second read\n");
   if (read(fd, (void *) li.id_vaddr, segment_size) != segment_size) {
     close(fd);
     return KILL;
@@ -281,7 +281,7 @@ if(NULL == cp2){
 	for(i=text_pg1;	i<li.t_npg; i++) {	// not sure if it should be ++ or --
 		ptable[i].prot = (PROT_READ | PROT_EXEC);	
 	}
-	TracePrintf(1, "changed the protections");
+	TracePrintf(1, "changed the protections\n");
 	//flush the TLB
 	WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL);
 
