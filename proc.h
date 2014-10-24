@@ -22,6 +22,10 @@
 #define BLOCKED 2
 #define NEW 12
 
+
+#define BLOCK 1
+#define NO_BLOCK 0
+
 typedef struct pcb_t PCB;
 
 struct pcb_t {
@@ -50,8 +54,8 @@ extern unsigned int pidCount;
 
 extern PCB *current_process;
 extern Queue *ready_queue;
+extern Queue *delay_queue;
 
-extern List *delay_queue;
 /* Prototypes of process helper functions */
 extern void PCB_Init(PCB *);
 extern void RestoreState(PCB *, UserContext *);
@@ -66,6 +70,6 @@ extern void DoWait(UserContext *);
 extern void DoGetPid(UserContext *);
 extern void DoBrk(UserContext *);
 extern void DoDelay(UserContext *);
-extern void LoadNextProc(UserContext *);
+extern void LoadNextProc(UserContext *, int);
 
 #endif /*!_proc_h*/

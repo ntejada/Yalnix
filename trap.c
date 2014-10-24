@@ -8,6 +8,7 @@
 
 #include "../include/hardware.h"
 #include "../include/yalnix.h"
+#include "delay.h"
 #include "proc.h"
 #include "trap.h"
 #include "switch.h"
@@ -104,10 +105,9 @@ void KernelCallHandler(UserContext *context) {
 
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
-
-    DelayUpdate(delay_queue);
+    DelayUpdate();
     TracePrintf(2, "passed delayUpdate\n");
-    LoadNextProc(context);
+    LoadNextProc(context, NO_BLOCK);
 }
 
 void IllegalHandler(UserContext *context) {

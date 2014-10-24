@@ -41,7 +41,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     // Initialize Queues                                                                                             
     TracePrintf(1, "Initialize queues\n");
     ready_queue = queueNew();
-    delay_queue = listAllocate();
+    delay_queue = queueNew();
 
     // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));

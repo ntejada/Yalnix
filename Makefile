@@ -22,11 +22,11 @@ ALL = $(KERNEL_ALL) $(USER_APPS)
 KERNEL_ALL = yalnix
 
 #List all kernel source files here.  
-KERNEL_SRCS =  ./init.c ./frames.c ./trap.c ./syscall.c ./loadProg.c ./switch.c ./proc.c ./util/queue.c ./util/list.c
+KERNEL_SRCS =  ./init.c ./frames.c ./trap.c ./syscall.c ./loadProg.c ./switch.c ./proc.c ./util/queue.c ./util/list.c delay.c
 #List the objects to be formed form the kernel source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
 KERNEL_OBJS = $(KERNEL_SRCS:.c=.o)
 #List all of the header files necessary for your kernel
-KERNEL_INCS = ./frames.h ./include/hardware.h ./include/yalnix.h ./trap.h ./std.h ./proc.h ./util/queue.h ./util/list.h
+KERNEL_INCS = ./frames.h ./include/hardware.h ./include/yalnix.h ./trap.h ./std.h ./proc.h ./util/queue.h ./util/list.h delay.h
 
 
 #List all user programs here.

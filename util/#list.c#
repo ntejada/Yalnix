@@ -94,7 +94,6 @@ listLast(List *list) {
   return list;
 }
 
-/*
 void
 DelayUpdate(List *list) {
   TracePrintf(1, "IN DELAYUPDATE\n");
@@ -105,12 +104,14 @@ DelayUpdate(List *list) {
   TracePrintf(1, "list->data: %p\n", list->data);
 
   while (list->data) {
+.
     ((PCB *) list->data)->clock_count--;
 
     TracePrintf(1, "got past decrement\n");
     list = list->next;
   }
 }
+
 List *
 DelayPop(List *list) {
   while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
@@ -123,10 +124,9 @@ DelayPop(List *list) {
     } else {
       // Place list->data->pid on ready queue.
       queuePush(ready_queue, ((PCB *) list->data)->id);
-    return NULL;
+      return NULL;
     }
   }
   return list;
 }
 
-*/

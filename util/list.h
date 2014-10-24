@@ -22,7 +22,5 @@ extern List * listAppend(List *list, void *data);
 extern List * listAppendInPlace(List *list, void *data);
 extern List * listPrepend(List *list, void *data);
 extern List * listLast(List *list);
-extern void DelayUpdate(List *list);
-extern List * DelayPop(List *list);
 
 #endif /*!_list_h*/

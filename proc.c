@@ -8,11 +8,13 @@
 
 #include "../include/hardware.h"
 #include "proc.h"
+#include "delay.h"
 #include "switch.h"
 #include "./util/list.h"
 
 PCB *current_process;
 Queue *ready_queue;
+Queue *delay_queue;
 
 void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
@@ -23,7 +25,6 @@ void PCB_Init(PCB *pcb) {
 
 }
 
-List *delay_queue;
 unsigned int pidCount = 0;
 
 void RestoreState(PCB *proc, UserContext *context) {
@@ -101,20 +102,23 @@ void DoBrk(UserContext *context) {
 
 void DoDelay(UserContext *context) {
     TracePrintf(1, "in DoDelay\n");
-    int delay = context->regs[0];
-    delay_queue = listAppendInPlace(delay_queue, current_process);
-    LoadNextProc(context);
+    current_process->clock_count = context->regs[0];
+    TracePrintf(1, "Delay: %d\n", context->regs[0]);
+    DelayAdd(current_process);
+    LoadNextProc(context, BLOCK);
 }
 
 void DoBlock(UserContext *context) {
     // Move current to blocked queue
 }
 
-void LoadNextProc(UserContext *context) {
-    delay_queue = DelayPop(delay_queue);
+void LoadNextProc(UserContext *context, int block) {
+    DelayPop();
     if (!queueIsEmpty(ready_queue)) {
         current_process->user_context = *context;
-        queuePush(ready_queue, current_process);
+	if (block == NO_BLOCK) {
+        	queuePush(ready_queue, current_process);
+	}
         PCB *next = queuePop(ready_queue);
         TracePrintf(1, "Next Process Id: %d\n", next->id);
         WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
