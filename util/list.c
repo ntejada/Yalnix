@@ -97,6 +97,7 @@ listLast(List *list) {
   return list;
 }
 
+/*
 void
 DelayUpdate(List *list) {
   TracePrintf(1, "IN DELAYUPDATE\n");
@@ -112,7 +113,6 @@ DelayUpdate(List *list) {
     list = list->next;
   }
 }
-
 List *
 DelayPop(List *list) {
   	TracePrintf(1, "DelayPop: list pointer %p with data %p\n", list, list->data);
@@ -125,11 +125,17 @@ DelayPop(List *list) {
       list->prev = NULL;
     } else {
       // Place list->data->pid on ready queue.
+<<<<<<< HEAD
 	queuePush(ready_queue, ((PCB *) list->data)->id);
       list->data=NULL;
 	return list;
+=======
+      queuePush(ready_queue, ((PCB *) list->data)->id);
+    return NULL;
+>>>>>>> 5ac805abb02da4ea92d42be3ac0435bb24ef8af2
     }
   }
   return list;
 }
 
+*/

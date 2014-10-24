@@ -8,11 +8,13 @@
 
 #include "../include/hardware.h"
 #include "proc.h"
+#include "delay.h"
 #include "switch.h"
 #include "./util/list.h"
-
+#include "std.h"
 PCB *current_process;
 Queue *ready_queue;
+Queue *delay_queue;
 
 void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
@@ -23,7 +25,6 @@ void PCB_Init(PCB *pcb) {
 
 }
 
-List *delay_queue;
 unsigned int pidCount = 0;
 
 void RestoreState(PCB *proc, UserContext *context) {
@@ -95,7 +96,7 @@ void DoGetPid(UserContext *context) {
     context->regs[0] = current_process->id;
 }
 
-int DoBrk(UserContext *context) {
+void DoBrk(UserContext *context) {
     // TODO: need to do some stuff here with MMU
 	void * addr = context->regs[0];
 	int newPageBrk = (UP_TO_PAGE(addr)>>PAGESHIFT);
@@ -109,42 +110,44 @@ int DoBrk(UserContext *context) {
 		if(i<newPageBrk && current_process->pageTable[i].valid==0){
 			current_process->pageTable[i].valid=1;
 			current_process->pageTable[i].pfn = getNextFrame();
-			current_process->pageTable[i].PROT = (PROT_READ | PROT_WRITE);
+			current_process->pageTable[i].prot = (PROT_READ | PROT_WRITE);
 		}
 		//unmap pages after new brk
 		if(i>=newPageBrk && current_process->pageTable[i].valid == 1){
 			current_process->pageTable[i].valid=0;
 			if(ERROR == addFrame(current_process->pageTable[i].pfn)){
 				TracePrintf(1, "Too Many Frames\n");
-				return ERROR;
+				context->regs[0]=ERROR;
+				return;
 			}
 			current_process->pageTable[i].pfn = -1;
 		}
 	}
-	return SUCCESS;
+	context->regs[0]= SUCCESS;
+	return;
 
 }
 
 void DoDelay(UserContext *context) {
     TracePrintf(1, "in DoDelay\n");
-    int delay = context->regs[0];
-    delay_queue = listAppendInPlace(delay_queue, current_process);
-    LoadNextProc(context);
+    current_process->clock_count = context->regs[0];
+    TracePrintf(1, "Delay: %d\n", context->regs[0]);
+    DelayAdd(current_process);
+    LoadNextProc(context, BLOCK);
 }
 
 void DoBlock(UserContext *context) {
     // Move current to blocked queue
 }
 
-void LoadNextProc(UserContext *context) {
-    delay_queue = DelayPop(delay_queue);
+void LoadNextProc(UserContext *context, int block) {
+    DelayPop();
     if (!queueIsEmpty(ready_queue)) {
-        TracePrintf(1,"LoadNextProc: Past delayPop\n");
-	current_process->user_context = *context;
-        queuePush(ready_queue, current_process);
-        TracePrintf(1, "LoadNextProc: past push\n");
-	PCB *next = queuePop(ready_queue);
-	TracePrintf(1, "LoadNextProc: past pop with Pid %d popped off\n", next->id);
+       current_process->user_context = *context;
+	if (block == NO_BLOCK) {
+        	queuePush(ready_queue, current_process);
+	}
+        PCB *next = queuePop(ready_queue);
         TracePrintf(1, "Next Process Id: %d\n", next->id);
         WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
