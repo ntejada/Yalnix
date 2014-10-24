@@ -1,3 +1,13 @@
+/* 
+ * Yalnix for Linux/x86, COSC 058 Fall 2014
+ *
+ * Bookkeeping for free frames and giving out and returning frames
+ *
+ * Authors: Nic Tejada, Garrett Watumull, Shuo Zheng
+ *
+ * created October 20, 2014
+ */
+
 #ifndef _frames_h
 #define _frames_h
 

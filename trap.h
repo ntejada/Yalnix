@@ -1,7 +1,7 @@
 /* 
  * Yalnix for Linux/x86, COSC 058 Fall 2014
  *
- * Authors: Shuo Zheng
+ * Authors: Nic Tejada, Garrett Watumull, Shuo Zheng
  *
  * created October 8, 2014  szheng
  */
@@ -9,8 +9,8 @@
 #ifndef _trap_h
 #define _trap_h
 
-#include "../include/yalnix.h"
-#include "../include/hardware.h"
+#include <yalnix.h>
+#include <hardware.h>
 
 extern void *trapVector[];
 

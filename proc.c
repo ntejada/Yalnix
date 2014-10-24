@@ -1,12 +1,12 @@
 /* 
  * Yalnix for Linux/x86, COSC 058 Fall 2014
  *
- * Authors: Shuo Zheng and Brian Kim
+ * Authors: Shuo Zheng, Garrett Watamull, Nic Tejada
  *
  * created October 8, 2014  szheng
  */
 
-#include "../include/hardware.h"
+#include <hardware.h>
 #include "proc.h"
 #include "delay.h"
 #include "switch.h"
@@ -106,10 +106,6 @@ void DoDelay(UserContext *context) {
     TracePrintf(1, "Delay: %d\n", context->regs[0]);
     DelayAdd(current_process);
     LoadNextProc(context, BLOCK);
-}
-
-void DoBlock(UserContext *context) {
-    // Move current to blocked queue
 }
 
 void LoadNextProc(UserContext *context, int block) {

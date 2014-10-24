@@ -1,7 +1,7 @@
 #include "std.h"
 #include "proc.h"
 #include "frames.h"
-#include "./include/hardware.h"
+#include <hardware.h>
 #include "switch.h"
 #include "init.h"
 
