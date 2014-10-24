@@ -95,8 +95,34 @@ void DoGetPid(UserContext *context) {
     context->regs[0] = current_process->id;
 }
 
-void DoBrk(UserContext *context) {
+int DoBrk(UserContext *context) {
     // TODO: need to do some stuff here with MMU
+	void * addr = context->regs[0];
+	int newPageBrk = (UP_TO_PAGE(addr)>>PAGESHIFT);
+	if(newPageBrk>=(DOWN_TO_PAGE(context->sp)>>PAGESHIFT)){
+		TracePrintf(1, "User Brk error: addr %p is above the stack", addr);
+		return ERROR;
+	}
+	
+	for(int i = 0; i<(DOWN_TO_PAGE(context->sp)>>PAGESHIFT); i++){
+		//map pages before new brk
+		if(i<newPageBrk && current_process->pageTable[i].valid==0){
+			current_process->pageTable[i].valid=1;
+			current_process->pageTable[i].pfn = getNextFrame();
+			current_process->pageTable[i].PROT = (PROT_READ | PROT_WRITE);
+		}
+		//unmap pages after new brk
+		if(i>=newPageBrk && current_process->pageTable[i].valid == 1){
+			current_process->pageTable[i].valid=0;
+			if(ERROR == addFrame(current_process->pageTable[i].pfn)){
+				TracePrintf(1, "Too Many Frames\n");
+				return ERROR;
+			}
+			current_process->pageTable[i].pfn = -1;
+		}
+	}
+	return SUCCESS;
+
 }
 
 void DoDelay(UserContext *context) {
@@ -113,9 +139,12 @@ void DoBlock(UserContext *context) {
 void LoadNextProc(UserContext *context) {
     delay_queue = DelayPop(delay_queue);
     if (!queueIsEmpty(ready_queue)) {
-        current_process->user_context = *context;
+        TracePrintf(1,"LoadNextProc: Past delayPop\n");
+	current_process->user_context = *context;
         queuePush(ready_queue, current_process);
-        PCB *next = queuePop(ready_queue);
+        TracePrintf(1, "LoadNextProc: past push\n");
+	PCB *next = queuePop(ready_queue);
+	TracePrintf(1, "LoadNextProc: past pop with Pid %d popped off\n", next->id);
         TracePrintf(1, "Next Process Id: %d\n", next->id);
         WriteRegister(REG_PTBR1, (unsigned int)&(next->pageTable)); 
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
