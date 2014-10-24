@@ -182,7 +182,7 @@ if(NULL == cp2){
 	struct pte * ptable = proc->pageTable;
 	for(i=0; i<MAX_PT_LEN; i++) {
 		if(ptable[i].valid == 1){
-			TracePrintf(1, "%s: page %d is set to valid\n", args[1], i);
+			TracePrintf(1, "LoadProg: %s: page %d is set to valid with pfn %d\n", args[1], i, ptable[i].pfn);
 			ptable[i].valid = 0;
 			addFrame(ptable[i].pfn);
 			ptable[i].prot = PROT_NONE;
@@ -198,7 +198,7 @@ if(NULL == cp2){
 		ptable[i].valid = 1;
 		ptable[i].pfn = getNextFrame();
 		ptable[i].prot = (PROT_READ | PROT_WRITE);	
-		TracePrintf(1, "text page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
+		TracePrintf(1, "LoadProg: text page %d: valid with frame %d and read write prots\n", i, ptable[i].pfn);
 	}
 
 
@@ -308,7 +308,9 @@ if(NULL == cp2){
 #endif
 
 
-
+	for(int index=0; i<MAX_PT_LEN; i++){
+		TracePrintf(1, "PID %d PTABLE ===== pte %i has pfn %d and has valid bit set to %d\n", proc->id, i, proc->pageTable[i].pfn, proc->pageTable[i].valid); 
+	}
     *cpp++ = (char *)argcount;		/* the first value at cpp is argc */
     cp2 = argbuf;
     for (i = 0; i < argcount; i++) {      /* copy each argument and set argv */

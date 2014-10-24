@@ -12,6 +12,7 @@
 #include "switch.h"
 #include "./util/list.h"
 #include "std.h"
+#include "frames.h"
 PCB *current_process;
 Queue *ready_queue;
 Queue *delay_queue;
@@ -98,22 +99,28 @@ void DoGetPid(UserContext *context) {
 
 void DoBrk(UserContext *context) {
     // TODO: need to do some stuff here with MMU
-	void * addr = context->regs[0];
-	int newPageBrk = (UP_TO_PAGE(addr)>>PAGESHIFT);
-	if(newPageBrk>=(DOWN_TO_PAGE(context->sp)>>PAGESHIFT)){
-		TracePrintf(1, "User Brk error: addr %p is above the stack", addr);
-		return ERROR;
+	void * addr = (void*)context->regs[0];
+	int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
+	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT);
+	TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
+	if(newPageBrk>=spPage){
+		TracePrintf(1, "User Brk error: addr %p is above the stack\n", addr);
+		context->regs[0]=ERROR;
+		return;
 	}
-	
-	for(int i = 0; i<(DOWN_TO_PAGE(context->sp)>>PAGESHIFT); i++){
+	TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
+	for(int i = 0; i<spPage; i++){
 		//map pages before new brk
 		if(i<newPageBrk && current_process->pageTable[i].valid==0){
 			current_process->pageTable[i].valid=1;
 			current_process->pageTable[i].pfn = getNextFrame();
 			current_process->pageTable[i].prot = (PROT_READ | PROT_WRITE);
+			TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
+					i, current_process->pageTable[i].pfn);
 		}
 		//unmap pages after new brk
-		if(i>=newPageBrk && current_process->pageTable[i].valid == 1){
+		if(i>=newPageBrk && (current_process->pageTable[i].valid == 1)){
+			TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->pageTable[i].pfn); 
 			current_process->pageTable[i].valid=0;
 			if(ERROR == addFrame(current_process->pageTable[i].pfn)){
 				TracePrintf(1, "Too Many Frames\n");
@@ -121,6 +128,8 @@ void DoBrk(UserContext *context) {
 				return;
 			}
 			current_process->pageTable[i].pfn = -1;
+			
+			TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
 		}
 	}
 	context->regs[0]= SUCCESS;

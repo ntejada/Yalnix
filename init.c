@@ -77,7 +77,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     } else {
         args[1]="init";
         TracePrintf(1, "initPCB\n");
-        rc = LoadProgram("./initInit", args, initPCB);
+        rc = LoadProgram("./brkTest", args, initPCB);
         TracePrintf(1, "rc: %d, initPCB pc: %d\n", rc, initPCB->user_context.pc);
 
         *uctxt = initPCB->user_context;
