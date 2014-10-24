@@ -18,4 +18,12 @@ initIdle.c / initInit.c - Idle and Init processes to run in KernelStart
 
 trap.* - modifications made to Clock Handler: Context switches to a new process every clock tick and also updates the processes that called delay. 
 
-proc.* - holds info the PCB struct and function to create PCB. DoBrk executes Brk call from a user process calling malloc. DoDelay places process that called delay onto delay_queue and context switches to a ready process. LoadNextProc removes any processes from the delay queue that are ready to execute and then pops of next process from ready queue to be executed, then performing a context switch. DoGetPid retrieves PID of current running process. 
+proc.* - holds info the PCB struct and function to create PCB. DoBrk executes Brk call from a user process calling malloc. DoDelay places process that called delay onto delay_queue and context switches to a ready process. LoadNextProc removes any processes from the delay queue that are ready to execute and then pops of next process from ready queue to be executed, then performing a context switch. DoGetPid retrieves PID of current running process.
+
+***User Programs***
+
+initIdle - our idle process
+
+initInit - tests our delay syscall
+
+brkTest - tests our brk syscall and getPid 
