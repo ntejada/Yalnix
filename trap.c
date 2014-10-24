@@ -6,13 +6,13 @@
  * created October 8, 2014  szheng
  */
 
-#include "../include/hardware.h"
-#include "../include/yalnix.h"
+#include <hardware.h>
+#include <yalnix.h>
 #include "delay.h"
 #include "proc.h"
 #include "trap.h"
 #include "switch.h"
-#include "./util/list.h"
+#include "util/list.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 

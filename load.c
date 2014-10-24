@@ -8,7 +8,6 @@
 #include <hardware.h>
 #include <load_info.h>
 //==>> #include anything you need for your kernel here
-#include "./include/hardware.h"
 #include "frames.h"
 #include "proc.h"
 #include "std.h"

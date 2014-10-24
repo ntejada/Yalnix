@@ -2,7 +2,7 @@
 #include "switch.h"
 #include "proc.h"
 #include "frames.h"
-#include "loadProg.h"
+#include "load.h"
 
 struct pte pZeroTable[MAX_PT_LEN];
 int vmem_on;

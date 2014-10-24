@@ -1,9 +1,10 @@
 /* 
  * Yalnix for Linux/x86, COSC 058 Fall 2014
  *
- * Process control structures - PCB, running process, ready and blocked queues
+ * Process control structures - PCB, running process, ready 
+ * and blocked queues for various reasons
  *
- * Authors: Shuo Zheng
+ * Authors: Shuo Zheng, Garrett Watumull, Nic Tejada
  *
  * created October 8, 2014  szheng
  */
@@ -11,8 +12,8 @@
 #ifndef _proc_h
 #define _proc_h
 
-#include "./include/yalnix.h"
-#include "./include/hardware.h"
+#include <yalnix.h>
+#include <hardware.h>
 #include "util/list.h"
 #include "util/queue.h"
 

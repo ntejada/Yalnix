@@ -1,5 +1,5 @@
-#include "./frames.h"
-#include "./include/hardware.h"
+#include "frames.h"
+#include <hardware.h>
 #include "std.h"
 // Get next available frame. 
 // Return -1 if no frames left.
