@@ -11,7 +11,7 @@
 #include "delay.h"
 #include "switch.h"
 #include "./util/list.h"
-
+#include "std.h"
 PCB *current_process;
 Queue *ready_queue;
 Queue *delay_queue;
@@ -98,6 +98,34 @@ void DoGetPid(UserContext *context) {
 
 void DoBrk(UserContext *context) {
     // TODO: need to do some stuff here with MMU
+	void * addr = context->regs[0];
+	int newPageBrk = (UP_TO_PAGE(addr)>>PAGESHIFT);
+	if(newPageBrk>=(DOWN_TO_PAGE(context->sp)>>PAGESHIFT)){
+		TracePrintf(1, "User Brk error: addr %p is above the stack", addr);
+		return ERROR;
+	}
+	
+	for(int i = 0; i<(DOWN_TO_PAGE(context->sp)>>PAGESHIFT); i++){
+		//map pages before new brk
+		if(i<newPageBrk && current_process->pageTable[i].valid==0){
+			current_process->pageTable[i].valid=1;
+			current_process->pageTable[i].pfn = getNextFrame();
+			current_process->pageTable[i].prot = (PROT_READ | PROT_WRITE);
+		}
+		//unmap pages after new brk
+		if(i>=newPageBrk && current_process->pageTable[i].valid == 1){
+			current_process->pageTable[i].valid=0;
+			if(ERROR == addFrame(current_process->pageTable[i].pfn)){
+				TracePrintf(1, "Too Many Frames\n");
+				context->regs[0]=ERROR;
+				return;
+			}
+			current_process->pageTable[i].pfn = -1;
+		}
+	}
+	context->regs[0]= SUCCESS;
+	return;
+
 }
 
 void DoDelay(UserContext *context) {
@@ -111,7 +139,7 @@ void DoDelay(UserContext *context) {
 void LoadNextProc(UserContext *context, int block) {
     DelayPop();
     if (!queueIsEmpty(ready_queue)) {
-        current_process->user_context = *context;
+       current_process->user_context = *context;
 	if (block == NO_BLOCK) {
         	queuePush(ready_queue, current_process);
 	}

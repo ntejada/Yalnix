@@ -34,9 +34,10 @@ listAppendInPlace(List *list,
   start = list;
 
   newList = listAllocate();
+TracePrintf(1, "list Append: newList malloced at %d\n", (int)(newList)>>PAGESHIFT);
   newList->data = data;
   newList->next = NULL;
-
+	TracePrintf(1, "list Append: list head data: %p\n", start->data);
   if (list->data) {
 
     while (list->next != NULL && ((PCB *)newList->next->data)->clock_count > ((PCB *)list->next->data)->clock_count)
@@ -59,7 +60,9 @@ listAppendInPlace(List *list,
       return start;
     }
   } else {
-    newList->prev = NULL;
+    
+	TracePrintf(1, "list Append: appended at beginning data with pointer %p\n", newList->data);
+	newList->prev = NULL;
     return newList;
   }
 }
@@ -98,10 +101,9 @@ listLast(List *list) {
 void
 DelayUpdate(List *list) {
   TracePrintf(1, "IN DELAYUPDATE\n");
-
   List *start = list;
   // Allocated list from append to list outside memory that this process can access
-  TracePrintf(1, "list: %p\n", list->data); 
+  TracePrintf(1, "list: %p\n", list); 
   TracePrintf(1, "list->data: %p\n", list->data);
 
   while (list->data) {
@@ -113,7 +115,8 @@ DelayUpdate(List *list) {
 }
 List *
 DelayPop(List *list) {
-  while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
+  	TracePrintf(1, "DelayPop: list pointer %p with data %p\n", list, list->data);
+	while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
     if (list->next) {
       list = list->next;
       list->prev->next = NULL;
@@ -122,8 +125,14 @@ DelayPop(List *list) {
       list->prev = NULL;
     } else {
       // Place list->data->pid on ready queue.
+<<<<<<< HEAD
+	queuePush(ready_queue, ((PCB *) list->data)->id);
+      list->data=NULL;
+	return list;
+=======
       queuePush(ready_queue, ((PCB *) list->data)->id);
     return NULL;
+>>>>>>> 5ac805abb02da4ea92d42be3ac0435bb24ef8af2
     }
   }
   return list;

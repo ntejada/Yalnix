@@ -1,0 +1,21 @@
+Shuo Zheng, Nic Tejada, Garrett Watumull
+
+CHECKPOINT 3:
+
+We successfully completed this checkpoint. We had to heavily modify our KernelStart function since we could not successfully call LoadProgram twice within the same process. Because we only have one running process besides our idle process, we could not rigorously test Delay and Brk, but both of these calls seemed to work when we tested them with init. 
+
+frames.* - holds functions to keep track of available frames in physical memory. getNextFrame, initFrameList, and addFrame. 
+
+switch.* - contains info for context switching. FirstSwitch places a valid kernel context into both the init and idle processes. MyKCS handles context switching between two processes where at least one already has a valid kernel context.
+
+loadProg.* - program to create usercontext for a process
+
+delay.* - contains functions to update a delayed blocked queue and place those processes back on the ready queue after there have been the specified number of clock ticks
+
+init.* - modifications made to KernelStart and creation of functions copyStack and copyPages
+
+initIdle.c / initInit.c - Idle and Init processes to run in KernelStart
+
+trap.* - modifications made to Clock Handler: Context switches to a new process every clock tick and also updates the processes that called delay. 
+
+proc.* - holds info the PCB struct and function to create PCB. DoBrk executes Brk call from a user process calling malloc. DoDelay places process that called delay onto delay_queue and context switches to a ready process. LoadNextProc removes any processes from the delay queue that are ready to execute and then pops of next process from ready queue to be executed, then performing a context switch. DoGetPid retrieves PID of current running process. 
