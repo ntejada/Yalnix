@@ -22,5 +22,6 @@ extern List * listAppend(List *list, void *data);
 extern List * listAppendInPlace(List *list, void *data);
 extern List * listPrepend(List *list, void *data);
 extern List * listLast(List *list);
+extern List * listRemove(List *list);
 
 #endif /*!_list_h*/

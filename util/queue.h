@@ -11,10 +11,10 @@ struct _Queue {
     int  length;
 };
 
-Queue * queueNew();
-void queuePush(Queue *queue, void *data);
-void * queuePop(Queue *queue);
-int queueIsEmpty(Queue *queue);
-void * queueRemove(Queue *queue, void *data);
+extern Queue * queueNew();
+extern void queuePush(Queue *queue, void *data);
+extern void * queuePop(Queue *queue);
+extern int queueIsEmpty(Queue *queue);
+extern void * queueRemove(Queue *queue, void *data);
 
 #endif /*!_queue_h*/

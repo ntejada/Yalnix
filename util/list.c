@@ -97,45 +97,23 @@ listLast(List *list) {
   return list;
 }
 
-/*
-void
-DelayUpdate(List *list) {
-  TracePrintf(1, "IN DELAYUPDATE\n");
-  List *start = list;
-  // Allocated list from append to list outside memory that this process can access
-  TracePrintf(1, "list: %p\n", list); 
-  TracePrintf(1, "list->data: %p\n", list->data);
-
-  while (list->data) {
-    ((PCB *) list->data)->clock_count--;
-
-    TracePrintf(1, "got past decrement\n");
-    list = list->next;
-  }
-}
 List *
-DelayPop(List *list) {
-  	TracePrintf(1, "DelayPop: list pointer %p with data %p\n", list, list->data);
-	while (list->data != NULL && ((PCB *) list->data)->clock_count == 0) {
-    if (list->next) {
-      list = list->next;
-      list->prev->next = NULL;
-      // Place list->prev->data->pid on ready queue.
-      queuePush(ready_queue, ((PCB *) list->prev->data)->id);
-      list->prev = NULL;
-    } else {
-      // Place list->data->pid on ready queue.
-<<<<<<< HEAD
-	queuePush(ready_queue, ((PCB *) list->data)->id);
-      list->data=NULL;
-	return list;
-=======
-      queuePush(ready_queue, ((PCB *) list->data)->id);
-    return NULL;
->>>>>>> 5ac805abb02da4ea92d42be3ac0435bb24ef8af2
+listRemove(List *list, void *data) {
+    List *head = list;
+    if (list) {
+	if (list->data == list) {
+	    head = list->next;
+	    head->prev = NULL;
+	    free(list);
+	} else {
+	    while (list && list->data != data) 
+		list= list->next;
+	    
+	    list->prev->next = list->next;
+	    list->next->prev = list->prev;
+	    free(list);
+	}
     }
-  }
-  return list;
+    return head;
 }
 
-*/

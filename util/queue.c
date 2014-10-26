@@ -58,7 +58,7 @@ queueRemove(Queue *queue,
 	    queuePop(queue);
 	} else {
 	    while (node)
-	    
+		
 	}
 
 
