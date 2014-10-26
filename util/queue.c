@@ -46,23 +46,10 @@ queuePop(Queue *queue) {
     return NULL;
 }
 
-void *
+void 
 queueRemove(Queue *queue, 
 	    void *data) {
-  
-    if (queue->head) {
-	List *node = queue->head;
-	void *curr_data = node->data;
-	// Removing head
-	if (data == curr_data) {
-	    queuePop(queue);
-	} else {
-	    while (node)
-		
-	}
-
-
-    }
+    queue->head = listRemove(queue->head, data);  
 
 }
 

@@ -81,7 +81,7 @@ void DoWait(UserContext *context) {
 		if (queueIsEmpty(current_process->deadChildren)) {
 			current_process->status = WAITING;
 			queuePush(wait_queue, current_process);
-			loadNextProc(context, BLOCK);
+			LoadNextProc(context, BLOCK);
 		}
 
 		ZCB *child = queuePop(current_process->deadChildren);
@@ -98,10 +98,11 @@ void DoBrk(UserContext *context) {
 	// TODO: need to do some stuff here with MMU
 	void * addr = (void*)context->regs[0];
 	int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
-	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT);
+	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
+
 	TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
 	if(newPageBrk>=spPage){
-		TracePrintf(1, "User Brk error: addr %p is above the stack\n", addr);
+		TracePrintf(1, "User Brk error: addr %p is above allocatable region - interferes with the stack\n", addr);
 		context->regs[0]=ERROR;
 		return;
 	}
