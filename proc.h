@@ -33,33 +33,34 @@ typedef struct zcb_t ZCB;
 
 
 struct pcb_t {
-	/* Process identification data */
-	int id;             /* Process identifier */
-	int status;         /* Running, blocked, or exit status */
-	PCB *parent;        /* Pointer to the parent's PCB */
-  int clock_count;
-	/* Process's page table */
-	struct pte pageTable[MAX_PT_LEN];
-    
-	/* Kernel stack pfns associated with this process */
-        int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
+    /* Process identification data */
+    int id;             /* Process identifier */
+    int status;         /* Running, blocked, or exit status */
+    PCB *parent;        /* Pointer to the parent's PCB */
+    int clock_count;    /* Remain time to wait after a Delay() call */
 
-	/* Process control data */
-  Queue *children;     /* List of children */  // PCBs
-  Queue *deadChildren; /* List of zombie/defunct children */ // ZCBs
+    /* Process's page table */
+    struct pte pageTable[MAX_PT_LEN];
 
-	/* Processor state data */
-	UserContext user_context;
-	KernelContext kernel_context;
- 
+    /* Kernel stack pfns associated with this process */
+    int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
+
+    /* Process control data */
+    Queue *children;     /* List of children */  // PCBs
+    Queue *deadChildren; /* List of zombie/defunct children */ // ZCBs
+
+    /* Processor state data */
+    UserContext user_context;
+    KernelContext kernel_context;
+
 };
 
 struct zcb_t {
-  int id;
-  int status;
+    int id;
+    int status;
 };
 
-extern unsigned int pidCount;
+extern unsigned int pidCount; // Counter for next PID
 
 extern PCB *current_process;
 extern Queue *ready_queue;
@@ -82,5 +83,7 @@ extern void DoGetPid(UserContext *);
 extern void DoBrk(UserContext *);
 extern void DoDelay(UserContext *);
 extern void LoadNextProc(UserContext *, int);
+extern void KillProc(PCB *);
+extern void FreePCB(PCB *);
 
 #endif /*!_proc_h*/
