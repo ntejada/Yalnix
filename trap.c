@@ -111,24 +111,50 @@ void ClockHandler(UserContext *context) {
 }
 
 void IllegalHandler(UserContext *context) {
-    switch (context->code) {
-    case YALNIX_MAPERR:
-        // Segfault!!!??
-        break;
-    case YALNIX_ACCERR:
-        // 
-        break;
-    }
+    TracePrintf(1, "Illegal Instruction. Killing Current Process.\n");
+    current_process->status = KILL;
+    KillProc(current_process);
+    LoadNextProc(context, BLOCK);
 }
 
 void MathHandler(UserContext *context) {
-    // segfault
-    // is there no way to tell which math error it is?
+    TracePrintf(1, "Math Error. Killing Current Process.\n");
+    current_process->status = KILL;
+    KillProc(current_process);
+    LoadNextProc(context, BLOCK);
 }
 
 void MemoryHandler(UserContext *context) {
-    // check if violating address is within process stack
-    // if so, allocate memory
+    TracePrintf(1, "Trap Memory\n");
+
+    switch (context->code) {
+    case YALNIX_MAPERR:
+	int newStackPage = (DOWN_TO_PAGE(context->addr - VMEM_1_BASE)>>PAGESHIFT);
+	if (current_process->pageTable[newStackPage - 1].valid == 1) {
+	    TracePrintf("Memory Error: Attempt to extend stack too close to heap\n");
+
+	    current_process->status = KILL;
+	    KillProc(current_process);
+	    LoadNextProc(context, BLOCK);
+	}
+
+	int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
+	for (sp; sp <= newStackPage; sp++) {
+	    current_process->pageTable[newStackPage].valid = 1;
+	    current_process->pageTable[newStackPage].pfn = getNextFrame();
+	    current_process->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
+	}
+        break;
+    case YALNIX_ACCERR:
+	TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
+        TracePrintf(1, "Memory Error: Killing Current Process\n");
+
+        current_process->status = KILL;
+        KillProc(current_process);
+        LoadNextProc(context, BLOCK);
+
+        break;
+    }
 }
 
 void TtyReceiveHandler(UserContext *context) {
@@ -146,4 +172,7 @@ void InvalidTrapHandler(UserContext *context) {
     context->regs[0] = ERROR;
     TracePrintf(1, "Invalid trap occurred from process %d with trap code %d\n",
                 current_process->id, context->vector);
+    KillProcess(current_process);
+    LoadNextProc(context, BLOCK);
+
 }
