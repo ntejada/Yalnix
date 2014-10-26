@@ -40,15 +40,23 @@ KernelContext *FirstSwitch(KernelContext *kc_in, void *p_curr_pcb, void *p_next_
 
     TracePrintf(1, "First Switch called. \n");
 
-    if (curr->status == NEW) {
-        curr->kernel_context = *kc_in;
-        curr->status = RUNNING;
-    }
+    curr->kernel_context = *kc_in;
+    next->kernel_context = *kc_in;
 
-    if (next->status == NEW) {
-        next->kernel_context = *kc_in;
-        next->status = RUNNING;
-    }
+    CopyStack(next);
+    return kc_in;
+}
+
+KernelContext *ForkKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb) {
+    PCB *curr = (PCB *) p_curr_pcb;
+    PCB *child = (PCB *) p_next_pcb;
+
+    TracePrintf(1, "ForkKernel called. \n");
+
+    child->kernel_context = *kc_in;
+
+    CopyStack(child);
+    CopyRegion1(child);
 
     return kc_in;
 }

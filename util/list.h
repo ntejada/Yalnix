@@ -18,9 +18,10 @@ struct _List {
 };
 
 extern List * listAllocate();
-extern List * listAppend(List *list, void *data);
-extern List * listAppendInPlace(List *list, void *data);
-extern List * listPrepend(List *list, void *data);
-extern List * listLast(List *list);
+extern List * listAppend(List *, void *);
+extern List * listAppendInPlace(List *, void *);
+extern List * listPrepend(List *, void *);
+extern List * listLast(List *);
+extern List * listRemove(List *, void *);
 
 #endif /*!_list_h*/

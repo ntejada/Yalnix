@@ -26,7 +26,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     PCB *idlePCB = (PCB*)malloc(sizeof(PCB));
     memset(idlePCB, 0, sizeof(PCB));
     PCB_Init(idlePCB);
-    idlePCB->status = NEW;
+    idlePCB->status = RUNNING;
     idlePCB->id = pidCount++;
     current_process = idlePCB;
 
@@ -41,14 +41,17 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     // Initialize Queues                                                                                             
     TracePrintf(1, "Initialize queues\n");
     ready_queue = queueNew();
-   delay_queue = queueNew();
+    delay_queue = queueNew();
+    wait_queue = queueNew();
 
     // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));
     memset(initPCB, 0, sizeof(PCB));
     PCB_Init(initPCB);
-    initPCB->status = NEW;
+    initPCB->status = RUNNING;
     initPCB->id = pidCount++;
+    initPCB->parent = idlePCB;
+    queuePush(idlePCB->children, initPCB);
     queuePush(ready_queue, initPCB);
     TracePrintf(1, "Init Process Id: %d\n", initPCB->id);
     TracePrintf(1, "pidCount: %d\n", pidCount);
@@ -58,13 +61,12 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     args[2]=NULL;
 
     // Put same kernel context into both PCB's. 
-    CopyStack(initPCB);
     if (current_process->id == 0) {
         KernelContextSwitch(FirstSwitch, (void *) idlePCB, (void *) initPCB);
     }
     TracePrintf(1, "Current Process Id: %d\n", current_process->id);
-    int rc;
 
+    int rc;
     if (current_process->id == 0) {
         args[1] = "idle";
         TracePrintf(1, "idlePCB\n");
@@ -75,10 +77,10 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
         return;
     } else {
-        args[1]="init";
-        TracePrintf(1, "initPCB\n");
-        rc = LoadProgram("./brkTest", args, initPCB);
-        TracePrintf(1, "rc: %d, initPCB pc: %d\n", rc, initPCB->user_context.pc);
+        args[1]=cmd_args[0];
+        TracePrintf(1, "%s\n", cmd_args[0]);
+        rc = LoadProgram(cmd_args[0], args, initPCB);
+        TracePrintf(1, "rc: %d, %s pc: %d\n", rc, cmd_args[0], initPCB->user_context.pc);
 
         *uctxt = initPCB->user_context;
 
@@ -111,7 +113,7 @@ int CopyStack(PCB *pcb) {
     pZeroTable[PF_COPIER].valid = 0;
 }
 
-int CopyPages(PCB *pcb)
+int CopyRegion1(PCB *pcb)
 {
     pZeroTable[PF_COPIER].valid = 1;
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
@@ -235,16 +237,16 @@ void PageTableInit(PCB * idlePCB)
     /*
     // Map invalid pages in Region 1.	
     for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++) {
-        // Create valid entry for idle process.
-        if (i == ((VMEM_0_LIMIT>>PAGESHIFT) - 1)) {
-            reg_one_table[i].valid = 1;
-            reg_one_table[i].pfn = getNextFrame(); 
-            reg_one_table[i].prot = (PROT_READ|PROT_WRITE);
-            TracePrintf(1, "====Created valid entry in region 1. Page: %d\n", i);
-        } else {
-            reg_one_table[i].valid = 0;
-            TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
-        }
+    // Create valid entry for idle process.
+    if (i == ((VMEM_0_LIMIT>>PAGESHIFT) - 1)) {
+    reg_one_table[i].valid = 1;
+    reg_one_table[i].pfn = getNextFrame(); 
+    reg_one_table[i].prot = (PROT_READ|PROT_WRITE);
+    TracePrintf(1, "====Created valid entry in region 1. Page: %d\n", i);
+    } else {
+    reg_one_table[i].valid = 0;
+    TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
+    }
     }
     */
     WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	

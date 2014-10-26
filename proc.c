@@ -16,6 +16,7 @@
 PCB *current_process;
 Queue *ready_queue;
 Queue *delay_queue;
+Queue *wait_queue;
 
 void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
@@ -42,27 +43,39 @@ void Ready(PCB *proc) {
 
 void DoFork(UserContext *context) {
     // Get an available process id.
-    int pid = 1;    
+    int pid = pidCount++;    
     PCB *child = (PCB *)malloc(sizeof(PCB));
 
     // If for any reason we can't fork, return ERROR to calling process.
-    if (!pid) {
+    if (!pid || !child) {
         context->regs[0] = ERROR;
         return;
     }
 
-    // Return 0 to child and save and arm the child for execution.
+    PCB_Init(child);
     child->id = pid;
-    context->regs[0] = 0;
-    SaveState(child, context);
-    Ready(child);
+    child->parent = current_process;
+    queuePush(child->parent->children, child);
+    child->status = RUNNING;
+    
+    // Return 0 to child and arm the child for execution.
+    child->user_context = *context;
+    child->user_context.regs[0] = 0;
+    queuePush(ready_queue, child);
+    KernelContextSwitch(ForkKernel, current_process, child);
+
 
     // Return child's pid to parent and resume execution of the parent.
     context->regs[0] = pid;
 }
 
 void DoExec(UserContext *context) {
-
+    current_process->user_context = *context;
+    int rc = LoadProgram(context->regs[0], context->regs[1], current_process);
+    if (rc != SUCCESS) {
+        current_process->user_context.regs[0] = ERROR;
+    }
+    *context = current_process->user_context;
 }
 
 void DoExit(UserContext *context) {
@@ -70,7 +83,11 @@ void DoExit(UserContext *context) {
         current_process->status = context->regs[0];
     }
 
+    TracePrintf(2, "DoExit\n");
+
     KillProc(current_process);
+
+    TracePrintf(2, "Finished the murder\n");
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -81,7 +98,7 @@ void DoWait(UserContext *context) {
         if (queueIsEmpty(current_process->deadChildren)) {
             current_process->status = WAITING;
             queuePush(wait_queue, current_process);
-            loadNextProc(context, BLOCK);
+            LoadNextProc(context, BLOCK);
         }
 
         ZCB *child = queuePop(current_process->deadChildren);
@@ -95,7 +112,6 @@ void DoGetPid(UserContext *context) {
 }
 
 void DoBrk(UserContext *context) {
-    // TODO: need to do some stuff here with MMU
     void * addr = (void*)context->regs[0];
     int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
     int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT);
@@ -164,6 +180,8 @@ void LoadNextProc(UserContext *context, int block) {
 }
 
 void KillProc(PCB *pcb) {
+    TracePrintf(2, "KillProc\n");
+
     PCB *parent = pcb->parent;
     if (parent) {
         if (parent->status == WAITING) {
@@ -177,10 +195,19 @@ void KillProc(PCB *pcb) {
         queuePush(parent->deadChildren, zombie);
     }
 
+    TracePrintf(2, "KillProc\n");
+
     for(List *child = current_process->children->head; child; child = child->next)
         ((PCB *) child->data)->parent = NULL;
 
-    queueRemove(pcb->parent->children, pcb);
+    TracePrintf(2, "KillProc\n");
+
+    if (pcb->parent) {
+        queueRemove(pcb->parent->children, pcb);
+    }
+
+    TracePrintf(2, "KillProc\n");
+
     FreePCB(pcb);
 }
 

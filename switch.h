@@ -5,5 +5,6 @@
 
 extern KernelContext *MyKCS(KernelContext *, void *, void *);
 extern KernelContext *FirstSwitch(KernelContext *, void *, void *);
+extern KernelContext *ForkKernel(KernelContext *, void *, void *);
 
 #endif

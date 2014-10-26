@@ -32,5 +32,7 @@ int SetKernelBrk(void *);
 void PageTableInit(PCB*);
 void DoIdle(void);
 void LoadProgramTest();
+int CopyStack(PCB *);
+int CopyRegion1(PCB *);
 
 #endif

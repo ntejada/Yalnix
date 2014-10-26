@@ -65,7 +65,7 @@ extern unsigned int pidCount; // Counter for next PID
 extern PCB *current_process;
 extern Queue *ready_queue;
 extern Queue *delay_queue;
-extern Queue *wait_queue; // Need a remove in place function
+extern Queue *wait_queue;
 
 
 /* Prototypes of process helper functions */
