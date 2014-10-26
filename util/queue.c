@@ -24,11 +24,11 @@ queuePush(Queue *queue,
 
 void *
 queuePop(Queue *queue) {
-    TracePrintf(1, "queue head: %p\n", queue->head);
-	if (queue->head) {
+
+    if (queue->head) {
         
-    TracePrintf(1, "queue head data: %p\n", queue->head->data);
-    TracePrintf(1, "queue head next next: %p\n", queue->head->next->next);
+
+
 	List *node = queue->head;
         void *data = node->data;
 
@@ -45,6 +45,27 @@ queuePop(Queue *queue) {
     
     return NULL;
 }
+
+void *
+queueRemove(Queue *queue, 
+	    void *data) {
+  
+    if (queue->head) {
+	List *node = queue->head;
+	void *curr_data = node->data;
+	// Removing head
+	if (data == curr_data) {
+	    queuePop(queue);
+	} else {
+	    while (node)
+	    
+	}
+
+
+    }
+
+}
+
 
 int
 queueIsEmpty(Queue *queue) {

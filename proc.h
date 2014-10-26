@@ -21,6 +21,7 @@
 
 #define RUNNING 1
 #define BLOCKED 2
+#define WAITING 3
 #define NEW 12
 
 
@@ -28,6 +29,8 @@
 #define NO_BLOCK 0
 
 typedef struct pcb_t PCB;
+typedef struct zcb_t ZCB;
+
 
 struct pcb_t {
 	/* Process identification data */
@@ -42,8 +45,8 @@ struct pcb_t {
         int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
 
 	/* Process control data */
-	Queue *children;     /* List of children */ 
-	Queue *deadChildren; /* List of zombie/defunct children */
+  Queue *children;     /* List of children */  // PCBs
+  Queue *deadChildren; /* List of zombie/defunct children */ // ZCBs
 
 	/* Processor state data */
 	UserContext user_context;
@@ -51,11 +54,18 @@ struct pcb_t {
  
 };
 
+struct zcb_t {
+  int id;
+  int status;
+};
+
 extern unsigned int pidCount;
 
 extern PCB *current_process;
 extern Queue *ready_queue;
 extern Queue *delay_queue;
+extern Queue *wait_queue; // Need a remove in place function
+
 
 /* Prototypes of process helper functions */
 extern void PCB_Init(PCB *);

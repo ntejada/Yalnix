@@ -15,5 +15,6 @@ Queue * queueNew();
 void queuePush(Queue *queue, void *data);
 void * queuePop(Queue *queue);
 int queueIsEmpty(Queue *queue);
+void * queueRemove(Queue *queue, void *data);
 
 #endif /*!_queue_h*/
