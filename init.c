@@ -64,14 +64,14 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     if (current_process->id == 0) {
         KernelContextSwitch(FirstSwitch, (void *) idlePCB, (void *) initPCB);
     }
-    TracePrintf(1, "Current Process Id: %d\n", current_process->id);
+    TracePrintf(1, "init: Current Process Id: %d\n", current_process->id);
 
     int rc;
     if (current_process->id == 0) {
         args[1] = "idle";
         TracePrintf(1, "idlePCB\n");
         rc = LoadProgram("./initIdle", args, idlePCB);
-        TracePrintf(1, "rc: %d, idlePCB pc: %d\n", rc, idlePCB->user_context.pc);
+        TracePrintf(1, "init: rc: %d, idlePCB pc: %p\n", rc, idlePCB->user_context.pc);
 
         *uctxt = idlePCB->user_context;
 
@@ -99,14 +99,14 @@ int CopyStack(PCB *pcb) {
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "saving physical frame number %d\n", newPfn);
+        TracePrintf(1, "CopyStack: Memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
+        TracePrintf(1, "CopyStack: Saving physical frame number %d\n", newPfn);
         pcb->kStackPages[ki] = newPfn;
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_0);
     }
 
     for (int i = 0; i < 2; i++) {
-        TracePrintf(1, "saved frame number %d\n", pcb->kStackPages[i]);
+        TracePrintf(3, "CopyStack: Saved frame number %d\n", pcb->kStackPages[i]);
     }
 
     pZeroTable[PF_COPIER].prot = PROT_NONE;

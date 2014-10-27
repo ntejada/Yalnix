@@ -1,6 +1,6 @@
 int main(int argc, char *argv[]) {
     int rc;
-    rc = Fork();
+	rc = Fork();	
     TracePrintf(3, "rc = %d\n", rc);
 
     if (rc == 0) {

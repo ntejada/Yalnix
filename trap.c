@@ -15,6 +15,8 @@
 #include "util/list.h"
 #include "frames.h"
 #include "std.h"
+#include "std.h"
+#include "frames.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -108,7 +110,6 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
     DelayUpdate();
-    TracePrintf(2, "passed delayUpdate\n");
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -128,9 +129,9 @@ void MathHandler(UserContext *context) {
 
 void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
-
     if(context->code==YALNIX_MAPERR) {
 	int newStackPage = (DOWN_TO_PAGE(((int)context->addr) - VMEM_1_BASE)>>PAGESHIFT);
+	TracePrintf(1, "MEMORYHANDLER: context: sp = %p, addr = %p, new StackPage = %d, pc = %p\n", context->sp, context->addr, newStackPage, context->pc);	
 	if (current_process->pageTable[newStackPage - 1].valid == 1) {
 	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
