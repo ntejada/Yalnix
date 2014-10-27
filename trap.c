@@ -13,6 +13,8 @@
 #include "trap.h"
 #include "switch.h"
 #include "util/list.h"
+#include "std.h"
+#include "frames.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -106,7 +108,6 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
     DelayUpdate();
-    TracePrintf(2, "passed delayUpdate\n");
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -126,12 +127,12 @@ void MathHandler(UserContext *context) {
 
 void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
-
+    int newStackPage = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     switch (context->code) {
     case YALNIX_MAPERR:
-	int newStackPage = (DOWN_TO_PAGE(context->addr - VMEM_1_BASE)>>PAGESHIFT);
+
 	if (current_process->pageTable[newStackPage - 1].valid == 1) {
-	    TracePrintf("Memory Error: Attempt to extend stack too close to heap\n");
+	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
 	    current_process->status = KILL;
 	    KillProc(current_process);
@@ -172,7 +173,7 @@ void InvalidTrapHandler(UserContext *context) {
     context->regs[0] = ERROR;
     TracePrintf(1, "Invalid trap occurred from process %d with trap code %d\n",
                 current_process->id, context->vector);
-    KillProcess(current_process);
+    KillProc(current_process);
     LoadNextProc(context, BLOCK);
 
 }

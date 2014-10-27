@@ -10,17 +10,15 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
     PCB *curr = (PCB *) p_curr_pcb;
     PCB *next = (PCB *) p_next_pcb;
 
-    TracePrintf(1, "MyKCS called. Will switch processes and reassign page table entries\n");
+    TracePrintf(1, "MyKCS called.\n");
 
     curr->kernel_context = *kc_in;
 
     if (curr != next) {
-        TracePrintf(1, "status: %d\n", next->status);
-
         for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
                 vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
                 vpn++, ki++) {
-            TracePrintf(1, "loading in physical frame number %d\n", next->kStackPages[ki]);
+            TracePrintf(3, "MyKCS: Loading in physical frame number %d\n", next->kStackPages[ki]);
             pZeroTable[vpn].pfn = next->kStackPages[ki];
         }
 

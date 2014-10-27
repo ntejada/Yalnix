@@ -2,12 +2,11 @@
 void DelayUpdate() {
 
 	List *list = delay_queue->head;	
-	TracePrintf(1, "delay queue head: %p\n", list);
+
 	// Allocated list from append to list outside memory that this process can access
 
 	while (list) {
 		((PCB *) list->data)->clock_count--;
-		TracePrintf(1, "pid: %d, clock_count: %d\n", ((PCB *) list->data)->id, ((PCB *) list->data)->clock_count);
 		list = list->next;
 	}
 }

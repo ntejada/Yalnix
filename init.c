@@ -99,14 +99,14 @@ int CopyStack(PCB *pcb) {
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "saving physical frame number %d\n", newPfn);
+        TracePrintf(1, "CopyStack: Memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
+        TracePrintf(1, "CopyStack: Saving physical frame number %d\n", newPfn);
         pcb->kStackPages[ki] = newPfn;
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_0);
     }
 
     for (int i = 0; i < 2; i++) {
-        TracePrintf(1, "saved frame number %d\n", pcb->kStackPages[i]);
+        TracePrintf(3, "CopyStack: Saved frame number %d\n", pcb->kStackPages[i]);
     }
 
     pZeroTable[PF_COPIER].prot = PROT_NONE;

@@ -100,7 +100,7 @@ listLast(List *list) {
 List *
 listRemove(List *list, void *data) {
     List *head = list;
-    TracePrintf(1, "head: %p list: %p\n", head, list);
+
     if (list) {
         if (list->data == data) {
             head = list->next;
