@@ -98,11 +98,12 @@ int CopyStack(PCB *pcb) {
         TracePrintf(1, "CopyStack: vpn: %d, kstackIndex: %d\n", vpn, ki);
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
+        WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
         TracePrintf(1, "CopyStack: Memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
         TracePrintf(1, "CopyStack: Saving physical frame number %d\n", newPfn);
         pcb->kStackPages[ki] = newPfn;
-        WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_0);
+
     }
 
     for (int i = 0; i < 2; i++) {
@@ -122,11 +123,11 @@ int CopyRegion1(PCB *pcb)
         if (current_process->pageTable[vpn].valid) {
             int newPfn = getNextFrame();
             pZeroTable[PF_COPIER].pfn = newPfn;
+	    WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
             memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
             pcb->pageTable[vpn].valid = 1;
             pcb->pageTable[vpn].prot = current_process->pageTable[vpn].prot;
             pcb->pageTable[vpn].pfn = newPfn;
-            WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
         }
     }
 

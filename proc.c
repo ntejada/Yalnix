@@ -66,11 +66,16 @@ void DoFork(UserContext *context) {
 
  
     // Return child's pid to parent and resume execution of the parent.
-    if (current_process->id == pid) 
+    if (current_process->id == pid) {
+	*context = current_process->user_context;
 	context->regs[0] = 0;
+	TracePrintf(2, "DoFork: Child context pc: %d\n", context->pc);
+    }
 
-    else
+    else {
 	context->regs[0] = pid;
+	TracePrintf(2, "DoFork: Parent context pc: %d\n", context->pc);
+    }
 }
 
 void DoExec(UserContext *context) {
@@ -92,7 +97,7 @@ void DoExit(UserContext *context) {
     KillProc(current_process);
 
     TracePrintf(2, "Finished the murder\n");
-    LoadNextProc(context, NO_BLOCK);
+    LoadNextProc(context, BLOCK);
 }
 
 void DoWait(UserContext *context) {
