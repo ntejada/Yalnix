@@ -13,6 +13,8 @@
 #include "trap.h"
 #include "switch.h"
 #include "util/list.h"
+#include "frames.h"
+#include "std.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -127,11 +129,10 @@ void MathHandler(UserContext *context) {
 void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
 
-    switch (context->code) {
-    case YALNIX_MAPERR:
-	int newStackPage = (DOWN_TO_PAGE(context->addr - VMEM_1_BASE)>>PAGESHIFT);
+    if(context->code==YALNIX_MAPERR) {
+	int newStackPage = (DOWN_TO_PAGE(((int)context->addr) - VMEM_1_BASE)>>PAGESHIFT);
 	if (current_process->pageTable[newStackPage - 1].valid == 1) {
-	    TracePrintf("Memory Error: Attempt to extend stack too close to heap\n");
+	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
 	    current_process->status = KILL;
 	    KillProc(current_process);
@@ -144,8 +145,8 @@ void MemoryHandler(UserContext *context) {
 	    current_process->pageTable[newStackPage].pfn = getNextFrame();
 	    current_process->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
 	}
-        break;
-    case YALNIX_ACCERR:
+    }
+	if(context->code==YALNIX_ACCERR) {
 	TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
         TracePrintf(1, "Memory Error: Killing Current Process\n");
 
@@ -153,7 +154,6 @@ void MemoryHandler(UserContext *context) {
         KillProc(current_process);
         LoadNextProc(context, BLOCK);
 
-        break;
     }
 }
 
@@ -172,7 +172,7 @@ void InvalidTrapHandler(UserContext *context) {
     context->regs[0] = ERROR;
     TracePrintf(1, "Invalid trap occurred from process %d with trap code %d\n",
                 current_process->id, context->vector);
-    KillProcess(current_process);
+    KillProc(current_process);
     LoadNextProc(context, BLOCK);
 
 }
