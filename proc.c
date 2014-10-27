@@ -55,12 +55,19 @@ void DoFork(UserContext *context) {
     PCB_Init(child);
     child->id = pid;
     child->parent = current_process;
+    TracePrintf(2, "DoFork: putting child: %d onto parent's queue\n", pid);
     queuePush(child->parent->children, child);
+    if (queueIsEmpty(child->parent->children))
+	TracePrintf(2, "DoFork: Queue Empty after add\n");
+    else
+	TracePrintf(2, "DoFork: Queue has element after add\n");
+
     child->status = RUNNING;
     
     // Return 0 to child and arm the child for execution.
     child->user_context = *context;
     child->user_context.regs[0] = 0;
+
     queuePush(ready_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
 
@@ -69,12 +76,10 @@ void DoFork(UserContext *context) {
     if (current_process->id == pid) {
 	*context = current_process->user_context;
 	context->regs[0] = 0;
-	TracePrintf(2, "DoFork: Child context pc: %d\n", context->pc);
     }
 
     else {
 	context->regs[0] = pid;
-	TracePrintf(2, "DoFork: Parent context pc: %d\n", context->pc);
     }
 }
 
@@ -101,7 +106,9 @@ void DoExit(UserContext *context) {
 }
 
 void DoWait(UserContext *context) {
+    TracePrintf(2, "DoWait\n");
     if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
+	TracePrintf(2, "DoWait: current_process has no children\n");
         context->regs[0] = ERROR;
     } else {
         if (queueIsEmpty(current_process->deadChildren)) {
