@@ -117,13 +117,13 @@ int CopyRegion1(PCB *pcb)
 {
     pZeroTable[PF_COPIER].valid = 1;
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
-
     for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
         if (current_process->pageTable[vpn].valid) {
             int newPfn = getNextFrame();
             pZeroTable[PF_COPIER].pfn = newPfn;
             memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
-            pcb->pageTable[vpn].valid = 1;
+            TracePrintf(1, "CopyRegion1: PF_COPIER BASE: %d, VMEM PAGE BASE: %d\n", *((int*)(PF_COPIER<<PAGESHIFT)), *((int*)(VMEM_1_BASE + (vpn<<PAGESHIFT))));  
+		pcb->pageTable[vpn].valid = 1;
             pcb->pageTable[vpn].prot = current_process->pageTable[vpn].prot;
             pcb->pageTable[vpn].pfn = newPfn;
             WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);

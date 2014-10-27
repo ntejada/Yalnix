@@ -66,7 +66,6 @@ void DoFork(UserContext *context) {
 
 	TracePrintf(2, "DoFork: Back from KCS\n");
     // Return child's pid to parent and resume execution of the parent.
-	TracePrintf(2, "DoFork: context pointer page = %d, kernel stack base page = %d\n", (int)(context)>>PAGESHIFT, (int)(KERNEL_STACK_BASE)>>PAGESHIFT);
 	if(current_process->id == pid){
 		TracePrintf(1, "DoFork: what is right before pc? %d\n", *(int*)(context->pc+1));
 		TracePrintf(1, "DoFork: what is at pc? %d\n", *(int*)(context->pc));
