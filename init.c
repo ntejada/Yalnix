@@ -91,23 +91,23 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 int CopyStack(PCB *pcb) {
     pZeroTable[PF_COPIER].valid = 1;
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
-
+    TracePrintf(3, "CopyStack\n");
     for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
             vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
             vpn++, ki++) {
-        TracePrintf(1, "CopyStack: vpn: %d, kstackIndex: %d\n", vpn, ki);
+        TracePrintf(4, "CopyStack: vpn: %d, kstackIndex: %d\n", vpn, ki);
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
         WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "CopyStack: Memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
-        TracePrintf(1, "CopyStack: Saving physical frame number %d\n", newPfn);
+        TracePrintf(4, "CopyStack: Memcpy to %d from %d of size %d\n", PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
+        TracePrintf(4, "CopyStack: Saving physical frame number %d\n", newPfn);
         pcb->kStackPages[ki] = newPfn;
 
     }
 
     for (int i = 0; i < 2; i++) {
-        TracePrintf(3, "CopyStack: Saved frame number %d\n", pcb->kStackPages[i]);
+        TracePrintf(4, "CopyStack: Saved frame number %d\n", pcb->kStackPages[i]);
     }
 
     pZeroTable[PF_COPIER].prot = PROT_NONE;
