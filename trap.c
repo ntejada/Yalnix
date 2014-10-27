@@ -129,9 +129,14 @@ void MathHandler(UserContext *context) {
 
 void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
-    if(context->code==YALNIX_MAPERR) {
-	int newStackPage = (DOWN_TO_PAGE(((int)context->addr) - VMEM_1_BASE)>>PAGESHIFT);
-	TracePrintf(1, "MEMORYHANDLER: context: sp = %p, addr = %p, new StackPage = %d, pc = %p\n", context->sp, context->addr, newStackPage, context->pc);	
+   int newStackPage = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
+    int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
+    
+    TracePrintf(2, "TrapMemory: New stack page = %d. Old stack = %d\n", newStackPage, sp);	
+    TracePrintf(2, "TrapMemory: Context addr: %p\n", context->addr);
+    switch (context->code) {
+    case YALNIX_MAPERR:
+
 	if (current_process->pageTable[newStackPage - 1].valid == 1) {
 	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
@@ -140,7 +145,6 @@ void MemoryHandler(UserContext *context) {
 	    LoadNextProc(context, BLOCK);
 	}
 
-	int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
 	for (sp; sp <= newStackPage; sp++) {
 	    current_process->pageTable[newStackPage].valid = 1;
 	    current_process->pageTable[newStackPage].pfn = getNextFrame();

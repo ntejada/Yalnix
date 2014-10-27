@@ -95,7 +95,7 @@ int CopyStack(PCB *pcb) {
     for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
             vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
             vpn++, ki++) {
-        TracePrintf(1, "vpn: %d, kstackIndex: %d\n", vpn, ki);
+        TracePrintf(1, "CopyStack: vpn: %d, kstackIndex: %d\n", vpn, ki);
         int newPfn = getNextFrame();
         pZeroTable[PF_COPIER].pfn = newPfn;
         memcpy(PF_COPIER << PAGESHIFT, VMEM_0_BASE + (vpn << PAGESHIFT), PAGESIZE);
