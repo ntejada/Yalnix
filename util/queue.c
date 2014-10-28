@@ -14,14 +14,12 @@ queueNew() {
 void
 queuePush(Queue *queue,
           void *data) {
-    TracePrintf(2, "queuePush\n");
     queue->tail = listAppend(queue->tail, data);
     if (queue->tail->next)
         queue->tail = queue->tail->next;
     else
         queue->head = queue->tail;
     queue->length++;
-    TracePrintf(2, "queuePush: length queue after push: %d\n", queue->length);
 }
 
 void *
@@ -41,7 +39,7 @@ queuePop(Queue *queue) {
             queue->tail = NULL;
         free(node);
         queue->length--;
-       TracePrintf(1, "QueuePop: Data returned: %p\n", data);
+        TracePrintf(1, "QueuePop: Data returned: %p\n", data);
         return data;
     }
     

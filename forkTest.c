@@ -3,7 +3,6 @@ int main(int argc, char *argv[]) {
     rc = Fork();
     TracePrintf(3, "forkTest: rc = %d\n", rc);
 
-
     if (rc == 0) {
         TracePrintf(3, "==========> forkTest: In the child. About to delay then exit.\n");
 	Delay(4);

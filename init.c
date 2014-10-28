@@ -64,14 +64,14 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     if (current_process->id == 0) {
         KernelContextSwitch(FirstSwitch, (void *) idlePCB, (void *) initPCB);
     }
-    TracePrintf(1, "init: Current Process Id: %d\n", current_process->id);
+    TracePrintf(1, "Current Process Id: %d\n", current_process->id);
 
     int rc;
     if (current_process->id == 0) {
         args[1] = "idle";
         TracePrintf(1, "idlePCB\n");
         rc = LoadProgram("./initIdle", args, idlePCB);
-        TracePrintf(1, "init: rc: %d, idlePCB pc: %p\n", rc, idlePCB->user_context.pc);
+        TracePrintf(1, "rc: %d, idlePCB pc: %d\n", rc, idlePCB->user_context.pc);
 
         *uctxt = idlePCB->user_context;
 
@@ -118,14 +118,14 @@ int CopyRegion1(PCB *pcb)
 {
     pZeroTable[PF_COPIER].valid = 1;
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
+
     for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
         if (current_process->pageTable[vpn].valid) {
             int newPfn = getNextFrame();
             pZeroTable[PF_COPIER].pfn = newPfn;
 	    WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
             memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
-            TracePrintf(1, "CopyRegion1: PF_COPIER BASE: %d, VMEM PAGE BASE: %d\n", *((int*)(PF_COPIER<<PAGESHIFT)), *((int*)(VMEM_1_BASE + (vpn<<PAGESHIFT))));  
-		pcb->pageTable[vpn].valid = 1;
+            pcb->pageTable[vpn].valid = 1;
             pcb->pageTable[vpn].prot = current_process->pageTable[vpn].prot;
             pcb->pageTable[vpn].pfn = newPfn;
         }
