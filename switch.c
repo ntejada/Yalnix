@@ -52,9 +52,10 @@ KernelContext *ForkKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_p
     TracePrintf(1, "ForkKernel called. \n");
 
     child->kernel_context = *kc_in;
-
-    CopyStack(child);
-    CopyRegion1(child);
+	TracePrintf(1, "ForkKernel: calling CopyStack \n");
+    	CopyStack(child);
+    	TracePrintf(1, "ForkKernel: calling CopyRegion1\n");
+	CopyRegion1(child);
 
     return kc_in;
 }

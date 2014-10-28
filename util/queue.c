@@ -41,7 +41,7 @@ queuePop(Queue *queue) {
             queue->tail = NULL;
         free(node);
         queue->length--;
-        TracePrintf(1, "QueuePop: Data returned: %p\n", data);
+       TracePrintf(1, "QueuePop: Data returned: %p\n", data);
         return data;
     }
     

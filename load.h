@@ -11,6 +11,6 @@
 #ifndef _load_h
 #define _load_h
 
-int LoadProgram(char *, char *, PCB *); 
+int LoadProgram(char *, char **, PCB *); 
 
 #endif

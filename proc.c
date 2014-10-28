@@ -67,14 +67,15 @@ void DoFork(UserContext *context) {
     child->status = RUNNING;
     
     // Return 0 to child and arm the child for execution.
-    child->user_context = *context;
+    child->user_context = current_process->user_context;
     child->user_context.regs[0] = 0;
 
     queuePush(ready_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
 
- 
+	TracePrintf(2, "DoFork: Back from KCS\n");
     // Return child's pid to parent and resume execution of the parent.
+
     if (current_process->id == pid) {
 	*context = current_process->user_context;
 	context->regs[0] = 0;
@@ -84,7 +85,6 @@ void DoFork(UserContext *context) {
 	context->regs[0] = pid;
     }
 }
-
 void DoExec(UserContext *context) {
     current_process->user_context = *context;
     int rc = LoadProgram(context->regs[0], context->regs[1], current_process);
@@ -99,12 +99,14 @@ void DoExit(UserContext *context) {
         current_process->status = context->regs[0];
     }
 
-    TracePrintf(2, "DoExit\n");
+    TracePrintf(2, "DoExit: process %d\n", current_process->id);
 
     KillProc(current_process);
 
-    TracePrintf(2, "Finished the murder\n");
+
+    TracePrintf(2, "DoExit: Finished the murder\n");
     LoadNextProc(context, BLOCK);
+
 }
 
 void DoWait(UserContext *context) {
@@ -130,8 +132,6 @@ void DoGetPid(UserContext *context) {
 }
 
 void DoBrk(UserContext *context) {
-
-	// TODO: need to do some stuff here with MMU
 	void * addr = (void*)context->regs[0];
 	int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
 	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
@@ -168,8 +168,6 @@ void DoBrk(UserContext *context) {
 	}
 	context->regs[0]= SUCCESS;
 	return;
-
-
 }
 
 void DoDelay(UserContext *context) {
