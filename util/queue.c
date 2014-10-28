@@ -46,12 +46,37 @@ queuePop(Queue *queue) {
     return NULL;
 }
 
+//void
+//queueRemove(Queue *queue, 
+//	        void *data) {
+//   queue->head = listRemove(queue->head, data);
+//}
+
 void
 queueRemove(Queue *queue, 
 	        void *data) {
-    queue->head = listRemove(queue->head, data);
-}
+    List *list = queue->head;
+    
+    // Move to where the data is.
+    while (list && list->data != data) {
+        list = list->next;
+    }
 
+    // If the node actually exists, update the queue and free.
+    if (list) {
+        if (list == queue->head) {
+            queue->head = list->next;
+            queue->head->prev = NULL;
+        } else if (list == queue->tail) {
+            queue->tail = list->prev;
+            queue->tail->next = NULL;
+        } else {
+            list->prev->next = list->next;
+            list->next->prev = list->prev;
+        }
+        free(list);
+    }
+}
 
 int
 queueIsEmpty(Queue *queue) {
