@@ -55,12 +55,14 @@ void DoFork(UserContext *context) {
     PCB_Init(child);
     child->id = pid;
     child->parent = current_process;
-    TracePrintf(2, "DoFork: putting child: %d onto parent's queue\n", pid);
+    TracePrintf(2, "DoFork: putting child: %d onto parent's queue. Parent ID: %d\n", pid, child->parent->id);
     queuePush(child->parent->children, child);
-    if (queueIsEmpty(child->parent->children))
+    if (queueIsEmpty(child->parent->children)) {
 	TracePrintf(2, "DoFork: Queue Empty after add\n");
-    else
+    }
+    else {
 	TracePrintf(2, "DoFork: Queue has element after add\n");
+    }
 
     child->status = RUNNING;
     
