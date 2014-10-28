@@ -66,14 +66,20 @@ queueRemove(Queue *queue,
     if (list) {
         if (list == queue->head) {
             queue->head = list->next;
-            queue->head->prev = NULL;
+            if (queue->head) {
+                queue->head->prev = NULL;
+            }
         } else if (list == queue->tail) {
             queue->tail = list->prev;
-            queue->tail->next = NULL;
+            if (queue->tail) {
+                queue->tail->next = NULL;
+            }
         } else {
+            // Somewhere in the middle
             list->prev->next = list->next;
             list->next->prev = list->prev;
         }
+        queue->length--;
         free(list);
     }
 }
