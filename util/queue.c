@@ -14,6 +14,9 @@ queueNew() {
 void
 queuePush(Queue *queue,
           void *data) {
+
+    TracePrintf(2, "queuePush\n");
+
     queue->tail = listAppend(queue->tail, data);
     if (queue->tail->next)
         queue->tail = queue->tail->next;
@@ -24,6 +27,7 @@ queuePush(Queue *queue,
 
 void *
 queuePop(Queue *queue) {
+
 
     if (queue->head) {
         
@@ -55,6 +59,8 @@ queuePop(Queue *queue) {
 void
 queueRemove(Queue *queue, 
 	        void *data) {
+
+
     List *list = queue->head;
     
     // Move to where the data is.
@@ -68,7 +74,9 @@ queueRemove(Queue *queue,
             queue->head = list->next;
             if (queue->head) {
                 queue->head->prev = NULL;
-            }
+	    } else {
+		queue->tail = NULL;
+	    }
         } else if (list == queue->tail) {
             queue->tail = list->prev;
             if (queue->tail) {

@@ -56,6 +56,10 @@ void DoFork(UserContext *context) {
     child->id = pid;
     child->parent = current_process;
     queuePush(child->parent->children, child);
+    if (queueIsEmpty(child->parent->children))
+	TracePrintf(3, "DoFork: parent queue empty.\n");
+
+
     child->status = RUNNING;
     
     // Return 0 to child and arm the child for execution.
@@ -69,12 +73,10 @@ void DoFork(UserContext *context) {
     if (current_process->id == pid) {
 	*context = current_process->user_context;
 	context->regs[0] = 0;
-	TracePrintf(2, "DoFork: Child context pc: %d\n", context->pc);
     }
 
     else {
 	context->regs[0] = pid;
-	TracePrintf(2, "DoFork: Parent context pc: %d\n", context->pc);
     }
 }
 
@@ -102,6 +104,8 @@ void DoExit(UserContext *context) {
 
 void DoWait(UserContext *context) {
     if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
+	TracePrintf(2, "DoWait: Has no children. Returning Error.\n");
+	TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);
         context->regs[0] = ERROR;
     } else {
         if (queueIsEmpty(current_process->deadChildren)) {
