@@ -13,8 +13,6 @@
 #include "trap.h"
 #include "switch.h"
 #include "util/list.h"
-#include "frames.h"
-#include "std.h"
 #include "std.h"
 #include "frames.h"
 
@@ -129,7 +127,7 @@ void MathHandler(UserContext *context) {
 
 void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
-   int newStackPage = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
+    int newStackPage = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
     
     TracePrintf(2, "TrapMemory: New stack page = %d. Old stack = %d\n", newStackPage, sp);	
@@ -150,8 +148,8 @@ void MemoryHandler(UserContext *context) {
 	    current_process->pageTable[newStackPage].pfn = getNextFrame();
 	    current_process->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
 	}
-    }
-	if(context->code==YALNIX_ACCERR) {
+        break;
+    case YALNIX_ACCERR:
 	TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
         TracePrintf(1, "Memory Error: Killing Current Process\n");
 
@@ -159,6 +157,7 @@ void MemoryHandler(UserContext *context) {
         KillProc(current_process);
         LoadNextProc(context, BLOCK);
 
+        break;
     }
 }
 

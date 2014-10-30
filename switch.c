@@ -10,15 +10,15 @@ KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb)
     PCB *curr = (PCB *) p_curr_pcb;
     PCB *next = (PCB *) p_next_pcb;
 
-    TracePrintf(1, "MyKCS called.\n");
+    TracePrintf(4, "MyKCS called.\n");
 
     curr->kernel_context = *kc_in;
-    TracePrintf(2, "MyKCS: Curr context addr: %d. Next context addr: %d.\n", curr->user_context.addr, next->user_context.addr);
+    TracePrintf(4, "MyKCS: Curr context addr: %d. Next context addr: %d.\n", curr->user_context.addr, next->user_context.addr);
     if (curr != next) {
         for (int vpn = KERNEL_STACK_BASE >> PAGESHIFT, ki = 0; 
                 vpn < DOWN_TO_PAGE(KERNEL_STACK_LIMIT) >> PAGESHIFT; 
                 vpn++, ki++) {
-            TracePrintf(3, "MyKCS: Loading in physical frame number %d\n", next->kStackPages[ki]);
+            TracePrintf(4, "MyKCS: Loading in physical frame number %d\n", next->kStackPages[ki]);
             pZeroTable[vpn].pfn = next->kStackPages[ki];
         }
 
@@ -52,10 +52,9 @@ KernelContext *ForkKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_p
     TracePrintf(1, "ForkKernel called. \n");
 
     child->kernel_context = *kc_in;
-	TracePrintf(1, "ForkKernel: calling CopyStack \n");
-    	CopyStack(child);
-    	TracePrintf(1, "ForkKernel: calling CopyRegion1\n");
-	CopyRegion1(child);
+
+    CopyStack(child);
+    CopyRegion1(child);
 
     return kc_in;
 }
