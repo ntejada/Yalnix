@@ -135,7 +135,7 @@ void MemoryHandler(UserContext *context) {
     switch (context->code) {
     case YALNIX_MAPERR:
 
-	if (current_process->cowPageTable->pageTable[newStackPage - 1].valid == 1) {
+	if (current_process->cowPageTable.pageTable[newStackPage - 1].valid == 1) {
 	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
 	    current_process->status = KILL;
@@ -144,9 +144,9 @@ void MemoryHandler(UserContext *context) {
 	}
 
 	for (sp; sp <= newStackPage; sp++) {
-	    current_process->cowPageTable->pageTable[newStackPage].valid = 1;
-	    current_process->cowPageTable->pageTable[newStackPage].pfn = getNextFrame();
-	    current_process->cowPageTable->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
+	    current_process->cowPageTable.pageTable[newStackPage].valid = 1;
+	    current_process->cowPageTable.pageTable[newStackPage].pfn = getNextFrame();
+	    current_process->cowPageTable.pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
 	}
         break;
     case YALNIX_ACCERR:
