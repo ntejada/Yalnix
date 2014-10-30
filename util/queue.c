@@ -96,7 +96,7 @@ int
 queueIsEmpty(Queue *queue) {
     TracePrintf(2, "queue->head = %p, queue->length = %d\n", queue->head, queue->length);
     if (queue->head == NULL) {
-        TracePrintf(2, "queueIsEmpty: queue is fucking empty\n");
+        TracePrintf(2, "queueIsEmpty: queue is empty\n");
     }
     return (queue->head == NULL);
 }
