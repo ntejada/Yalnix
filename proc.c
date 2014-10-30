@@ -64,10 +64,8 @@ void DoFork(UserContext *context) {
     
     // Return 0 to child and arm the child for execution.
     child->user_context = *context;
-    child->user_context.regs[0] = 0;
     queuePush(ready_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
-
  
     // Return child's pid to parent and resume execution of the parent.
     if (current_process->id == pid) {
