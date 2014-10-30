@@ -13,6 +13,7 @@
 #include "./util/list.h"
 #include "std.h"
 #include "frames.h"
+
 PCB *current_process;
 Queue *ready_queue;
 Queue *delay_queue;
@@ -22,7 +23,7 @@ void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
     pcb->deadChildren = queueNew();
     for(int i=0; i<MAX_PT_LEN; i++){
-        pcb->cowPageTable.pageTable[i].valid=0;
+        pcb->cow.pageTable[i].valid=0;
     }
 
 }
@@ -57,24 +58,24 @@ void DoFork(UserContext *context) {
     child->parent = current_process;
     queuePush(child->parent->children, child);
     if (queueIsEmpty(child->parent->children))
-	TracePrintf(3, "DoFork: parent queue empty.\n");
+        TracePrintf(3, "DoFork: parent queue empty.\n");
 
 
     child->status = RUNNING;
-    
+
     // Return 0 to child and arm the child for execution.
     child->user_context = *context;
     queuePush(ready_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
- 
+
     // Return child's pid to parent and resume execution of the parent.
     if (current_process->id == pid) {
-	*context = current_process->user_context;
-	context->regs[0] = 0;
+        *context = current_process->user_context;
+        context->regs[0] = 0;
     }
 
     else {
-	context->regs[0] = pid;
+        context->regs[0] = pid;
     }
 }
 
@@ -106,8 +107,8 @@ void DoExit(UserContext *context) {
 
 void DoWait(UserContext *context) {
     if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
-	TracePrintf(2, "DoWait: Has no children. Returning Error.\n");
-	TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);
+        TracePrintf(2, "DoWait: Has no children. Returning Error.\n");
+        TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);
         context->regs[0] = ERROR;
     } else {
         if (queueIsEmpty(current_process->deadChildren)) {
@@ -128,43 +129,43 @@ void DoGetPid(UserContext *context) {
 
 void DoBrk(UserContext *context) {
 
-	// TODO: need to do some stuff here with MMU
-	void * addr = (void*)context->regs[0];
-	int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
-	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
+    // TODO: need to do some stuff here with MMU
+    void * addr = (void*)context->regs[0];
+    int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
+    int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
 
-	TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
-	if(newPageBrk>=spPage){
-		TracePrintf(1, "User Brk error: addr %p is above allocatable region - interferes with the stack\n", addr);
-		context->regs[0]=ERROR;
-		return;
-	}
-	TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
-	for(int i = 0; i<spPage; i++){
-		//map pages before new brk
-		if(i<newPageBrk && current_process->cowPageTable.pageTable[i].valid==0){
-			current_process->cowPageTable.pageTable[i].valid=1;
-			current_process->cowPageTable.pageTable[i].pfn = getNextFrame();
-			current_process->cowPageTable.pageTable[i].prot = (PROT_READ | PROT_WRITE);
-			TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
-					i, current_process->cowPageTable.pageTable[i].pfn);
-		}
-		//unmap pages after new brk
-		if(i>=newPageBrk && (current_process->cowPageTable.pageTable[i].valid == 1)){
-			TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->cowPageTable.pageTable[i].pfn); 
-			current_process->cowPageTable.pageTable[i].valid=0;
-			if(ERROR == addFrame(current_process->cowPageTable.pageTable[i].pfn)){
-				TracePrintf(1, "Too Many Frames\n");
-				context->regs[0]=ERROR;
-				return;
-			}
-			current_process->cowPageTable.pageTable[i].pfn = -1;
+    TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
+    if(newPageBrk>=spPage){
+        TracePrintf(1, "User Brk error: addr %p is above allocatable region - interferes with the stack\n", addr);
+        context->regs[0]=ERROR;
+        return;
+    }
+    TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
+    for(int i = 0; i<spPage; i++){
+        //map pages before new brk
+        if(i<newPageBrk && current_process->cow.pageTable[i].valid==0){
+            current_process->cow.pageTable[i].valid=1;
+            current_process->cow.pageTable[i].pfn = getNextFrame();
+            current_process->cow.pageTable[i].prot = (PROT_READ | PROT_WRITE);
+            TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
+                    i, current_process->cow.pageTable[i].pfn);
+        }
+        //unmap pages after new brk
+        if(i>=newPageBrk && (current_process->cow.pageTable[i].valid == 1)){
+            TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->cow.pageTable[i].pfn); 
+            current_process->cow.pageTable[i].valid=0;
+            if(ERROR == addFrame(current_process->cow.pageTable[i].pfn)){
+                TracePrintf(1, "Too Many Frames\n");
+                context->regs[0]=ERROR;
+                return;
+            }
+            current_process->cow.pageTable[i].pfn = -1;
 
-			TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
-		}
-	}
-	context->regs[0]= SUCCESS;
-	return;
+            TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
+        }
+    }
+    context->regs[0]= SUCCESS;
+    return;
 
 
 }
@@ -189,7 +190,7 @@ void LoadNextProc(UserContext *context, int block) {
 
         PCB *next = queuePop(ready_queue);
         TracePrintf(1, "LoadNextProc: Next Process Id: %d\n", next->id);
-        WriteRegister(REG_PTBR1, (unsigned int) &(next->cowPageTable.pageTable)); 
+        WriteRegister(REG_PTBR1, (unsigned int) &(next->cow.pageTable)); 
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
 
 
@@ -227,6 +228,7 @@ void KillProc(PCB *pcb) {
     FreePCB(pcb);
 }
 
+// TODO for cow
 void FreePCB(PCB *pcb) {
     while (!queueIsEmpty(pcb->children)) {
         queuePop(pcb->children);
@@ -238,13 +240,21 @@ void FreePCB(PCB *pcb) {
 
     free(pcb->children);
     free(pcb->deadChildren);
-    
-    for (int i = 0; i < MAX_PT_LEN; i++) {
-	if (pcb->cowPageTable.pageTable[i].valid == 1) {
-	    addFrame(pcb->cowPageTable.pageTable[i].pfn);
-	}
-    }
 
+    for (int i = 0; i < MAX_PT_LEN; i++) {
+        if (pcb->cow.pageTable[i].valid == 1) {
+            if (pcb->cow.refCount[i]) {
+                if (*(pcb->cow.refCount[i]) == 1) {
+                    addFrame(pcb->cow.pageTable[i].pfn);
+                    free(pcb->cow.refCount[i]);
+                } else {
+                    *(pcb->cow.refCount[i])--;
+                }
+            } else {
+                addFrame(pcb->cow.pageTable[i].pfn);
+            }
+        }
+    }
 
     free(pcb);
 }

@@ -54,7 +54,8 @@ KernelContext *ForkKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_p
     child->kernel_context = *kc_in;
 
     CopyStack(child);
-    CopyRegion1(child);
+    //CopyRegion1(child);
+    CoWRegion1(child);
 
     return kc_in;
 }

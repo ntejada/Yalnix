@@ -34,7 +34,7 @@ typedef struct cow_page_table COWPageTable;
 
 struct cow_page_table {
     struct pte pageTable[MAX_PT_LEN];
-    int *cowRefCounts[MAX_PT_LEN];      // Pointers to integers representing a reference count
+    int *refCount[MAX_PT_LEN];      // Pointers to integers representing a reference count
                                         // to corresponding page - ie. the number of processes
                                         // seeing this page as read only reference.
 };
@@ -47,7 +47,7 @@ struct pcb_t {
     int clock_count;    /* Remain time to wait after a Delay() call */
 
     /* Process's page table */
-    COWPageTable cowPageTable;
+    COWPageTable cow;
 
     /* Kernel stack pfns associated with this process */
     int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];

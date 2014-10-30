@@ -120,19 +120,39 @@ int CopyRegion1(PCB *pcb)
     pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
 
     for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
-        if (current_process->cowPageTable.pageTable[vpn].valid) {
+        if (current_process->cow.pageTable[vpn].valid) {
             int newPfn = getNextFrame();
             pZeroTable[PF_COPIER].pfn = newPfn;
-	    WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
+            WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
             memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
-            pcb->cowPageTable.pageTable[vpn].valid = 1;
-            pcb->cowPageTable.pageTable[vpn].prot = current_process->cowPageTable.pageTable[vpn].prot;
-            pcb->cowPageTable.pageTable[vpn].pfn = newPfn;
+            pcb->cow.pageTable[vpn].valid = 1;
+            pcb->cow.pageTable[vpn].prot = current_process->cow.pageTable[vpn].prot;
+            pcb->cow.pageTable[vpn].pfn = newPfn;
         }
     }
 
     pZeroTable[PF_COPIER].prot = PROT_NONE;
     pZeroTable[PF_COPIER].valid = 0;
+}
+
+int CoWRegion1(PCB *pcb) {
+    for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
+        // Only do the following for non text frames
+        if (current_process->cow.pageTable[vpn].prot != (PROT_READ|PROT_EXEC)) {
+            current_process->cow.pageTable[vpn].prot = PROT_READ;
+        }
+        pcb->cow.pageTable[vpn] = current_process->cow.pageTable[vpn];
+        if (current_process->cow.pageTable[vpn].valid) {
+            if (current_process->cow.refCount[vpn]) {
+                pcb->cow.refCount[vpn] = current_process->cow.refCount[vpn];
+            } else {
+                pcb->cow.refCount[vpn] = current_process->cow.refCount[vpn] = 
+                    (int *) malloc(sizeof(int));
+                *(pcb->cow.refCount[vpn]) = 1;
+            }
+            *(pcb->cow.refCount[vpn])++;
+        }
+    }
 }
 
 int SetKernelBrk(void *addr) 
@@ -232,7 +252,7 @@ void PageTableInit(PCB * idlePCB)
 
     //region one page table
     unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
-    struct pte * reg_one_table = idlePCB->cowPageTable.pageTable;
+    struct pte * reg_one_table = idlePCB->cow.pageTable;
 
 
     /*
