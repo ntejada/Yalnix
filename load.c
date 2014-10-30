@@ -178,7 +178,7 @@ if(NULL == cp2){
 ==>> deallocate a few pages to fit the size of memory to the requirements
 ==>> of the new process.
 */
-	struct pte * ptable = proc->pageTable;
+	struct pte * ptable = proc->cowPageTable->pageTable;
 	for(i=0; i<MAX_PT_LEN; i++) {
 		if(ptable[i].valid == 1){
 			TracePrintf(1, "LoadProg: %s: page %d is set to valid with pfn %d\n", args[1], i, ptable[i].pfn);
@@ -308,7 +308,7 @@ if(NULL == cp2){
 
 
 	for(int index=0; i<MAX_PT_LEN; i++){
-		TracePrintf(1, "PID %d PTABLE ===== pte %i has pfn %d and has valid bit set to %d\n", proc->id, i, proc->pageTable[i].pfn, proc->pageTable[i].valid); 
+		TracePrintf(1, "PID %d PTABLE ===== pte %i has pfn %d and has valid bit set to %d\n", proc->id, i, proc->cowPageTable->pageTable[i].pfn, proc->cowPageTable->pageTable[i].valid); 
 	}
     *cpp++ = (char *)argcount;		/* the first value at cpp is argc */
     cp2 = argbuf;

@@ -22,7 +22,7 @@ void PCB_Init(PCB *pcb) {
     pcb->children = queueNew();
     pcb->deadChildren = queueNew();
     for(int i=0; i<MAX_PT_LEN; i++){
-        pcb->pageTable[i].valid=0;
+        pcb->cowPageTable->pageTable[i].valid=0;
     }
 
 }
@@ -142,23 +142,23 @@ void DoBrk(UserContext *context) {
 	TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
 	for(int i = 0; i<spPage; i++){
 		//map pages before new brk
-		if(i<newPageBrk && current_process->pageTable[i].valid==0){
-			current_process->pageTable[i].valid=1;
-			current_process->pageTable[i].pfn = getNextFrame();
-			current_process->pageTable[i].prot = (PROT_READ | PROT_WRITE);
+		if(i<newPageBrk && current_process->cowPageTable->pageTable[i].valid==0){
+			current_process->cowPageTable->pageTable[i].valid=1;
+			current_process->cowPageTable->pageTable[i].pfn = getNextFrame();
+			current_process->cowPageTable->pageTable[i].prot = (PROT_READ | PROT_WRITE);
 			TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
-					i, current_process->pageTable[i].pfn);
+					i, current_process->cowPageTable->pageTable[i].pfn);
 		}
 		//unmap pages after new brk
-		if(i>=newPageBrk && (current_process->pageTable[i].valid == 1)){
-			TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->pageTable[i].pfn); 
-			current_process->pageTable[i].valid=0;
-			if(ERROR == addFrame(current_process->pageTable[i].pfn)){
+		if(i>=newPageBrk && (current_process->cowPageTable->pageTable[i].valid == 1)){
+			TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->cowPageTable->pageTable[i].pfn); 
+			current_process->cowPageTable->pageTable[i].valid=0;
+			if(ERROR == addFrame(current_process->cowPageTable->pageTable[i].pfn)){
 				TracePrintf(1, "Too Many Frames\n");
 				context->regs[0]=ERROR;
 				return;
 			}
-			current_process->pageTable[i].pfn = -1;
+			current_process->cowPageTable->pageTable[i].pfn = -1;
 
 			TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
 		}
@@ -189,7 +189,7 @@ void LoadNextProc(UserContext *context, int block) {
 
         PCB *next = queuePop(ready_queue);
         TracePrintf(1, "LoadNextProc: Next Process Id: %d\n", next->id);
-        WriteRegister(REG_PTBR1, (unsigned int) &(next->pageTable)); 
+        WriteRegister(REG_PTBR1, (unsigned int) &(next->cowPageTable->pageTable)); 
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
 
 
@@ -240,8 +240,8 @@ void FreePCB(PCB *pcb) {
     free(pcb->deadChildren);
     
     for (int i = 0; i < MAX_PT_LEN; i++) {
-	if (pcb->pageTable[i].valid == 1) {
-	    addFrame(pcb->pageTable[i].pfn);
+	if (pcb->cowPageTable->pageTable[i].valid == 1) {
+	    addFrame(pcb->cowPageTable->pageTable[i].pfn);
 	}
     }
 

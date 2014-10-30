@@ -30,7 +30,14 @@
 
 typedef struct pcb_t PCB;
 typedef struct zcb_t ZCB;
+typedef struct cow_page_table COWPageTable;
 
+struct cow_page_table {
+    struct pte pageTable[MAX_PT_LEN];
+    int *cowRefCounts[MAX_PT_LEN];      // Pointers to integers representing a reference count
+                                        // to corresponding page - ie. the number of processes
+                                        // seeing this page as read only reference.
+};
 
 struct pcb_t {
     /* Process identification data */
@@ -40,7 +47,7 @@ struct pcb_t {
     int clock_count;    /* Remain time to wait after a Delay() call */
 
     /* Process's page table */
-    struct pte pageTable[MAX_PT_LEN];
+    struct COWPageTable cowPageTable;
 
     /* Kernel stack pfns associated with this process */
     int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
