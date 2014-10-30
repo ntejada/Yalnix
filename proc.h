@@ -47,7 +47,7 @@ struct pcb_t {
     int clock_count;    /* Remain time to wait after a Delay() call */
 
     /* Process's page table */
-    struct COWPageTable cowPageTable;
+    COWPageTable cowPageTable;
 
     /* Kernel stack pfns associated with this process */
     int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
