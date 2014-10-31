@@ -129,7 +129,6 @@ void DoGetPid(UserContext *context) {
 
 void DoBrk(UserContext *context) {
 
-    // TODO: need to do some stuff here with MMU
     void * addr = (void*)context->regs[0];
     int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
     int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)

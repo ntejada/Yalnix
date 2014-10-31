@@ -130,8 +130,10 @@ void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
     int pageNum = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
-
-    TracePrintf(2, "TrapMemory: New stack page = %d. Old stack = %d\n", pageNum, sp);	
+	TracePrintf(2, "TrapMemory: This page has the valid bit set to %d and %d prots\n", current_process->cow.pageTable[pageNum].valid, current_process->cow.pageTable[pageNum].prot);
+	TracePrintf(2, "TrapMemory: Read Write is %d and Read is %d\n", (PROT_READ | PROT_WRITE), PROT_READ);
+	TracePrintf(2, "TrapMemory: MAPERR = %d, ACCERR = %d, this error = %d\n", YALNIX_MAPERR, YALNIX_ACCERR, context->code);
+    TracePrintf(2, "TrapMemory: New stack pointer = %d. Old stack pointer = %d\n", pageNum, sp);	
     TracePrintf(2, "TrapMemory: Context addr: %p\n", context->addr);
     switch (context->code) {
         case YALNIX_MAPERR:
@@ -153,9 +155,10 @@ void MemoryHandler(UserContext *context) {
         case YALNIX_ACCERR:
             // Check first to see if it was a copy on write issue, ie. attempt to write to a CoW page
             if (current_process->cow.refCount[pageNum] && 
-                    current_process->cow.pageTable[pageNum].prot == PROT_READ) {
+                current_process->cow.pageTable[pageNum].prot == PROT_READ) {
                 // Go ahead and change permissions
-                current_process->cow.pageTable[pageNum].prot = (PROT_READ|PROT_WRITE);
+                TracePrintf(3, "MemoryHandler: CoW page %d written to with refcount %d\n", pageNum, (*current_process->cow.refCount[pageNum]));
+		current_process->cow.pageTable[pageNum].prot = (PROT_READ|PROT_WRITE);
                 // Check how many processes are referencing that frame
                 if (current_process->cow.refCount[pageNum] > 1) {
                     // Copy over the page and decrement refCount
@@ -171,9 +174,12 @@ void MemoryHandler(UserContext *context) {
 
                     pZeroTable[PF_COPIER].prot = PROT_NONE;
                     pZeroTable[PF_COPIER].valid = 0;
-                } else {
+			TracePrintf(4, "MemoryHandler: Copied page %d into new frame. Old frame has reference count of %d\n", pageNum, *(current_process->cow.refCount[pageNum]));
+                	current_process->cow.refCount[pageNum]=NULL;
+		} else {
                     free(current_process->cow.refCount[pageNum]);
-                }
+                	current_process->cow.refCount[pageNum] = NULL;
+		}
             } else {
                 // Otherwise it was truly a bad memory access.
                 TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
