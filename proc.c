@@ -64,10 +64,8 @@ void DoFork(UserContext *context) {
     
     // Return 0 to child and arm the child for execution.
     child->user_context = *context;
-    child->user_context.regs[0] = 0;
     queuePush(ready_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
-
  
     // Return child's pid to parent and resume execution of the parent.
     if (current_process->id == pid) {
@@ -81,12 +79,16 @@ void DoFork(UserContext *context) {
 }
 
 void DoExec(UserContext *context) {
+    TracePrintf(5, "DoExec\n");
     current_process->user_context = *context;
+    TracePrintf(5, "DoExec: LoadProgram\n");
     int rc = LoadProgram(context->regs[0], context->regs[1], current_process);
+    TracePrintf(5, "DoExec: finished LoadProgram\n");
     if (rc != SUCCESS) {
         current_process->user_context.regs[0] = ERROR;
     }
     *context = current_process->user_context;
+    TracePrintf(5, "Finished DoExec\n");
 }
 
 void DoExit(UserContext *context) {

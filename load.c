@@ -308,7 +308,7 @@ if(NULL == cp2){
 
 
 	for(int index=0; i<MAX_PT_LEN; i++){
-		TracePrintf(1, "PID %d PTABLE ===== pte %i has pfn %d and has valid bit set to %d\n", proc->id, i, proc->pageTable[i].pfn, proc->pageTable[i].valid); 
+		TracePrintf(4, "PID %d PTABLE ===== pte %i has pfn %d and has valid bit set to %d\n", proc->id, i, proc->pageTable[i].pfn, proc->pageTable[i].valid); 
 	}
     *cpp++ = (char *)argcount;		/* the first value at cpp is argc */
     cp2 = argbuf;

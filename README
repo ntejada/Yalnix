@@ -1,5 +1,17 @@
 Shuo Zheng, Nic Tejada, Garrett Watumull
 
+CHECKPOINT 4:
+
+We successfully completed this checkpoint as well, getting Exit, Fork, Exec all to Work. We had a little difficulty forking at first but this turned out to be from not flushing the correct part of the PCB.
+
+***New User Programs***
+forkExecTest - tests out exec with a forked child (it execs exit56)  and has the parent delay and then wait on the child which tests also the handling of Zombie processes.
+forkTest - tests out multiple forking 
+
+We are looking to implement CoW as well but have not been able to fully flesh it out for this checkpoint.
+
+******************************************************************
+
 CHECKPOINT 3:
 
 We successfully completed this checkpoint. We had to heavily modify our KernelStart function since we could not successfully call LoadProgram twice within the same process. Because we only have one running process besides our idle process, we could not rigorously test Delay and Brk, but both of these calls seemed to work when we tested them with init. 

@@ -52,7 +52,6 @@ struct pcb_t {
     /* Processor state data */
     UserContext user_context;
     KernelContext kernel_context;
-
 };
 
 struct zcb_t {
