@@ -67,6 +67,8 @@ void KernelCallHandler(UserContext *context) {
                case YALNIX_TTY_WRITE:
                doTtyWrite(context);
                break;
+
+
 #ifdef LINUX
 case YALNIX_PIPE_INIT:
 doPipeInit(context);
@@ -168,8 +170,10 @@ void MemoryHandler(UserContext *context) {
                     int newPfn = getNextFrame();
                     pZeroTable[PF_COPIER].pfn = newPfn;
                     WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
+
                     memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (pageNum << PAGESHIFT), PAGESIZE);
                     current_process->cow.pageTable[pageNum].pfn = newPfn;
+		    WriteRegister(REG_TLB_FLUSH, pageNum << PAGESHIFT);
                     *(current_process->cow.refCount[pageNum])--;
 
                     pZeroTable[PF_COPIER].prot = PROT_NONE;
@@ -203,6 +207,8 @@ void TtyTransmitHandler(UserContext *context) {
 }
 
 void DiskHandler(UserContext *context) {
+    InvalidTrapHandler(context)
+
 }
 
 void InvalidTrapHandler(UserContext *context) {
