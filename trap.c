@@ -15,6 +15,7 @@
 #include "util/list.h"
 #include "std.h"
 #include "frames.h"
+#include "tty.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -59,13 +60,13 @@ void KernelCallHandler(UserContext *context) {
     case YALNIX_DELAY:
         DoDelay(context);
         break;
-	/*
     case YALNIX_TTY_READ:
-        doTtyRead(context);
+        DoTtyRead(context);
         break;
     case YALNIX_TTY_WRITE:
-        doTtyWrite(context);
+        DoTtyWrite(context);
         break;
+	/*
 #ifdef LINUX
     case YALNIX_PIPE_INIT:
         doPipeInit(context);
@@ -163,10 +164,27 @@ void MemoryHandler(UserContext *context) {
 
 void TtyReceiveHandler(UserContext *context) {
     // Pass into a buffer that holds input
+    TracePrintf(1, "TtyReceiveHandler\n");
+    int tty_id = context->code;
+    int requestLen = 0;
+    if (!queueIsEmpty(tty[tty_id].readBlocked)) {
+        PCB *reading_pcb = tty[tty_id].readBlocked->head->data;
+        requestLen = reading_pcb->user_context.regs[0];
+    }
+
+    void *buf = malloc(11);
+    int inputLen = TtyReceive(tty_id, buf, 10);
+    TracePrintf(1, "TtyReceiveHandler: inputLen: %d\n", inputLen);
+    TracePrintf(1, "TtyReceiveHandler: input: %s\n", buf);
+
+    inputLen = TtyReceive(tty_id, buf, 10);
+    TracePrintf(1, "TtyReceiveHandler: inputLen: %d\n", inputLen);
+    TracePrintf(1, "TtyReceiveHandler: input: %s\n", buf);
 }
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
+    int tty_id = context->code;
 }
 
 void DiskHandler(UserContext *context) {

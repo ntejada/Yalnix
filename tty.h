@@ -1,0 +1,38 @@
+/* 
+ * Yalnix for Linux/x86, COSC 058 Fall 2014
+ *
+ * TTY implementations, DoTtyRead and DoTtyWrite
+ *
+ * Authors: Shuo Zheng, Garrett Watumull, Nic Tejada
+ *
+ * created October 8, 2014  szheng
+ */
+
+#ifndef _tty_h
+#define _tty_h
+
+#include <hardware.h>
+#include "util/list.h"
+#include "util/queue.h"
+
+#define READ_LEN 32
+
+typedef struct overflow_buf_t {
+    void *addr;
+    int len;
+} Overflow;
+
+typedef struct tty_t  {
+    Queue *readBlocked;     // Blocked queue waiting on TtyReceive
+    Queue *writeBlocked;    // Blocked queue waiting on TtyTransmit
+    Queue *overflow;        // Queue of overflow structs
+    int totalOverflowLen;
+} TTY;
+
+extern TTY tty[];
+
+extern void InitTTY(void);
+extern void DoTtyRead(UserContext *);
+extern void DoTtyWrite(UserContext *);
+
+#endif

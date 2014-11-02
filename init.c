@@ -3,6 +3,7 @@
 #include "proc.h"
 #include "frames.h"
 #include "load.h"
+#include "tty.h"
 
 struct pte pZeroTable[MAX_PT_LEN];
 int vmem_on;
@@ -20,6 +21,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
     InitTrapVector();
+    InitTTY();
     availableFramesListInit(pmem_size);
     //
     // Set up idlePCB                                                                                                 
