@@ -92,6 +92,11 @@ void DoExec(UserContext *context) {
 }
 
 void DoExit(UserContext *context) {
+    if (1 == current_process->id) {
+	TracePrintf(1, "Do Exit: init program exiting. Now calling halt.\n");
+	Halt();
+    }
+    
     if (current_process->parent) {
         current_process->status = context->regs[0];
     }
@@ -170,7 +175,8 @@ void DoBrk(UserContext *context) {
 }
 
 void DoDelay(UserContext *context) {
-    TracePrintf(1, "in DoDelay\n");
+    TracePrintf(1, "in DoDelay.\n");
+    
     current_process->clock_count = context->regs[0];
     TracePrintf(1, "Delay: %d\n", context->regs[0]);
     DelayAdd(current_process);

@@ -66,6 +66,8 @@ void KernelCallHandler(UserContext *context) {
     case YALNIX_TTY_WRITE:
         doTtyWrite(context);
         break;
+
+
 #ifdef LINUX
     case YALNIX_PIPE_INIT:
         doPipeInit(context);
