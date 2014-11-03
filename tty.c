@@ -1,29 +1,45 @@
 #include "tty.h"
 #include "proc.h"
 
-TTY tty[NUM_TERMINALS];
+TTY ttys[NUM_TERMINALS];
 
 void InitTTY() {
     for (int i = 0; i < NUM_TERMINALS; i++) {
-        tty[i].readBlocked = queueNew();
-        tty[i].writeBlocked = queueNew();
-        tty[i].overflow = queueNew();
-        tty[i].totalOverflowLen = 0;
+        ttys[i].readBlocked = queueNew();
+        ttys[i].writeBlocked = queueNew();
+        ttys[i].overflow = queueNew();
+        ttys[i].totalOverflowLen = 0;
     }
 }
 
 void DoTtyRead(UserContext *context) {
     int tty_id = context->regs[0];
     // TODO: Check tty_id is legal
-    current_process->user_context = *context;
-    
-    queuePush(tty[tty_id].readBlocked, current_process);
+    void *buf = context->regs[1];
+    int len = context->regs[2];
+    TTY tty = ttys[tty_id];
+
+    // Return if trying to read zero bytes...?
+    if (len == 0) {
+        return;
+    }
+
+    if (tty.totalOverflowLen > 0) {
+        ReadFromBuffer(tty, buf, len);
+    } else {
+        current_process->user_context = *context;
+        queuePush(tty.readBlocked, current_process);
+    }
 }
 
 void DoTtyWrite(UserContext *context) {
     int tty_id = context->regs[0];
     // TODO: Check tty_id is legal
+    TTY tty = ttys[tty_id];
     current_process->user_context = *context;
-    
-    queuePush(tty[tty_id].writeBlocked, current_process);
+    queuePush(tty.writeBlocked, current_process);
+}
+
+void ReadFromBuffer(TTY tty, void *buf, int len) {
+
 }

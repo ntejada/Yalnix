@@ -27,12 +27,14 @@ typedef struct tty_t  {
     Queue *writeBlocked;    // Blocked queue waiting on TtyTransmit
     Queue *overflow;        // Queue of overflow structs
     int totalOverflowLen;
+    void *base;             // Base pointer to start of buffer queue
 } TTY;
 
-extern TTY tty[];
+extern TTY ttys[];
 
 extern void InitTTY(void);
 extern void DoTtyRead(UserContext *);
 extern void DoTtyWrite(UserContext *);
+extern void ReadFromBuffer(TTY, void *, int);
 
 #endif
