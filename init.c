@@ -25,7 +25,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     availableFramesListInit(pmem_size);
     //
     // Set up idlePCB                                                                                                 
-    PCB *idlePCB = (PCB*)malloc(sizeof(PCB));
+    PCB *idlePCB = (PCB*) malloc(sizeof(PCB));
     memset(idlePCB, 0, sizeof(PCB));
     PCB_Init(idlePCB);
     idlePCB->status = RUNNING;
@@ -79,11 +79,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
         return;
     } else {
-        // If no argument specified at invocation 
-	if (cmd_args[0] == NULL) {
-	    cmd_args[0] = "./initInit";
-	}
-	args[1]=cmd_args[0];
+        args[1]=cmd_args[0];
         TracePrintf(1, "%s\n", cmd_args[0]);
         rc = LoadProgram(cmd_args[0], args, initPCB);
         TracePrintf(1, "rc: %d, %s pc: %d\n", rc, cmd_args[0], initPCB->user_context.pc);

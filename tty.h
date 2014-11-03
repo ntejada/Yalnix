@@ -24,15 +24,21 @@ typedef struct overflow_buf_t {
 
 typedef struct tty_t  {
     Queue *readBlocked;     // Blocked queue waiting on TtyReceive
-    Queue *writeBlocked;    // Blocked queue waiting on TtyTransmit
+    Queue *writeBlocked;    // Blocked queue waiting to TtyTransmit
+    PCB *writePCB;          // Current process writing to terminal
     Queue *overflow;        // Queue of overflow structs
     int totalOverflowLen;
+    void *base;             // Base pointer to start of buffer queue
+    char *writeBuf;      
+    char *writeBase;        // Buff being read from for TtyWrite
+    int lenLeftToWrite;
 } TTY;
 
-extern TTY tty[];
+extern TTY ttys[];
 
 extern void InitTTY(void);
 extern void DoTtyRead(UserContext *);
 extern void DoTtyWrite(UserContext *);
+extern void ReadFromBuffer(TTY, void *, int);
 
 #endif

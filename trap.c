@@ -166,25 +166,61 @@ void TtyReceiveHandler(UserContext *context) {
     // Pass into a buffer that holds input
     TracePrintf(1, "TtyReceiveHandler\n");
     int tty_id = context->code;
-    int requestLen = 0;
-    if (!queueIsEmpty(tty[tty_id].readBlocked)) {
-        PCB *reading_pcb = tty[tty_id].readBlocked->head->data;
-        requestLen = reading_pcb->user_context.regs[0];
+    TTY tty = ttys[tty_id];
+
+    // Move everything on input line into tty's buffer in memory
+    int readLen;
+    void *buf;
+    for (buf = malloc(READ_LEN); 
+         readLen = TtyReceive(tty_id, buf, 10); 
+         buf = malloc(READ_LEN)) { 
+        Overflow *over = (Overflow *) malloc(sizeof(Overflow));
+        over->addr = buf;
+        over->len = readLen;
+        tty.totalOverflowLen += readLen;
+        queuePush(tty.overflow, over);
     }
 
-    void *buf = malloc(11);
-    int inputLen = TtyReceive(tty_id, buf, 10);
-    TracePrintf(1, "TtyReceiveHandler: inputLen: %d\n", inputLen);
-    TracePrintf(1, "TtyReceiveHandler: input: %s\n", buf);
+    int len = 0;
+    if (!queueIsEmpty(tty.readBlocked)) {
+        PCB *reading_pcb = tty.readBlocked->head->data;
+        len = reading_pcb->user_context.regs[0];
+    }
 
-    inputLen = TtyReceive(tty_id, buf, 10);
-    TracePrintf(1, "TtyReceiveHandler: inputLen: %d\n", inputLen);
-    TracePrintf(1, "TtyReceiveHandler: input: %s\n", buf);
+    if (len > 0 && tty.totalOverflowLen > 0) {
+        ReadFromBuffer(tty, buf, len);
+        queuePush(ready_queue, queuePop(tty.readBlocked));
+    }
 }
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
     int tty_id = context->code;
+    TTY tty = ttys[tty_id];
+    
+    if (tty.lenLeftToWrite == 0) {
+	TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty.writePCB->id);
+	free(tty.writeBase);
+	queuePush(ready_queue, tty.writePCB);
+	tty.writePCB = NULL;
+	tty.writeBuf = NULL;
+		
+	queuePush(ready_queue, queuePop(tty.writeBlocked));
+    } else {
+	if (len > TERMINAL_MAX_LINE) {
+
+	    TtyTransmit(tty_id, tty.writeBuf, TERMINAL_MAX_LINE);
+	    tty.writeBuf = tty.writeBuf + TERMINAL_MAX_LINE;
+	    tty.lenLeftToWrite = tty.lenLeftToWrite - TERMINAL_MAX_LINE;
+	} else {
+
+	    TtyTransmit(tty_id, tty.writeBuf, tty.lenLeftToWrite);
+	    tty.lenLeftToWrite = 0;
+	    
+	}
+
+    }
+
 }
 
 void DiskHandler(UserContext *context) {
