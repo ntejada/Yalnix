@@ -14,16 +14,27 @@ void InitTTY() {
 
 void DoTtyRead(UserContext *context) {
     int tty_id = context->regs[0];
-    // TODO: Check tty_id is legal
-    current_process->user_context = *context;
     
-    queuePush(tty[tty_id].readBlocked, current_process);
+    if (tty_id < NUM_TERMINALS) {
+        TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
+	context->regs[0] = ERROR;
+	return;
+
+    } else {
+
+	queuePush(tty[tty_id].readBlocked, current_process);
+	LoadNextProc(context, BLOCK);
+    }
 }
 
 void DoTtyWrite(UserContext *context) {
     int tty_id = context->regs[0];
-    // TODO: Check tty_id is legal
-    current_process->user_context = *context;
-    
-    queuePush(tty[tty_id].writeBlocked, current_process);
+    if (tty_id >= NUM_TERMINALS && tty_id < 0) {
+	TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
+	context->regs[0] = ERROR;
+	return;
+    } else {
+	queuePush(tty[tty_id].writeBlocked, current_process);
+	LoadNextProc(context, BLOCK);
+    }
 }
