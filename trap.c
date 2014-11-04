@@ -166,30 +166,32 @@ void TtyReceiveHandler(UserContext *context) {
     // Pass into a buffer that holds input
     TracePrintf(1, "TtyReceiveHandler\n");
     int tty_id = context->code;
-    TTY tty = ttys[tty_id];
+    TTY* tty = &(ttys[tty_id]);
 
     // Move everything on input line into tty's buffer in memory
     int readLen;
     void *buf;
     for (buf = (void*)malloc(READ_LEN); 
-       	 readLen = TtyReceive(tty_id, buf, 10); 
+       	 readLen = TtyReceive(tty_id, buf, READ_LEN); 
          buf = (void*)malloc(READ_LEN)) { 
         Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = buf;
         over->len = readLen;
-        tty.totalOverflowLen += readLen;
-        queuePush(tty.overflow, over);
+        tty->totalOverflowLen += readLen;
+        queuePush(tty->overflow, over);
     }
 
+	//get length that process at head of readBlocked queue wants
+	//DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF OR TOTALOVERFLOW IS 0
     int len = 0;
-    if (!queueIsEmpty(tty.readBlocked)) {
-        PCB *reading_pcb = tty.readBlocked->head->data;
+    if (!queueIsEmpty(tty->readBlocked)) {
+        PCB *reading_pcb = (PCB*)(tty->readBlocked->head->data);
         len = reading_pcb->user_context.regs[0];
     }
 
-    if (len > 0 && tty.totalOverflowLen > 0) {
-        ReadFromBuffer(tty, buf, len);
-        queuePush(ready_queue, queuePop(tty.readBlocked));
+    if (len > 0 && tty->totalOverflowLen > 0) {
+        ReadFromBuffer(*tty, buf, len);
+        queuePush(ready_queue, queuePop(tty->readBlocked));
     }
 }
 
@@ -198,24 +200,6 @@ void TtyTransmitHandler(UserContext *context) {
 	int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
 	TracePrintf(1, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
-    /*if (tty->lenLeftToWrite == 0) {
-		TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
-		free(tty->writeBase);
-		queuePush(ready_queue, tty->writePCB);
-		tty->writePCB = NULL;
-		tty->writeBuf = NULL;
-		queuePush(ready_queue, queuePop(tty->writeBlocked));
-    } else if (tty->lenLeftToWrite > TERMINAL_MAX_LINE) {
-
-		TtyTransmit(tty_id, tty->writeBuf, TERMINAL_MAX_LINE);
-		tty->writeBuf = tty->writeBuf + TERMINAL_MAX_LINE;
-		tty->lenLeftToWrite = tty->lenLeftToWrite - TERMINAL_MAX_LINE;
-	} else {
-
-	    TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
-	    tty->lenLeftToWrite = 0;
-	    
-	}*/
     if (tty->lenLeftToWrite == 0) {
 		TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
 		free(tty->writeBase);
