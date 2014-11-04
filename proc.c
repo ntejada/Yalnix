@@ -192,7 +192,6 @@ void LoadNextProc(UserContext *context, int block) {
                 queuePush(ready_queue, current_process);
             }
         }
-
         PCB *next = queuePop(ready_queue);
         TracePrintf(1, "LoadNextProc: Next Process Id: %d\n", next->id);
         WriteRegister(REG_PTBR1, (unsigned int) &(next->pageTable)); 
@@ -202,6 +201,8 @@ void LoadNextProc(UserContext *context, int block) {
         KernelContextSwitch(MyKCS, current_process, next);
         TracePrintf(1, "LoadNextProc: Got past MyKCS\n");
         *context = current_process->user_context;
+		
+		TracePrintf(3, "LoadNextProc: current user context pc is %p\n", context->pc);
     }
 }
 

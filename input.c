@@ -9,12 +9,14 @@ BufferReadCheck(void *buf, int len) {
 
     char *ptr = (char *) buf;
     for (int i = 0; i < len; i++, ptr++) {
-	int page = DOWN_TO_PAGE(ptr) >> PAGESHIFT;
-	// Has no read permissions
-	if (current_process->pageTable[page].prot == PROT_NONE || !current_process->pageTable[page].valid) {
-	    TracePrintf(1, "BufferReadCheck: Does not have read permissions for page %d\n", page);
-	    return ERROR;
-	}
+		int page = DOWN_TO_PAGE(ptr) >> PAGESHIFT;
+		// Has no read permissions
+		char* buffer = (char*) buf;
+		TracePrintf(1, "BufferReadCheck: buf is at page %d, with address %p and has the first char as %c\n", page, buf, buffer[0]);     
+		if (current_process->pageTable[page].prot == PROT_NONE || !current_process->pageTable[page].valid) {
+		    TracePrintf(1, "BufferReadCheck: Does not have read permissions for page %d\n", page);
+		    return ERROR;
+		}
     }
     return SUCCESS;
 }

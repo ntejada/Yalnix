@@ -15,7 +15,7 @@ void
 queuePush(Queue *queue,
           void *data) {
 
-    TracePrintf(2, "queuePush\n");
+    TracePrintf(2, "queuePush: data is at %p\n", data);
 
     queue->tail = listAppend(queue->tail, data);
     if (queue->tail->next)
@@ -94,7 +94,7 @@ queueRemove(Queue *queue,
 
 int
 queueIsEmpty(Queue *queue) {
-    TracePrintf(2, "queue->head = %p, queue->length = %d\n", queue->head, queue->length);
+    TracePrintf(2, "queueIsEmpty: queue->head = %p, queue->length = %d\n", queue->head, queue->length);
     if (queue->head == NULL) {
         TracePrintf(2, "queueIsEmpty: queue is empty\n");
     }

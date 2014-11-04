@@ -171,9 +171,9 @@ void TtyReceiveHandler(UserContext *context) {
     // Move everything on input line into tty's buffer in memory
     int readLen;
     void *buf;
-    for (buf = malloc(READ_LEN); 
-         readLen = TtyReceive(tty_id, buf, 10); 
-         buf = malloc(READ_LEN)) { 
+    for (buf = (void*)malloc(READ_LEN); 
+       	 readLen = TtyReceive(tty_id, buf, 10); 
+         buf = (void*)malloc(READ_LEN)) { 
         Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = buf;
         over->len = readLen;
@@ -195,33 +195,53 @@ void TtyReceiveHandler(UserContext *context) {
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
-    int tty_id = context->code;
-    TTY tty = ttys[tty_id];
-    
-    if (tty.lenLeftToWrite == 0) {
-	TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty.writePCB->id);
-	free(tty.writeBase);
-	queuePush(ready_queue, tty.writePCB);
-	tty.writePCB = NULL;
-	tty.writeBuf = NULL;
-		
-	queuePush(ready_queue, queuePop(tty.writeBlocked));
-    } else {
-	if (len > TERMINAL_MAX_LINE) {
+	int tty_id = context->code;
+    TTY* tty = &(ttys[tty_id]);
+	TracePrintf(1, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
+    /*if (tty->lenLeftToWrite == 0) {
+		TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
+		free(tty->writeBase);
+		queuePush(ready_queue, tty->writePCB);
+		tty->writePCB = NULL;
+		tty->writeBuf = NULL;
+		queuePush(ready_queue, queuePop(tty->writeBlocked));
+    } else if (tty->lenLeftToWrite > TERMINAL_MAX_LINE) {
 
-	    TtyTransmit(tty_id, tty.writeBuf, TERMINAL_MAX_LINE);
-	    tty.writeBuf = tty.writeBuf + TERMINAL_MAX_LINE;
-	    tty.lenLeftToWrite = tty.lenLeftToWrite - TERMINAL_MAX_LINE;
+		TtyTransmit(tty_id, tty->writeBuf, TERMINAL_MAX_LINE);
+		tty->writeBuf = tty->writeBuf + TERMINAL_MAX_LINE;
+		tty->lenLeftToWrite = tty->lenLeftToWrite - TERMINAL_MAX_LINE;
 	} else {
 
-	    TtyTransmit(tty_id, tty.writeBuf, tty.lenLeftToWrite);
-	    tty.lenLeftToWrite = 0;
+	    TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
+	    tty->lenLeftToWrite = 0;
+	    
+	}*/
+    if (tty->lenLeftToWrite == 0) {
+		TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
+		free(tty->writeBase);
+		queuePush(ready_queue, tty->writePCB);
+		tty->writePCB = NULL;
+		tty->writeBuf = NULL;
+		if(!queueIsEmpty(tty->writeBlocked)){
+			PCB* nextPCB = (PCB*)queuePop(tty->writeBlocked);
+			queuePush(ready_queue, (void*)nextPCB);
+			tty->writePCB = nextPCB;
+		}
+	} else if (tty->lenLeftToWrite > TEST_LENGTH) {
+		TracePrintf(3, "current user context pc is %p\n", context->pc);
+		TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
+		tty->writeBuf = tty->writeBuf + TEST_LENGTH;
+		tty->lenLeftToWrite = tty->lenLeftToWrite - TEST_LENGTH;
+	} else {
+
+	    TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
+	    tty->lenLeftToWrite = 0;
 	    
 	}
-
-    }
-
+	current_process->user_context = *context;
 }
+
+
 
 void DiskHandler(UserContext *context) {
 }

@@ -14,7 +14,7 @@
 #include <hardware.h>
 #include "util/list.h"
 #include "util/queue.h"
-
+#include "proc.h"
 #define READ_LEN 32
 
 typedef struct overflow_buf_t {

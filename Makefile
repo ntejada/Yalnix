@@ -22,16 +22,16 @@ ALL = $(KERNEL_ALL) $(USER_APPS)
 KERNEL_ALL = yalnix
 
 #List all kernel source files here.  
-KERNEL_SRCS = init.c frames.c trap.c load.c switch.c proc.c tty.c util/queue.c util/list.c delay.c
+KERNEL_SRCS = init.c frames.c trap.c load.c switch.c proc.c tty.c util/queue.c util/list.c delay.c input.c
 #List the objects to be formed form the kernel source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
 KERNEL_OBJS = $(KERNEL_SRCS:.c=.o)
 #List all of the header files necessary for your kernel
 KERNEL_INCS = $(KERNEL_SRCS:.c=.h) std.h 
 
 #List all user programs here.
-USER_APPS = initIdle initInit brkTest forkTest forkExecTest exit56 
+USER_APPS = initIdle initInit brkTest forkTest forkExecTest exit56 printfTest printfTestExec 
 #List all user program source files here.  SHould be the same as the previous list, with ".c" added to each file
-USER_SRCS = initIdle.c initInit.c brkTest.c forkTest.c forkExecTest.c exit56.c 
+USER_SRCS = initIdle.c initInit.c brkTest.c forkTest.c forkExecTest.c exit56.c printfTest.c printfTestExec.c
 #List the objects to be formed form the user  source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
 USER_OBJS = $(USER_SRCS:.c=.o)
 #List all of the header files necessary for your user programs

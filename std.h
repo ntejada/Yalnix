@@ -16,4 +16,6 @@
 #define KILL 42
 #define ERROR (-1)
 
+#define TEST_LENGTH 5
+
 #endif
