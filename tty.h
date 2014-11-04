@@ -19,7 +19,8 @@
 
 typedef struct overflow_buf_t {
     void *addr;
-    int len;
+    void *base;
+	int len;
 } Overflow;
 
 typedef struct tty_t  {

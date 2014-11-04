@@ -38,7 +38,7 @@ struct pcb_t {
     int status;         /* Running, blocked, or exit status */
     PCB *parent;        /* Pointer to the parent's PCB */
     int clock_count;    /* Remain time to wait after a Delay() call */
-
+	void *readBuf;
     /* Process's page table */
     struct pte pageTable[MAX_PT_LEN];
 

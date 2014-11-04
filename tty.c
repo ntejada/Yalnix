@@ -22,14 +22,12 @@ void DoTtyRead(UserContext *context) {
     int tty_id = context->regs[0];
     
     if (tty_id < NUM_TERMINALS) {
-        TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
-	context->regs[0] = ERROR;
-	return;
-
+        TracePrintf(1, "DoTtyRead: tty_id: %d outside of acceptable range\n", tty_id);
+		context->regs[0] = ERROR;
+		return;
     } 
 
-    // TODO: Check tty_id is legal
-    void *buf = (void*)context->regs[1];
+    current_process->readBuf = (void*)context->regs[1];
     int len = context->regs[2];
     TTY* tty = &(ttys[tty_id]);
 
@@ -39,11 +37,11 @@ void DoTtyRead(UserContext *context) {
     }
 
     if (tty->totalOverflowLen > 0) {
-        ReadFromBuffer(*tty, buf, len);
+        ReadFromBuffer(*tty, current_process->readBuf, len);
     } else {
         current_process->user_context = *context;
         queuePush(tty->readBlocked, current_process);
-	LoadNextProc(context, BLOCK);
+		LoadNextProc(context, BLOCK);
     }
 }
 
@@ -102,6 +100,20 @@ void DoTtyWrite(UserContext *context) {
 }
 
 void ReadFromBuffer(TTY tty, void *buf, int len) {
-
+	Queue * overQueue = tty.overflow;
+	void *lastWrite = buf; //pointer to end of last memcpy
+	if(queueIsEmpty(overQueue)){
+		TracePrintf(1, "ReadFromBuffer: Trying to read from empty buffer!\n");
+		return;
+	}
+	int lenLeft = len;
+	while(lenLeft < len && tty.totalOverflowLen>0){
+		Overflow *over = (Overflow*)(over->head->data);
+		if((over->len)<=lenLeft){
+			memcpy(lastWrite, addr, over->len);
+			lastWrite += over->len;
+			
+				
+	}	
 
 }

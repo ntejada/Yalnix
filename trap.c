@@ -175,7 +175,7 @@ void TtyReceiveHandler(UserContext *context) {
        	 readLen = TtyReceive(tty_id, buf, READ_LEN); 
          buf = (void*)malloc(READ_LEN)) { 
         Overflow *over = (Overflow *) malloc(sizeof(Overflow));
-        over->addr = buf;
+        over->addr = over->base = buf;
         over->len = readLen;
         tty->totalOverflowLen += readLen;
         queuePush(tty->overflow, over);
@@ -190,7 +190,7 @@ void TtyReceiveHandler(UserContext *context) {
     }
 
     if (len > 0 && tty->totalOverflowLen > 0) {
-        ReadFromBuffer(*tty, buf, len);
+        ReadFromBuffer(*tty, reading_pcb->readBuf, len);
         queuePush(ready_queue, queuePop(tty->readBlocked));
     }
 }
