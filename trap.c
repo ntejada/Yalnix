@@ -180,11 +180,13 @@ void MemoryHandler(UserContext *context) {
                     pZeroTable[PF_COPIER].valid = 0;
 			TracePrintf(4, "MemoryHandler: Copied page %d into new frame. Old frame has reference count of %d\n", pageNum, *(current_process->cow.refCount[pageNum]));
                 	current_process->cow.refCount[pageNum]=NULL;
-		} else {
+				} 
+				else {
                     free(current_process->cow.refCount[pageNum]);
                 	current_process->cow.refCount[pageNum] = NULL;
-		}
-            } else {
+				}
+            } 
+			else {
                 // Otherwise it was truly a bad memory access.
                 TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
                 TracePrintf(1, "Memory Error: Killing Current Process\n");
@@ -207,7 +209,7 @@ void TtyTransmitHandler(UserContext *context) {
 }
 
 void DiskHandler(UserContext *context) {
-    InvalidTrapHandler(context)
+    InvalidTrapHandler(context);
 
 }
 
