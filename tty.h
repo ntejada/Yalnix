@@ -15,7 +15,7 @@
 #include "util/list.h"
 #include "util/queue.h"
 #include "proc.h"
-#define READ_LEN 32
+#define READ_LEN 3
 
 typedef struct overflow_buf_t {
     void *addr;
@@ -40,6 +40,6 @@ extern TTY ttys[];
 extern void InitTTY(void);
 extern void DoTtyRead(UserContext *);
 extern void DoTtyWrite(UserContext *);
-extern void ReadFromBuffer(TTY, void *, int);
+extern void ReadFromBuffer(TTY*, void *, int);
 
 #endif

@@ -167,32 +167,37 @@ void TtyReceiveHandler(UserContext *context) {
     TracePrintf(1, "TtyReceiveHandler\n");
     int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
-
+	PCB * reading_pcb;
     // Move everything on input line into tty's buffer in memory
     int readLen;
-    void *buf;
-    for (buf = (void*)malloc(READ_LEN); 
-       	 readLen = TtyReceive(tty_id, buf, READ_LEN); 
-         buf = (void*)malloc(READ_LEN)) { 
+    void *buf = (void *)malloc(READ_LEN*sizeof(char));
+	readLen = TtyReceive(tty_id, buf, READ_LEN);
+    TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
+	while(readLen>0) { 
         Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = over->base = buf;
-        over->len = readLen;
+		over->len = readLen;
         tty->totalOverflowLen += readLen;
         queuePush(tty->overflow, over);
-    }
-
+		buf = (void *)malloc(READ_LEN*sizeof(char));
+       	readLen = TtyReceive(tty_id, buf, READ_LEN); 
+    	TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
+	}
+	free(buf);
 	//get length that process at head of readBlocked queue wants
 	//DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF OR TOTALOVERFLOW IS 0
     int len = 0;
     if (!queueIsEmpty(tty->readBlocked)) {
-        PCB *reading_pcb = (PCB*)(tty->readBlocked->head->data);
-        len = reading_pcb->user_context.regs[0];
+		reading_pcb = (PCB*)(tty->readBlocked->head->data);
+        len = reading_pcb->user_context.regs[2];
     }
 
     if (len > 0 && tty->totalOverflowLen > 0) {
-        ReadFromBuffer(*tty, reading_pcb->readBuf, len);
-        queuePush(ready_queue, queuePop(tty->readBlocked));
+        ReadFromBuffer(tty, reading_pcb->readBuf, len);
+        TracePrintf(1, "reading_pcb->readBuf first char %c and is located at %d\n", *((char*)(reading_pcb->readBuf)), ((int)(reading_pcb->readBuf)>>PAGESHIFT));
+		queuePush(ready_queue, queuePop(tty->readBlocked));
     }
+	TracePrintf(1, "TtyReceiveHandler: Exiting\n");
 }
 
 void TtyTransmitHandler(UserContext *context) {
