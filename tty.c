@@ -21,7 +21,7 @@ void InitTTY() {
 void DoTtyRead(UserContext *context) {
     int tty_id = context->regs[0];
     
-    if (tty_id > NUM_TERMINALS || tty_id < 0) {
+    if (tty_id >= NUM_TERMINALS || tty_id < 0) {
         TracePrintf(1, "DoTtyRead: tty_id: %d outside of acceptable range\n", tty_id);
 		context->regs[0] = ERROR;
 		return;
@@ -53,7 +53,7 @@ void DoTtyWrite(UserContext *context) {
     char *buf = (char*)(context->regs[1]);
 	
     int len = context->regs[2];
-    if (tty_id >= NUM_TERMINALS && tty_id < 0) {
+    if (tty_id >= NUM_TERMINALS || tty_id < 0) {
 		TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
 		context->regs[0] = ERROR;
 	return;
