@@ -9,7 +9,7 @@ int main(int argc, char*argv[]){
 		TtyPrintf(0, "print test from child\n");	
 	}
 	else{
-		TtyPrintf(0, "print test from parent\n"); 
+		TtyPrintf(0, "print test from parent 1 %d %d %d\n", GetPid(), GetPid(), GetPid()); 
 		TracePrintf(1, "printfTest: about to wait for child to exit\n");
 		Wait(&rc);
 	}

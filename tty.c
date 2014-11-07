@@ -30,6 +30,7 @@ void DoTtyRead(UserContext *context) {
     current_process->readBuf = (void*)malloc(sizeof(context->regs[1]));
     int len = context->regs[2];
     TTY* tty = &(ttys[tty_id]);
+	memset(current_process->readBuf, 0, len);
 
     // Return if trying to read zero bytes...?
     if (len == 0) {
@@ -117,6 +118,7 @@ void ReadFromBuffer(TTY* tty, void *buf, int len) {
 			memcpy(lastWrite, over->addr, over->len);
 			lastWrite += over->len;
 			TracePrintf(1, "ReadFromBuffer: lastWrite = %c\n", *(lastWrite-1));
+			TracePrintf(1, "ReadFromBuffer: lastWrite + 1 = %u\n", *(lastWrite));
 			lenLeft -= over->len;
 			tty->totalOverflowLen -= over->len;
 			free(over->base);
