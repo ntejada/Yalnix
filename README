@@ -1,5 +1,27 @@
 Shuo Zheng, Nic Tejada, Garrett Watumull
 
+CHECKPOINT 5:
+
+We believe we have essentially implemented TtyRead and TtyWrite. We are having some weird behavior, though, and want to ask you if this is just a product of the hardware. 
+
+When we try to check the validity of the buffer after the user executes at the command TtyWrite(0, "Hello World\n"), the buffer passed into the user_context corresponds to page 131, which is outside the acceptable limit of our page table. We were wondering if this is due to some hardware special space or it's a bug in our code somehow. 
+
+Also, we are wondering what implementation we should choose when reading from a new line. Say we enter 0123456789\n into the terminal, TtyReceive copies the string as well as the new line character and copies it into memory. Then say the user wants to read 10 chars, the next reader will read in an extra new line character. Should we code against this or keep this implementation? We are currently coding against this but we can change the implementation. 
+
+Lastly, we have a strange character that pops up when we try to print out the buffer that the user passes to TtyRead. We can't predict when it will come but were wondering if you might have some pointers for where it might be coming from.
+
+New Programs:
+
+tty.* - contains InitTTY, DoTtyRead, DoTtyWrite, ReadFromBuffer. We created a struct TTY for each terminal containing read and write blocked queues for that terminal, a queue for overflow structs after a read operation that leaves characters, and other buffer pointers for execution. 
+
+proc.* - this contains the TtyRecieveHandler and TtyTransmitHandler.
+
+We are still working on CoW, but realized this would become more complicated after implementing TtyRead and TtyWrite, so we have yet to refactor it for the new operations specified. 
+
+
+
+*****************************************************************
+
 CHECKPOINT 4:
 
 We successfully completed this checkpoint as well, getting Exit, Fork, Exec all to Work. We had a little difficulty forking at first but this turned out to be from not flushing the correct part of the PCB.
