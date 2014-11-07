@@ -59,11 +59,11 @@ void DoTtyWrite(UserContext *context) {
 		context->regs[0] = ERROR;
 	return;
     } 
-    /*else if (BufferReadCheck(buf, len) == ERROR) {
+    else if (BufferReadCheck(buf, len) == ERROR) {
 	TracePrintf(1, "DoTtyWrite: buffer given not valid. Killing current process.\n");
 	KillProc(current_process);
 	LoadNextProc(context, BLOCK);
-    }*/
+    }
     TTY* tty = &(ttys[tty_id]); 
 
     if (tty->writePCB) { // Process currently writing to terminal. So block process.
