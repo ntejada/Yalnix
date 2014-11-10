@@ -18,8 +18,8 @@
 #define READ_LEN 3
 
 typedef struct overflow_buf_t {
-    void *addr;
-    void *base;
+    char *addr;
+    char *base;
 	int len;
 } Overflow;
 
@@ -40,6 +40,6 @@ extern TTY ttys[];
 extern void InitTTY(void);
 extern void DoTtyRead(UserContext *);
 extern void DoTtyWrite(UserContext *);
-extern void ReadFromBuffer(TTY*, void *, int);
+extern void ReadFromBuffer(TTY*, char *, int);
 
 #endif

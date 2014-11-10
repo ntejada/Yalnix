@@ -184,7 +184,6 @@ void DoDelay(UserContext *context) {
 }
 
 void LoadNextProc(UserContext *context, int block) {
-    DelayPop();
     if (!queueIsEmpty(ready_queue)) {
         if (current_process)  {
             current_process->user_context = *context;

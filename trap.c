@@ -109,6 +109,7 @@ void KernelCallHandler(UserContext *context) {
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
     DelayUpdate();
+    DelayPop();
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -170,29 +171,31 @@ void TtyReceiveHandler(UserContext *context) {
 	PCB * reading_pcb;
     // Move everything on input line into tty's buffer in memory
     int readLen;
-    void *buf = (void *)malloc(READ_LEN*sizeof(char));
-	readLen = TtyReceive(tty_id, buf, READ_LEN); 
+   // void *buf = (void *)malloc(READ_LEN*sizeof(char));
+    char *buf = (char *)malloc(READ_LEN*sizeof(char));
+	readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
     TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
 	int j;
-	while(readLen>0) { 
-     	if(readLen<=(READ_LEN) && ((char*)buf)[readLen-1] == '\n'){
+	while(readLen>1) { 
+     	if(buf[readLen-1] == '\n'){
 			TracePrintf(1, "TtyReceiveHandler: getting rid of new line character\n");
+			buf[readLen-1]='\0';
 			readLen--;
 		}   
 		Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = over->base = buf;
 		for(j = 0; j < READ_LEN; j++){
-			TracePrintf(0, "TtyReceiveHandler: %d char is %hu or char %c\n", j, ((char*)(buf))[j], ((char*)(buf))[j]);
+			TracePrintf(0, "TtyReceiveHandler: %d char is %hu or char %c\n", j, buf[j], buf[j]);
 		}
 		over->len = readLen;
         tty->totalOverflowLen += readLen;
         queuePush(tty->overflow, over);
-		buf = (void *)malloc(READ_LEN*sizeof(char));
-       	memset(buf, 0, READ_LEN*sizeof(char));
-		readLen = TtyReceive(tty_id, buf, READ_LEN); 
+		buf = (char *)malloc(READ_LEN*sizeof(char));
+       	//memset(buf, 0, sizeof(buf));
+		readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
     	TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
 	}
-	free(buf);
+	//free(buf);
 	//get length that process at head of readBlocked queue wants
 	//DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF 0 OR TOTALOVERFLOW IS 0
     int len = 0;
@@ -200,7 +203,7 @@ void TtyReceiveHandler(UserContext *context) {
 	while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
 		reading_pcb = (PCB*)(tty->readBlocked->head->data);
     	len = reading_pcb->user_context.regs[2];
-   		memset(reading_pcb->readBuf, 0, len);
+   		//memset(reading_pcb->readBuf, 0, sizeof(reading_pcb->readBuf));
 		ReadFromBuffer(tty, reading_pcb->readBuf, len);
        	TracePrintf(1, "reading_pcb->readBuf first char %c and is located at %d\n", *((char*)(reading_pcb->readBuf)), ((int)(reading_pcb->readBuf)>>PAGESHIFT));
 		queuePush(ready_queue, queuePop(tty->readBlocked));

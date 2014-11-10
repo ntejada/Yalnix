@@ -31,6 +31,7 @@ queuePop(Queue *queue) {
 
     if (queue->head) {
         
+        TracePrintf(1, "QueuePop: Data returned\n");
 
 
 	List *node = queue->head;
@@ -41,7 +42,9 @@ queuePop(Queue *queue) {
             queue->head->prev = NULL;
         else
             queue->tail = NULL;
+        TracePrintf(1, "QueuePop: Data returned %p\n", node);
         free(node);
+        TracePrintf(1, "QueuePop: Data returned\n");
         queue->length--;
         TracePrintf(1, "QueuePop: Data returned: %p\n", data);
         return data;
