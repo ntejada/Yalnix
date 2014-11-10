@@ -1,11 +1,12 @@
 #ifndef _cvar_h
 #define _cvar_h
 
+#include <hardware.h>
+#include "proc.h"
 #include "util/queue.h"
-#include "util/list.h"
 
 extern unsigned int cvar_count;
-extern Queue *cvar_queue;
+extern Queue *cvars;
 
 typedef struct cvar_t {
     int id;
@@ -19,12 +20,12 @@ typedef struct cv_helper_t {
     PCB *pcb;
 } CV_Helper;
 
-
 extern void DoCvarInit(UserContext *);
 extern void DoCvarSignal(UserContext *);
 extern void DoCvarBroadcast(UserContext *);
 extern void DoCvarWait(UserContext *);
-extern int CvarOntoLockQueue(CV_Helper *);
+//extern int CvarOntoLockQueue(CV_Helper *);
+extern int ReclaimCvar(Cvar *);
 
 #endif
 

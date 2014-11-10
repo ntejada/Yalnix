@@ -18,6 +18,7 @@
 #include "tty.h"
 #include "lock.h"
 #include "cvar.h"
+#include "pipe.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -41,76 +42,75 @@ void InitTrapVector() {
 void KernelCallHandler(UserContext *context) {
     int rc;
     switch (context->code) {
-    case YALNIX_FORK:
-        DoFork(context);
-        break;
-    case YALNIX_EXEC:
-        DoExec(context);
-        break;
-    case YALNIX_EXIT:
-        DoExit(context);
-        break;
-    case YALNIX_WAIT:
-        DoWait(context);
-        break;
-    case YALNIX_GETPID:
-        DoGetPid(context);
-        break;
-    case YALNIX_BRK:
-        DoBrk(context);
-        break;
-    case YALNIX_DELAY:
-        DoDelay(context);
-        break;
-    case YALNIX_TTY_READ:
-        DoTtyRead(context);
-        break;
-    case YALNIX_TTY_WRITE:
-        DoTtyWrite(context);
-        break;
-	/*
+        case YALNIX_FORK:
+            DoFork(context);
+            break;
+        case YALNIX_EXEC:
+            DoExec(context);
+            break;
+        case YALNIX_EXIT:
+            DoExit(context);
+            break;
+        case YALNIX_WAIT:
+            DoWait(context);
+            break;
+        case YALNIX_GETPID:
+            DoGetPid(context);
+            break;
+        case YALNIX_BRK:
+            DoBrk(context);
+            break;
+        case YALNIX_DELAY:
+            DoDelay(context);
+            break;
+        case YALNIX_TTY_READ:
+            DoTtyRead(context);
+            break;
+        case YALNIX_TTY_WRITE:
+            DoTtyWrite(context);
+            break;
 #ifdef LINUX
-    case YALNIX_PIPE_INIT:
-        DoPipeInit(context);
-        break;
-    case YALNIX_PIPE_READ:
-        DoPipeRead(context);
-        break;
-    case YALNIX_PIPE_WRITE:
-        DoPipeWrite(context);
-        break;
-    case YALNIX_LOCK_INIT:
-        DoLockInit(context);
-        break;
-    case YALNIX_LOCK_ACQUIRE:
-        DoLockAcquire(context);
-        break;
-    case YALNIX_LOCK_RELEASE:
-        DoLockRelease(context);
-        break;
-    case YALNIX_CVAR_INIT:
-        DoCvarWait(context);
-        break;
-    case YALNIX_CVAR_SIGNAL:
-        DoCvarSignal(context);
-        break;
-    case YALNIX_CVAR_BROADCAST:
-        DoCvarBroadcast(context);
-        break;
-    case YALNIX_CVAR_WAIT:
-        DoCvarWait(context);
-        break;
-    case YALNIX_RECLAIM:
-        DoReclaim(context);
-        break;
+        case YALNIX_PIPE_INIT:
+            DoPipeInit(context);
+            break;
+        case YALNIX_PIPE_READ:
+            DoPipeRead(context);
+            break;
+        case YALNIX_PIPE_WRITE:
+            DoPipeWrite(context);
+            break;
+        case YALNIX_LOCK_INIT:
+            DoLockInit(context);
+            break;
+        case YALNIX_LOCK_ACQUIRE:
+            DoLockAcquire(context);
+            break;
+        case YALNIX_LOCK_RELEASE:
+            DoLockRelease(context);
+            break;
+        case YALNIX_CVAR_INIT:
+            DoCvarInit(context);
+            break;
+        case YALNIX_CVAR_SIGNAL:
+            DoCvarSignal(context);
+            break;
+        case YALNIX_CVAR_BROADCAST:
+            DoCvarBroadcast(context);
+            break;
+        case YALNIX_CVAR_WAIT:
+            DoCvarWait(context);
+            break;
+        case YALNIX_RECLAIM:
+            DoReclaim(context);
+            break;
 #endif // LINUX
-	*/
     }
 }
 
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
     DelayUpdate();
+    DelayPop();
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -132,35 +132,35 @@ void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
     int newStackPage = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
-    
+
     TracePrintf(2, "TrapMemory: New stack page = %d. Old stack = %d\n", newStackPage, sp);	
     TracePrintf(2, "TrapMemory: Context addr: %p\n", context->addr);
     switch (context->code) {
-    case YALNIX_MAPERR:
+        case YALNIX_MAPERR:
 
-	if (current_process->pageTable[newStackPage - 1].valid == 1) {
-	    TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
+            if (current_process->pageTable[newStackPage - 1].valid == 1) {
+                TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
 
-	    current_process->status = KILL;
-	    KillProc(current_process);
-	    LoadNextProc(context, BLOCK);
-	}
+                current_process->status = KILL;
+                KillProc(current_process);
+                LoadNextProc(context, BLOCK);
+            }
 
-	for (sp; sp <= newStackPage; sp++) {
-	    current_process->pageTable[newStackPage].valid = 1;
-	    current_process->pageTable[newStackPage].pfn = getNextFrame();
-	    current_process->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
-	}
-        break;
-    case YALNIX_ACCERR:
-	TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
-        TracePrintf(1, "Memory Error: Killing Current Process\n");
+            for (sp; sp <= newStackPage; sp++) {
+                current_process->pageTable[newStackPage].valid = 1;
+                current_process->pageTable[newStackPage].pfn = getNextFrame();
+                current_process->pageTable[newStackPage].prot = (PROT_READ | PROT_WRITE);
+            }
+            break;
+        case YALNIX_ACCERR:
+            TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
+            TracePrintf(1, "Memory Error: Killing Current Process\n");
 
-        current_process->status = KILL;
-        KillProc(current_process);
-        LoadNextProc(context, BLOCK);
+            current_process->status = KILL;
+            KillProc(current_process);
+            LoadNextProc(context, BLOCK);
 
-        break;
+            break;
     }
 }
 
@@ -169,74 +169,76 @@ void TtyReceiveHandler(UserContext *context) {
     TracePrintf(1, "TtyReceiveHandler\n");
     int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
-	PCB * reading_pcb;
+    PCB * reading_pcb;
     // Move everything on input line into tty's buffer in memory
     int readLen;
-    void *buf = (void *)malloc(READ_LEN*sizeof(char));
-	readLen = TtyReceive(tty_id, buf, READ_LEN); 
+    // void *buf = (void *)malloc(READ_LEN*sizeof(char));
+    char *buf = (char *)malloc(READ_LEN*sizeof(char));
+    readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
     TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
-	int j;
-	while(readLen>0) { 
-     	if(readLen<=(READ_LEN) && ((char*)buf)[readLen-1] == '\n'){
-			TracePrintf(1, "TtyReceiveHandler: getting rid of new line character\n");
-			readLen--;
-		}   
-		Overflow *over = (Overflow *) malloc(sizeof(Overflow));
+    int j;
+    while(readLen>1) { 
+        if(buf[readLen-1] == '\n'){
+            TracePrintf(1, "TtyReceiveHandler: getting rid of new line character\n");
+            buf[readLen-1]='\0';
+            readLen--;
+        }   
+        Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = over->base = buf;
-		for(j = 0; j < READ_LEN; j++){
-			TracePrintf(0, "TtyReceiveHandler: %d char is %hu or char %c\n", j, ((char*)(buf))[j], ((char*)(buf))[j]);
-		}
-		over->len = readLen;
+        for(j = 0; j < READ_LEN; j++){
+            TracePrintf(0, "TtyReceiveHandler: %d char is %hu or char %c\n", j, buf[j], buf[j]);
+        }
+        over->len = readLen;
         tty->totalOverflowLen += readLen;
         queuePush(tty->overflow, over);
-		buf = (void *)malloc(READ_LEN*sizeof(char));
-       	memset(buf, 0, READ_LEN*sizeof(char));
-		readLen = TtyReceive(tty_id, buf, READ_LEN); 
-    	TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
-	}
-	free(buf);
-	//get length that process at head of readBlocked queue wants
-	//DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF 0 OR TOTALOVERFLOW IS 0
+        buf = (char *)malloc(READ_LEN*sizeof(char));
+        //memset(buf, 0, sizeof(buf));
+        readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
+        TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
+    }
+    //free(buf);
+    //get length that process at head of readBlocked queue wants
+    //DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF 0 OR TOTALOVERFLOW IS 0
     int len = 0;
-   	int overFlowLeft = tty->totalOverflowLen;
-	while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
-		reading_pcb = (PCB*)(tty->readBlocked->head->data);
-    	len = reading_pcb->user_context.regs[2];
-   		memset(reading_pcb->readBuf, 0, len);
-		ReadFromBuffer(tty, reading_pcb->readBuf, len);
-       	TracePrintf(1, "reading_pcb->readBuf first char %c and is located at %d\n", *((char*)(reading_pcb->readBuf)), ((int)(reading_pcb->readBuf)>>PAGESHIFT));
-		queuePush(ready_queue, queuePop(tty->readBlocked));
-		overFlowLeft -= len;                       
-	}    	
-	TracePrintf(1, "TtyReceiveHandler: Exiting\n");
+    int overFlowLeft = tty->totalOverflowLen;
+    while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
+        reading_pcb = (PCB*)(tty->readBlocked->head->data);
+        len = reading_pcb->user_context.regs[2];
+        //memset(reading_pcb->readBuf, 0, sizeof(reading_pcb->readBuf));
+        ReadFromBuffer(tty, reading_pcb->readBuf, len);
+        TracePrintf(1, "reading_pcb->readBuf first char %c and is located at %d\n", *((char*)(reading_pcb->readBuf)), ((int)(reading_pcb->readBuf)>>PAGESHIFT));
+        queuePush(ready_queue, queuePop(tty->readBlocked));
+        overFlowLeft -= len;                       
+    }    	
+    TracePrintf(1, "TtyReceiveHandler: Exiting\n");
 }
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
-	int tty_id = context->code;
+    int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
-	TracePrintf(1, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
+    TracePrintf(1, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
     if (tty->lenLeftToWrite == 0) {
-		TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
-		free(tty->writeBase);
-		queuePush(ready_queue, tty->writePCB);
-		tty->writePCB = NULL;
-		tty->writeBuf = NULL;
-		if(!queueIsEmpty(tty->writeBlocked)){
-			PCB* nextPCB = (PCB*)queuePop(tty->writeBlocked);
-			queuePush(ready_queue, (void*)nextPCB);
-			tty->writePCB = nextPCB;
-		}
-	} else if (tty->lenLeftToWrite > TEST_LENGTH) {
-		TracePrintf(3, "current user context pc is %p\n", context->pc);
-		TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
-		tty->writeBuf = tty->writeBuf + TEST_LENGTH;
-		tty->lenLeftToWrite = tty->lenLeftToWrite - TEST_LENGTH;
-	} else {
-	    TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
-	    tty->lenLeftToWrite = 0;
-	}
-	current_process->user_context = *context;
+        TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
+        free(tty->writeBase);
+        queuePush(ready_queue, tty->writePCB);
+        tty->writePCB = NULL;
+        tty->writeBuf = NULL;
+        if(!queueIsEmpty(tty->writeBlocked)){
+            PCB* nextPCB = (PCB*)queuePop(tty->writeBlocked);
+            queuePush(ready_queue, (void*)nextPCB);
+            tty->writePCB = nextPCB;
+        }
+    } else if (tty->lenLeftToWrite > TEST_LENGTH) {
+        TracePrintf(3, "current user context pc is %p\n", context->pc);
+        TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
+        tty->writeBuf = tty->writeBuf + TEST_LENGTH;
+        tty->lenLeftToWrite = tty->lenLeftToWrite - TEST_LENGTH;
+    } else {
+        TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
+        tty->lenLeftToWrite = 0;
+    }
+    current_process->user_context = *context;
 }
 
 
@@ -247,11 +249,11 @@ void DiskHandler(UserContext *context) {
 void InvalidTrapHandler(UserContext *context) {
     context->regs[0] = ERROR;
     TracePrintf(1, "Invalid trap occurred from process %d with trap code %d\n",
-                current_process->id, context->vector);
+            current_process->id, context->vector);
     KillProc(current_process);
     LoadNextProc(context, BLOCK);
 
 }
 
 
-    
+

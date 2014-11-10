@@ -4,6 +4,7 @@
 #include "frames.h"
 #include "load.h"
 #include "tty.h"
+#include "resource.h"
 
 struct pte pZeroTable[MAX_PT_LEN];
 int vmem_on;
@@ -45,6 +46,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     ready_queue = queueNew();
     delay_queue = queueNew();
     wait_queue = queueNew();
+    InitResources();
 
     // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));

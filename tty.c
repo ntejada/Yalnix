@@ -19,6 +19,7 @@ void InitTTY() {
 }
 
 void DoTtyRead(UserContext *context) {
+	TracePrintf(1, "DoTtyRead: called\n");
     int tty_id = context->regs[0];
     
     if (tty_id >= NUM_TERMINALS || tty_id < 0) {
@@ -27,12 +28,10 @@ void DoTtyRead(UserContext *context) {
 		return;
     } 
 	
-    current_process->readBuf = (void*)malloc(sizeof(context->regs[1]));
+    current_process->readBuf = (char*)malloc(sizeof(char)*context->regs[2]);
     int len = context->regs[2];
     TTY* tty = &(ttys[tty_id]);
-	memset(current_process->readBuf, 0, len);
-
-    // Return if trying to read zero bytes...?
+	// Return if trying to read zero bytes...?
     if (len == 0) {
         return;
     }
@@ -41,17 +40,18 @@ void DoTtyRead(UserContext *context) {
         TracePrintf(2, "DoTtyRead: reading from buffer\n");
         ReadFromBuffer(tty, current_process->readBuf, len);
     } else {
-        TracePrintf(2, "DoTtyRead: blocking\n");
-        current_process->user_context = *context;
+        TracePrintf(1, "DoTtyRead: overflow is empty\n");
+		current_process->user_context = *context;
         queuePush(tty->readBlocked, current_process);
 		LoadNextProc(context, BLOCK);
-		TracePrintf(1, "DoTtyRead: back from readBlockQueue and have first char as %c and is located at %p\n", *((char*)(current_process->readBuf)), current_process->readBuf);	
 	}
-    	memcpy(context->regs[1], current_process->readBuf, len);
-		free(current_process->readBuf);
+    strcpy(context->regs[1], current_process->readBuf);
+	free(current_process->readBuf);
+	TracePrintf(1, "DoTtyRead: exiting\n");
 }
 
 void DoTtyWrite(UserContext *context) {
+	TracePrintf(1, "DoTtyWrite: called\n");
     int tty_id = context->regs[0];
     char *buf = (char*)(context->regs[1]);
 	
@@ -77,18 +77,9 @@ void DoTtyWrite(UserContext *context) {
     } 
 	
     tty->writeBase = tty->writeBuf = (char*)(malloc(len*sizeof(char)));
-    memcpy(tty->writeBase, buf, context->regs[2]);
+    strcpy(tty->writeBase, buf);
 	TracePrintf(1, "TtyWrite: memcpy to writebase which has address of %p\n", tty->writeBase);
-    /*if (len > TERMINAL_MAX_LINE) {
-		TtyTransmit(tty_id, tty->writeBuf, TERMINAL_MAX_LINE);
-		tty->writeBuf = tty->writeBuf + TERMINAL_MAX_LINE;
-		tty->lenLeftToWrite = len - TERMINAL_MAX_LINE;
-    } else { 
-		tty->lenLeftToWrite = 0;
-		TtyTransmit(tty_id, tty->writeBuf, len);
-    	TracePrintf(1, "TtyWrite: nothing left to write after transmit\n");
-	}*/
-	if (len > TEST_LENGTH) {
+    	if (len > TEST_LENGTH) {
 		TracePrintf(3, "TtyWrite: write length is over MAX_LINE.\n");
 		TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
 		tty->writeBuf = tty->writeBuf + TEST_LENGTH;
@@ -102,10 +93,12 @@ void DoTtyWrite(UserContext *context) {
     current_process->user_context = *context;	
     tty->writePCB = current_process;
     LoadNextProc(context, BLOCK);
+	TracePrintf(1, "DoTtyWrite: exiting\n");
 
 }
 
-void ReadFromBuffer(TTY* tty, void *buf, int len) {
+void ReadFromBuffer(TTY* tty, char *buf, int len) {
+	TracePrintf(1, "ReadFromBuffer: called\n");
 	Queue * overQueue = tty->overflow;
 	char *lastWrite = (char*)buf; //pointer to end of last memcpy
 	if(queueIsEmpty(overQueue)){
@@ -117,10 +110,8 @@ void ReadFromBuffer(TTY* tty, void *buf, int len) {
 		Overflow *over = (Overflow*)(overQueue->head->data);
 		if((over->len)<=lenLeft){
 			TracePrintf(1, "ReadFromBuffer: lenLeft is %d which is more than the length of the overflow head %d\n", lenLeft, over->len);
-			memcpy(lastWrite, over->addr, over->len);
+			strcpy(lastWrite, over->addr);
 			lastWrite += over->len;
-			TracePrintf(1, "ReadFromBuffer: lastWrite = %c\n", *(lastWrite-1));
-			TracePrintf(1, "ReadFromBuffer: lastWrite + 1 = %u\n", *(lastWrite));
 			lenLeft -= over->len;
 			tty->totalOverflowLen -= over->len;
 			free(over->base);
@@ -128,90 +119,12 @@ void ReadFromBuffer(TTY* tty, void *buf, int len) {
 		}
 		else{
 			TracePrintf(1, "ReadFromBuffer: lenLeft is %d which is less than the length of the overflow head %d\n", lenLeft, over->len);
-			memcpy(lastWrite, over->addr, lenLeft);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			strcpy(lastWrite, over->addr);
 			over->addr += lenLeft;
 			over->len -= lenLeft;
 			tty->totalOverflowLen -= lenLeft;
 			lenLeft = 0;
 		} 			
 	}	
+	TracePrintf(1, "ReadFromBuffer: exiting\n");
 }
