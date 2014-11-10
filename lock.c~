@@ -30,7 +30,7 @@ void DoLockInit(UserContext *context) {
     lock_count++;
 
     lock->id = lock_id;
-    *(context->regs[0]) = lock_id;
+    *context->regs[0] = lock_id;
 
     QueuePush(lock_queue, lock);
     context->regs[0] = SUCCESS;
