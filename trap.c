@@ -16,6 +16,8 @@
 #include "std.h"
 #include "frames.h"
 #include "tty.h"
+#include "lock.h"
+#include "cvar.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -69,37 +71,37 @@ void KernelCallHandler(UserContext *context) {
 	/*
 #ifdef LINUX
     case YALNIX_PIPE_INIT:
-        doPipeInit(context);
+        DoPipeInit(context);
         break;
     case YALNIX_PIPE_READ:
-        doPipeRead(context);
+        DoPipeRead(context);
         break;
     case YALNIX_PIPE_WRITE:
-        doPipeWrite(context);
+        DoPipeWrite(context);
         break;
     case YALNIX_LOCK_INIT:
-        doLockInit(context);
+        DoLockInit(context);
         break;
     case YALNIX_LOCK_ACQUIRE:
-        doLockAcquire(context);
+        DoLockAcquire(context);
         break;
     case YALNIX_LOCK_RELEASE:
-        doLockRelease(context);
+        DoLockRelease(context);
         break;
     case YALNIX_CVAR_INIT:
-        doCvarWait(context);
+        DoCvarWait(context);
         break;
     case YALNIX_CVAR_SIGNAL:
-        doCvarSignal(context);
+        DoCvarSignal(context);
         break;
     case YALNIX_CVAR_BROADCAST:
-        doCvarBroadcast(context);
+        DoCvarBroadcast(context);
         break;
     case YALNIX_CVAR_WAIT:
-        doCvarWait(context);
+        DoCvarWait(context);
         break;
     case YALNIX_RECLAIM:
-        doReclaim(context);
+        DoReclaim(context);
         break;
 #endif // LINUX
 	*/
@@ -250,3 +252,6 @@ void InvalidTrapHandler(UserContext *context) {
     LoadNextProc(context, BLOCK);
 
 }
+
+
+    

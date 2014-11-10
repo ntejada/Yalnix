@@ -1,0 +1,48 @@
+#include "cvar.h"
+#include "std.h"
+#include "proc.c"
+
+Queue *cvar_queue;
+unsigned int cvar_count = 0;
+
+void DoCvarInit(UserContext *context) {
+    Cvar *cvar = malloc(sizeof(Cvar));
+    if (cvar == NULL) {	
+	TracePrintf(2, "CvarInit: malloc error.\n");
+	context->regs[0] = ERROR;
+    }
+    cvar->waiting = queueNew();
+    if (cvar->waiting == NULL) {
+        TracePrintf(2, "CvarInit: malloc error\n");
+        context->regs[0] = ERROR;
+        return;
+    }
+
+    cvar_id = (cvar_count * 3) + 1;
+    cvar->id = cvar_id;
+    *context->regs[0] = cvar_id;
+    cvar_count++;
+
+    QueuePush(cvar_queue, cvar);
+    context->regs[0] = SUCCESS;
+}
+
+void DoCvarSignal(UserContext *context) {
+    
+
+
+}
+
+int PutCvarOnLockQueue(CvarEX *cvar_ex) {
+    Lock *lock = (Lock *) QueueGet(lock_queue, user_context->regs[0]);
+
+    if (lock == NULL) {
+        TracePrintf(2, "PutCvarOnLockQueue: Lock not found.\n");
+        return ERROR;
+    }
+
+
+
+
+
+}
