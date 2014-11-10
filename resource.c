@@ -1,9 +1,25 @@
 #include <hardware.h>
 #include "resource.h"
+#include "lock.h"
+#include "cvar.h"
+#include "pipe.h"
 #include "std.h"
 #include "util/queue.h"
 
-void *GetResource(Queue *queue, int res_id) {
+void *GetResource(int res_id) {
+    Queue *queue;
+    switch (res_id % NUM_RESOURCE_TYPES) {
+        case LOCK:
+            queue = locks;
+            break;
+        case CVAR:
+            queue = cvars;
+            break;
+        case PIPE:
+            queue = pipes;
+            break;
+    }
+
     if (queueIsEmpty(queue)) {
         return NULL;
     }
@@ -18,18 +34,21 @@ void *GetResource(Queue *queue, int res_id) {
 
 void DoReclaim(UserContext *context) {
     int res_id = context->regs[0];
+    void *resource = GetResource(res_id);
+    if (!resource) {
+        context->regs[0] = ERROR;
+        return;
+    }
+
     switch (res_id % NUM_RESOURCE_TYPES) {
         case LOCK:
-            Lock *lock = (Lock *) GetResource(lock_queue, res_id);
-            // do stuff
+            context->regs[0] = ReclaimLock((Lock *) resource);
             break;
         case CVAR:
-            Cvar *cvar = (Cvar *) GetResource(cvar_queue, res_id);
-            // do stuff
+            context->regs[0] = ReclaimCvar((Cvar *) resource);
             break;
         case PIPE:
-            Pipe *pipe = (Pipe *) GetResource(pipe_queue, res_id);
-            // do stuff
+            context->regs[0] = ReclaimPipe((Pipe *) resource);
             break;
     }
 }

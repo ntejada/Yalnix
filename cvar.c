@@ -1,17 +1,20 @@
 #include "cvar.h"
+#include "lock.h"
+#include "resource.h"
 #include "std.h"
-#include "proc.c"
+#include "proc.h"
 
-Queue *cvar_queue;
+Queue *cvars;
 unsigned int cvar_count = 0;
 
 void DoCvarInit(UserContext *context) {
     Cvar *cvar = malloc(sizeof(Cvar));
     if (cvar == NULL) {	
-	TracePrintf(2, "CvarInit: malloc error.\n");
-	context->regs[0] = ERROR;
-	return;
+        TracePrintf(2, "CvarInit: malloc error.\n");
+        context->regs[0] = ERROR;
+        return;
     }
+
     cvar->waiting = queueNew();
     if (cvar->waiting == NULL) {
         TracePrintf(2, "CvarInit: malloc error\n");
@@ -19,106 +22,75 @@ void DoCvarInit(UserContext *context) {
         return;
     }
 
-    cvar_id = (cvar_count * 3) + 1;
-    cvar->id = cvar_id;
-    *(context->regs[0]) = cvar_id;
+    int cvar_id = cvar_count * NUM_RESOURCE_TYPES + CVAR;
     cvar_count++;
+    cvar->id = cvar_id;
+    *((int *) context->regs[0]) = cvar_id;
 
-    QueuePush(cvar_queue, cvar);
+    queuePush(cvars, cvar);
     context->regs[0] = SUCCESS;
 }
 
 void DoCvarSignal(UserContext *context) {
-    Cvar *cvar = (Cvar *) QueueGet(cvar_queue, context->regs[0]);
+    Cvar *cvar = (Cvar *) GetResource(context->regs[0]);
 
-    if (cvar == NULL) {
-	TracePrintf(2, "DoCvarSignal: No Cvar found.\n");
-	context->regs[0] = ERROR;
-    }
-    
-    else if (!QueueIsEmpty(cvar->waiting)) {
-	int rc;
-	CV_Helper *cv_h = QueuePop(cvar->waiting);
-	rc = CvarOntoLockQueue(cv_h);
-	free(cv_h);
-	if (rc == ERROR)
-	    context->regs[0] = ERROR;
-	else
-	    context->regs[0] = SUCCESS;
-
+    PCB *pcb = queuePop(cvar->waiting);
+    if (pcb) {
+        queuePush(ready_queue, pcb);
+        context->regs[0] = SUCCESS;
     } else {
-	context->regs[0] = SUCCESS; // Return silently if nothing to pop since nothing went wrong.
+        context->regs[0] = ERROR;
     }
 }
 
-// Returns if lock isn't found. Need to discuss whether this is best plan
 void DoCvarBroadcast(UserContext *context) {
-    Cvar *cvar = (Cvar *) QueueGet(cvar_queue, context->regs[0]);
+    Cvar *cvar = (Cvar *) GetResource(context->regs[0]);
 
-    if (cvar == NULL) {
-        TracePrintf(2, "DoCvarBroadcast: No Cvar found.\n");
+    if (queueIsEmpty(cvar->waiting)) {
         context->regs[0] = ERROR;
-    }
-    else {
-	int rc;
-	CV_Helper *cv_h;
-	while (!QueueIsEmpty(cvar->waiting)) {
-	    cv_h = QueuePop(cvar->waiting);
-	    rc = CvarOntoLockQueue(cv_h);
-	    free(cv_h);
-	    if (rc == ERROR) {
-		context->regs[0] = ERROR;
-		return;
-	    }
-	}
-	context->regs[0] = SUCCESS;
+    } else {
+        while (!queueIsEmpty(cvar->waiting)) {
+            queuePush(ready_queue, queuePop(cvar->waiting));
+        }
+        context->regs[0] = SUCCESS;
     }
 }
 
 void DoCvarWait(UserContext *context) {
-    Cvar *cvar = (Cvar *) QueueGet(cvar_queue, context->regs[0]);
-
+    int rc;
+    Cvar *cvar = (Cvar *) GetResource(context->regs[0]);
     if (cvar == NULL) {
         TracePrintf(2, "DoCvarWait: No Cvar found.\n");
         context->regs[0] = ERROR;
-	return;
-    }
-    Lock *lock = (Lock *) QueueGet(lock_queue, context->regs[1]);
-
-    if (lock == NULL) {
-        TracePrintf(2, "DoCvarWait: Lock not found.\n");
-        context->regs[0] = ERROR;
-	return;
+        return;
     }
 
-    if (lock->owner != current_process) {
-	TracePrintf(2, "DoCvarWait: process does not hold the lock.\n");
-	context->regs[0] = ERROR;
-	return;
-    }
-    
-    CV_Helper *cv_h = malloc(sizeof(CV_Helper));
-    if (cv_h == NULL) {
-	TracePrintf(2, "DoCvarWait: malloc error.\n");
-	context->regs[0] = ERROR;
-	return;
+    Lock *lock = (Lock *) GetResource(context->regs[1]);
+
+    // Release lock first
+    rc = LockRelease(lock);
+
+    if (rc == ERROR) {
+        context->regs[0] = rc;
+        return;
     }
 
-    cv_h->lock_id = lock->id;
-    cv_h->pcb = current_process;
-
-    QueuePush(cvar->waiting, cv_h);
+    // Block until something else wakes it up
+    queuePush(cvar->waiting, current_process);
     lock->cvars++;
-
     LoadNextProc(context, BLOCK);
-    context->regs[0] = SUCCESS;
 
+    // Reacquire the lock
+    rc = LockAcquire(lock);
+    if (rc == BLOCK) {
+        LoadNextProc(context, BLOCK);
+        rc = SUCCESS;
+    }
+    context->regs[0] = rc;
 }
 
-
-
 int CvarOntoLockQueue(CV_Helper *cv_h) {
-    Lock *lock = (Lock *) QueueGet(lock_queue, cv_h->lock_id);
+    Lock *lock = (Lock *) GetResource(cv_h->lock_id);
 
     if (lock == NULL) {
         TracePrintf(2, "PutCvarOnLockQueue: Lock not found.\n");
@@ -126,6 +98,6 @@ int CvarOntoLockQueue(CV_Helper *cv_h) {
     }
 
     lock->cvars--;
-    QueuePush(lock->locked, cv_h->pcb);
+    QueuePush(lock->waiting, cv_h->pcb);
     return SUCCESS;
 }

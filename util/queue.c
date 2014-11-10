@@ -6,14 +6,14 @@
 Queue *
 queueNew() {
     Queue *queue = malloc(sizeof(Queue));
-        queue->head = queue->tail = NULL;
+    queue->head = queue->tail = NULL;
     queue->length = 0;
     return queue;
 }
 
 void
 queuePush(Queue *queue,
-          void *data) {
+        void *data) {
 
     TracePrintf(2, "queuePush: data is at %p\n", data);
 
@@ -27,14 +27,11 @@ queuePush(Queue *queue,
 
 void *
 queuePop(Queue *queue) {
-
-
     if (queue->head) {
-        
+
         TracePrintf(1, "QueuePop: Data returned\n");
 
-
-	List *node = queue->head;
+        List *node = queue->head;
         void *data = node->data;
 
         queue->head = node->next;
@@ -49,7 +46,7 @@ queuePop(Queue *queue) {
         TracePrintf(1, "QueuePop: Data returned: %p\n", data);
         return data;
     }
-    
+
     return NULL;
 }
 
@@ -61,11 +58,11 @@ queuePop(Queue *queue) {
 
 void
 queueRemove(Queue *queue, 
-	        void *data) {
+        void *data) {
 
 
     List *list = queue->head;
-    
+
     // Move to where the data is.
     while (list && list->data != data) {
         list = list->next;
@@ -77,9 +74,9 @@ queueRemove(Queue *queue,
             queue->head = list->next;
             if (queue->head) {
                 queue->head->prev = NULL;
-	    } else {
-		queue->tail = NULL;
-	    }
+            } else {
+                queue->tail = NULL;
+            }
         } else if (list == queue->tail) {
             queue->tail = list->prev;
             if (queue->tail) {
