@@ -1,4 +1,4 @@
-#ifnef _lock_h
+#ifndef _lock_h
 #define _lock_h
 
 #include "util/queue.h"
