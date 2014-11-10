@@ -38,8 +38,10 @@ void DoTtyRead(UserContext *context) {
     }
 
     if (tty->totalOverflowLen > 0) {
+        TracePrintf(2, "DoTtyRead: reading from buffer\n");
         ReadFromBuffer(tty, current_process->readBuf, len);
     } else {
+        TracePrintf(2, "DoTtyRead: blocking\n");
         current_process->user_context = *context;
         queuePush(tty->readBlocked, current_process);
 		LoadNextProc(context, BLOCK);

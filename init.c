@@ -79,6 +79,10 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
         return;
     } else {
+        // Default to init if not starting process given at yalnix command line
+        if (!cmd_args[0]) {
+            cmd_args[0] = "./initInit";
+        }
         args[1]=cmd_args[0];
         TracePrintf(1, "%s\n", cmd_args[0]);
         rc = LoadProgram(cmd_args[0], args, initPCB);
