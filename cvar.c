@@ -89,7 +89,7 @@ void DoCvarWait(UserContext *context) {
     }
     context->regs[0] = rc;
 }
-
+/*
 int CvarOntoLockQueue(CV_Helper *cv_h) {
     Lock *lock = (Lock *) GetResource(cv_h->lock_id);
 
@@ -102,5 +102,5 @@ int CvarOntoLockQueue(CV_Helper *cv_h) {
     queuePush(lock->waiting, cv_h->pcb);
     return SUCCESS;
 }
-
+*/
 int ReclaimCvar(Cvar *cvar) {}

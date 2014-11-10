@@ -24,7 +24,7 @@ extern void DoCvarInit(UserContext *);
 extern void DoCvarSignal(UserContext *);
 extern void DoCvarBroadcast(UserContext *);
 extern void DoCvarWait(UserContext *);
-extern int CvarOntoLockQueue(CV_Helper *);
+//extern int CvarOntoLockQueue(CV_Helper *);
 extern int ReclaimCvar(Cvar *);
 
 #endif
