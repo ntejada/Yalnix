@@ -87,8 +87,22 @@ void DoCvarWait(UserContext *context) {
         LoadNextProc(context, BLOCK);
         rc = SUCCESS;
     }
+    lock->cvars--;
     context->regs[0] = rc;
 }
+
+int ReclaimCvar(Cvar *cvar) {
+    // Return error if some proc is blocked on waiting on this cvar
+    if (!queueIsEmpty(cvar->waiting)) {
+        return ERROR;
+    } else {
+        queueRemove(cvars, cvar);
+        free(cvar->waiting);
+        free(cvar);
+        return SUCCESS;
+    }
+}
+
 /*
 int CvarOntoLockQueue(CV_Helper *cv_h) {
     Lock *lock = (Lock *) GetResource(cv_h->lock_id);
@@ -103,4 +117,3 @@ int CvarOntoLockQueue(CV_Helper *cv_h) {
     return SUCCESS;
 }
 */
-int ReclaimCvar(Cvar *cvar) {}

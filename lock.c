@@ -75,4 +75,16 @@ int LockRelease(Lock *lock) {
     }
 }
 
-int ReclaimLock(Lock *lock) {}
+int ReclaimLock(Lock *lock) {
+    // Return error if some proc is holding on to this lock
+    // or some proc is waiting to acquire this lock
+    // or if there have been calls to CvarWait associated with this lock
+    if (lock->owner || !queueIsEmpty(lock->waiting) || lock->cvars) {
+        return ERROR;
+    } else {
+        queueRemove(locks, lock);
+        free(lock->waiting);
+        free(lock);
+        return SUCCESS;
+    }
+}
