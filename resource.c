@@ -6,6 +6,12 @@
 #include "std.h"
 #include "util/queue.h"
 
+void InitResources() {
+    locks = queueNew();
+    cvars = queueNew();
+    pipes = queueNew();
+}
+
 void *GetResource(int res_id) {
     Queue *queue;
     switch (res_id % NUM_RESOURCE_TYPES) {
@@ -27,7 +33,9 @@ void *GetResource(int res_id) {
     List *list;
     for (list = queue->head; 
          list && ((Resource *) list->data)->id != res_id; 
-         list = list->next);
+         list = list->next) {
+        TracePrintf(5, "GetResource: list->data->id = %d\n", ((Resource *) list->data)->id);
+    }
 
     return list->data;
 }

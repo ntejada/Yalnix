@@ -19,6 +19,7 @@ typedef struct resource_t {
     int id;
 } Resource;
 
+extern void InitResources(void);
 extern void *GetResource(int);
 extern void DoReclaim(UserContext *context);
 

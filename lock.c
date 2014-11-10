@@ -74,3 +74,5 @@ int LockRelease(Lock *lock) {
         return SUCCESS;
     }
 }
+
+int ReclaimLock(Lock *lock) {}

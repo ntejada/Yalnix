@@ -27,6 +27,7 @@ void DoCvarInit(UserContext *context) {
     cvar->id = cvar_id;
     *((int *) context->regs[0]) = cvar_id;
 
+    TracePrintf(2, "CvarInit: pushing onto cvars\n");
     queuePush(cvars, cvar);
     context->regs[0] = SUCCESS;
 }
@@ -98,6 +99,8 @@ int CvarOntoLockQueue(CV_Helper *cv_h) {
     }
 
     lock->cvars--;
-    QueuePush(lock->waiting, cv_h->pcb);
+    queuePush(lock->waiting, cv_h->pcb);
     return SUCCESS;
 }
+
+int ReclaimCvar(Cvar *cvar) {}

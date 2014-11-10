@@ -89,7 +89,7 @@ void KernelCallHandler(UserContext *context) {
             DoLockRelease(context);
             break;
         case YALNIX_CVAR_INIT:
-            DoCvarWait(context);
+            DoCvarInit(context);
             break;
         case YALNIX_CVAR_SIGNAL:
             DoCvarSignal(context);
