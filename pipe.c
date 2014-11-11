@@ -62,7 +62,7 @@ void DoPipeRead(UserContext *context) {
             pipe->base = pipe_buf->buf;
             remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
         }
-        buf[i] = pipe_buf->buf[i];
+        ((char *)buf)[i] = ((char *)pipe_buf->buf)[i];
     }
     context->regs[0] = i;
 }
@@ -83,21 +83,21 @@ void DoPipeWrite(UserContext *context) {
 
     PipeBuffer *pipe_buf = malloc(sizeof(PipeBuffer));
     if (pipe_buf == NULL) {
-        TracePrint(2, "DoPipeWrite: malloc error\n");
+        TracePrintf(2, "DoPipeWrite: malloc error\n");
         context->regs[0] = ERROR;
         return;
     }
     pipe_buf->len = len;
     pipe_buf->buf = malloc(len);
     if (pipe_buf->buf == NULL) {
-        TracePrint(2, "DoPipeWrite: malloc error\n");
+        TracePrintf(2, "DoPipeWrite: malloc error\n");
         context->regs[0] = ERROR;
         return;
     }
     memset(pipe_buf->buf, 0, len);
     for (int i = 0; i < len; i++) {
         // TODO deferencing void pointer, probably need to change to char *?
-        pipe_buf->buf[i] = buf[i];
+        ((char *)pipe_buf->buf)[i] = ((char *)buf)[i];
     }
     
     if (!pipe->len) {
