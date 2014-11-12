@@ -176,7 +176,6 @@ int copyOnWrite(int pageNum, PCB* pcb){
         memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (pageNum << PAGESHIFT), PAGESIZE);
         pcb->cow.pageTable[pageNum].pfn = newPfn;
 		TracePrintf(3, "copyOnWrite: copied in page to new pfn %d\n", newPfn);
-		WriteRegister(REG_TLB_FLUSH, (pageNum  << PAGESHIFT)+ VMEM_0_LIMIT);
         (*(pcb->cow.refCount[pageNum]))--;
         pZeroTable[PF_COPIER].prot = PROT_NONE;
         pZeroTable[PF_COPIER].valid = 0;

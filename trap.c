@@ -151,6 +151,7 @@ void MemoryHandler(UserContext *context) {
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
     			TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
 				copyOnWrite(pageNum, current_process); 
+				WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL); 
             	break;
 			}
             for (sp; sp <= pageNum; sp++) {

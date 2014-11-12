@@ -66,12 +66,15 @@ void DoFork(UserContext *context) {
 	// Return 0 to child and arm the child for execution.
 	child->user_context = *context;
 	queuePush(ready_queue, child);
+	TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
 	KernelContextSwitch(ForkKernel, current_process, child);
-
+	
 	// Return child's pid to parent and resume execution of the parent.
 	if (current_process->id == newPid) {
+		TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc);
 		*context = current_process->user_context;
 		context->regs[0] = 0;
+	
 	}
 
 	else {
