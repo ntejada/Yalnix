@@ -8,6 +8,7 @@
 #ifndef _resource_h_
 #define _resource_h_
 
+#include <hardware.h>
 #include "util/queue.h"
 
 #define NUM_RESOURCE_TYPES 3
