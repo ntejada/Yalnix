@@ -21,6 +21,13 @@ void DoPipeInit(UserContext *context) {
         return;
     }
 
+    pipe->bufs = queueNew();
+    if (pipe->bufs == NULL) {
+        TracePrintf(2, "PipeInit: malloc error\n");
+        context->regs[0] = ERROR;
+        return;
+    }
+
     int pipe_id = pipe_count * NUM_RESOURCE_TYPES + PIPE;
     pipe_count++;
     pipe->id = pipe_id;
@@ -53,8 +60,8 @@ void DoPipeRead(UserContext *context) {
 
     PipeBuffer *pipe_buf = pipe->bufs->head->data;
 
-    int i, remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
-    for (i = 0; i < len && pipe->len; i++, remain--, pipe->len--, pipe->base++) {
+    int read, remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
+    for (read = 0; read < len && pipe->len; read++, remain--, pipe->len--, pipe->base++, buf++) {
         if (!remain) {
             free(pipe_buf->buf);
             free(queuePop(pipe->bufs));
@@ -62,9 +69,9 @@ void DoPipeRead(UserContext *context) {
             pipe->base = pipe_buf->buf;
             remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
         }
-        ((char *)buf)[i] = ((char *)pipe_buf->buf)[i];
+        *((char *)buf) = *((char *)pipe->base);
     }
-    context->regs[0] = i;
+    context->regs[0] = read;
 }
 
 void DoPipeWrite(UserContext *context) {
@@ -79,6 +86,10 @@ void DoPipeWrite(UserContext *context) {
 
     void *buf = context->regs[1];
     int len = context->regs[2];
+    if (!len) {
+        context->regs[0] = ERROR;
+        return;
+    }
     // TODO check integrity of buf pointer?
 
     PipeBuffer *pipe_buf = malloc(sizeof(PipeBuffer));
@@ -94,9 +105,10 @@ void DoPipeWrite(UserContext *context) {
         context->regs[0] = ERROR;
         return;
     }
+
+    TracePrintf(3, "DoPipeWrite: copying into buffer with len %d\n", len);
     memset(pipe_buf->buf, 0, len);
     for (int i = 0; i < len; i++) {
-        // TODO deferencing void pointer, probably need to change to char *?
         ((char *)pipe_buf->buf)[i] = ((char *)buf)[i];
     }
     
@@ -112,6 +124,7 @@ void DoPipeWrite(UserContext *context) {
     }
 
     context->regs[0] = len;
+    TracePrintf(3, "DoPipeWrite: finished\n");
 }
 
 int ReclaimPipe(Pipe *pipe) {
