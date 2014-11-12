@@ -136,7 +136,8 @@ int CopyRegion1(PCB *pcb)
 }
 
 int CoWRegion1(PCB *pcb) {
-    for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
+    TracePrintf(1, "CoWRegion1: Entering\n");
+	for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
         // Only do the following for non text frames
         if (current_process->cow.pageTable[vpn].prot != (PROT_READ|PROT_EXEC)) {
             current_process->cow.pageTable[vpn].prot = PROT_READ;
@@ -144,15 +145,49 @@ int CoWRegion1(PCB *pcb) {
         pcb->cow.pageTable[vpn] = current_process->cow.pageTable[vpn];
         if (current_process->cow.pageTable[vpn].valid) {
             if (current_process->cow.refCount[vpn]) {
-                pcb->cow.refCount[vpn] = current_process->cow.refCount[vpn];
+				pcb->cow.refCount[vpn] = current_process->cow.refCount[vpn];
             } else {
                 pcb->cow.refCount[vpn] = current_process->cow.refCount[vpn] = 
                     (int *) malloc(sizeof(int));
-                *(pcb->cow.refCount[vpn]) = 1;
-            }
-            *(pcb->cow.refCount[vpn])++;
-        }
+				*(pcb->cow.refCount[vpn]) = 1;
+            
+			}
+            (*(pcb->cow.refCount[vpn]))++;
+		}
     }
+    TracePrintf(1, "CoWRegion1: Exiting\n");
+}
+
+int copyOnWrite(int pageNum, PCB* pcb){
+// Go ahead and change permissions
+    TracePrintf(3, "copyOnWrite: called with pcb id %d and pageNum %d and refCount %d and PC %p\n", pcb->id, pageNum, *pcb->cow.refCount[pageNum], pcb->user_context.pc);
+	pcb->cow.pageTable[pageNum].prot = (PROT_READ|PROT_WRITE);
+
+    // Check how many processes are referencing that frame
+    if (pcb->cow.refCount[pageNum] > 1) {
+        // Copy over the page and decrement refCount
+        pZeroTable[PF_COPIER].valid = 1;
+        pZeroTable[PF_COPIER].prot = (PROT_READ|PROT_WRITE);
+
+        int newPfn = getNextFrame();
+        pZeroTable[PF_COPIER].pfn = newPfn;
+        WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
+
+        memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (pageNum << PAGESHIFT), PAGESIZE);
+        pcb->cow.pageTable[pageNum].pfn = newPfn;
+		TracePrintf(3, "copyOnWrite: copied in page to new pfn %d\n", newPfn);
+		WriteRegister(REG_TLB_FLUSH, (pageNum  << PAGESHIFT)+ VMEM_0_LIMIT);
+        (*(pcb->cow.refCount[pageNum]))--;
+        pZeroTable[PF_COPIER].prot = PROT_NONE;
+        pZeroTable[PF_COPIER].valid = 0;
+    	pcb->cow.refCount[pageNum]=NULL;
+	} 
+	else {
+        free(pcb->cow.refCount[pageNum]);
+    	pcb->cow.refCount[pageNum] = NULL;
+	}
+	TracePrintf(3, "copyOnWrite: Exiting\n"); 
+	return SUCCESS;
 }
 
 int SetKernelBrk(void *addr) 

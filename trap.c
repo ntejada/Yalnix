@@ -132,7 +132,7 @@ void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
     int pageNum = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
-	TracePrintf(2, "TrapMemory: This page has the valid bit set to %d and %d prots\n", current_process->cow.pageTable[pageNum].valid, current_process->cow.pageTable[pageNum].prot);
+	TracePrintf(2, "TrapMemory: This page has the valid bit set to %d and %d prots and pfn %d\n", current_process->cow.pageTable[pageNum].valid, current_process->cow.pageTable[pageNum].prot, current_process->cow.pageTable[pageNum].pfn);
 	TracePrintf(2, "TrapMemory: Read Write is %d and Read is %d\n", (PROT_READ | PROT_WRITE), PROT_READ);
 	TracePrintf(2, "TrapMemory: MAPERR = %d, ACCERR = %d, this error = %d\n", YALNIX_MAPERR, YALNIX_ACCERR, context->code);
     TracePrintf(2, "TrapMemory: New stack pointer = %d. Old stack pointer = %d\n", pageNum, sp);	
@@ -147,7 +147,12 @@ void MemoryHandler(UserContext *context) {
                 KillProc(current_process);
                 LoadNextProc(context, BLOCK);
             }
-
+			if (current_process->cow.refCount[pageNum] && 
+                current_process->cow.pageTable[pageNum].prot == PROT_READ) {
+    			TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
+				copyOnWrite(pageNum, current_process); 
+            	break;
+			}
             for (sp; sp <= pageNum; sp++) {
                 current_process->cow.pageTable[pageNum].valid = 1;
                 current_process->cow.pageTable[pageNum].pfn = getNextFrame();
@@ -158,33 +163,8 @@ void MemoryHandler(UserContext *context) {
             // Check first to see if it was a copy on write issue, ie. attempt to write to a CoW page
             if (current_process->cow.refCount[pageNum] && 
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
-                // Go ahead and change permissions
-                TracePrintf(3, "MemoryHandler: CoW page %d written to with refcount %d\n", pageNum, (*current_process->cow.refCount[pageNum]));
-		current_process->cow.pageTable[pageNum].prot = (PROT_READ|PROT_WRITE);
-                // Check how many processes are referencing that frame
-                if (current_process->cow.refCount[pageNum] > 1) {
-                    // Copy over the page and decrement refCount
-                    pZeroTable[PF_COPIER].valid = 1;
-                    pZeroTable[PF_COPIER].prot = (PROT_READ|PROT_WRITE);
-
-                    int newPfn = getNextFrame();
-                    pZeroTable[PF_COPIER].pfn = newPfn;
-                    WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
-
-                    memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (pageNum << PAGESHIFT), PAGESIZE);
-                    current_process->cow.pageTable[pageNum].pfn = newPfn;
-		    WriteRegister(REG_TLB_FLUSH, pageNum << PAGESHIFT);
-                    *(current_process->cow.refCount[pageNum])--;
-
-                    pZeroTable[PF_COPIER].prot = PROT_NONE;
-                    pZeroTable[PF_COPIER].valid = 0;
-			TracePrintf(4, "MemoryHandler: Copied page %d into new frame. Old frame has reference count of %d\n", pageNum, *(current_process->cow.refCount[pageNum]));
-                	current_process->cow.refCount[pageNum]=NULL;
-				} 
-				else {
-                    free(current_process->cow.refCount[pageNum]);
-                	current_process->cow.refCount[pageNum] = NULL;
-				}
+    			TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
+            	copyOnWrite(pageNum, current_process); 
             } 
 			else {
                 // Otherwise it was truly a bad memory access.
@@ -198,6 +178,8 @@ void MemoryHandler(UserContext *context) {
 
             break;
     }
+	TracePrintf(1, "TrapMemory: pc is %p\n", context->pc);
+	TracePrintf(1, "TrapMemory: exiting\n");
 }
 
 void TtyReceiveHandler(UserContext *context) {

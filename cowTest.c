@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
 		TracePrintf(3, "cowTest: In the parent. About to Delay and call Wait.\n");
 		int status;
 		Delay(5);
+		TracePrintf(3, "back from delay! %d\n", GetPid());
 		rc = Wait(&status);
 		TracePrintf(3, "cowTest: Back from wait. status = %d, rc = %d\n", status, rc);
 		TracePrintf(3, "==========> cowTest: heapvar = %d\n", *heapVar);
