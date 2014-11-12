@@ -178,7 +178,16 @@ void MemoryHandler(UserContext *context) {
             }
 
             break;
+       default:
+	   if (current_process->cow.refCount[pageNum] &&
+	       current_process->cow.pageTable[pageNum].prot == PROT_READ) {
+	       TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
+	       copyOnWrite(pageNum, current_process);
+	   }
+	   break;
+	
     }
+    
 	TracePrintf(1, "TrapMemory: pc is %p\n", context->pc);
 	TracePrintf(1, "TrapMemory: exiting\n");
 }
