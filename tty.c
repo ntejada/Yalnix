@@ -90,11 +90,9 @@ void DoTtyWrite(UserContext *context) {
     	TracePrintf(1, "TtyWrite: nothing left to write after transmit\n");
 	}
 
-    current_process->user_context = *context;	
     tty->writePCB = current_process;
     LoadNextProc(context, BLOCK);
 	TracePrintf(1, "DoTtyWrite: exiting\n");
-
 }
 
 void ReadFromBuffer(TTY* tty, char *buf, int len) {
