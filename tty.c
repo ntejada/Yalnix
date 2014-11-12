@@ -95,10 +95,11 @@ void DoTtyWrite(UserContext *context) {
 	TracePrintf(1, "DoTtyWrite: exiting\n");
 }
 
-void ReadFromBuffer(TTY* tty, char *buf, int len) {
+int ReadFromBuffer(TTY* tty, char *buf, int len) {
 	TracePrintf(1, "ReadFromBuffer: called\n");
 	Queue * overQueue = tty->overflow;
 	char *lastWrite = (char*)buf; //pointer to end of last memcpy
+	int returnLen = 0;
 	if(queueIsEmpty(overQueue)){
 		TracePrintf(1, "ReadFromBuffer: Trying to read from empty buffer!\n");
 		return;
@@ -111,6 +112,9 @@ void ReadFromBuffer(TTY* tty, char *buf, int len) {
 			strcpy(lastWrite, over->addr);
 			lastWrite += over->len;
 			lenLeft -= over->len;
+			TracePrintf(1, "returnLen is %d\n", returnLen);	
+			returnLen += over->len;
+			TracePrintf(1, "returnLen is %d\n", returnLen);	
 			tty->totalOverflowLen -= over->len;
 			free(over->base);
 			free(queuePop(overQueue));	
@@ -120,9 +124,12 @@ void ReadFromBuffer(TTY* tty, char *buf, int len) {
 			strcpy(lastWrite, over->addr);
 			over->addr += lenLeft;
 			over->len -= lenLeft;
+			returnLen += lenLeft;
 			tty->totalOverflowLen -= lenLeft;
 			lenLeft = 0;
 		} 			
-	}	
+	}
+	TracePrintf(1, "returnLen is %d\n", returnLen);	
 	TracePrintf(1, "ReadFromBuffer: exiting\n");
+	return returnLen;
 }
