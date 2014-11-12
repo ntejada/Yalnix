@@ -166,7 +166,7 @@ void MemoryHandler(UserContext *context) {
 
 void TtyReceiveHandler(UserContext *context) {
     // Pass into a buffer that holds input
-    TracePrintf(1, "TtyReceiveHandler\n");
+    TracePrintf(4, "TtyReceiveHandler\n");
     int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
     PCB * reading_pcb;
@@ -175,18 +175,25 @@ void TtyReceiveHandler(UserContext *context) {
     // void *buf = (void *)malloc(READ_LEN*sizeof(char));
     char *buf = (char *)malloc(READ_LEN*sizeof(char));
     readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
-    TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
+    TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
     int j;
+
+
+    
+
+
+
+
     while(readLen>1) { 
         if(buf[readLen-1] == '\n'){
-            TracePrintf(1, "TtyReceiveHandler: getting rid of new line character\n");
+            TracePrintf(4, "TtyReceiveHandler: getting rid of new line character\n");
             buf[readLen-1]='\0';
             readLen--;
         }   
         Overflow *over = (Overflow *) malloc(sizeof(Overflow));
         over->addr = over->base = buf;
         for(j = 0; j < READ_LEN; j++){
-            TracePrintf(0, "TtyReceiveHandler: %d char is %hu or char %c\n", j, buf[j], buf[j]);
+            TracePrintf(4, "TtyReceiveHandler: %d char is %hu or char %c\n", j, buf[j], buf[j]);
         }
         over->len = readLen;
         tty->totalOverflowLen += readLen;
@@ -194,7 +201,7 @@ void TtyReceiveHandler(UserContext *context) {
         buf = (char *)malloc(READ_LEN*sizeof(char));
         //memset(buf, 0, sizeof(buf));
         readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
-        TracePrintf(1, "TtyReceiveHandler: readLen is %d\n", readLen);
+        TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
     }
     //free(buf);
     //get length that process at head of readBlocked queue wants
@@ -212,16 +219,16 @@ void TtyReceiveHandler(UserContext *context) {
 		queuePush(ready_queue, queuePop(tty->readBlocked));
         overFlowLeft -= len;                       
     }    	
-    TracePrintf(1, "TtyReceiveHandler: Exiting\n");
+    TracePrintf(4, "TtyReceiveHandler: Exiting\n");
 }
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
     int tty_id = context->code;
     TTY* tty = &(ttys[tty_id]);
-    TracePrintf(1, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
+    TracePrintf(4, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
     if (tty->lenLeftToWrite == 0) {
-        TracePrintf(3, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
+        TracePrintf(4, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
         free(tty->writeBase);
         queuePush(ready_queue, tty->writePCB);
         tty->writePCB = NULL;
@@ -232,7 +239,7 @@ void TtyTransmitHandler(UserContext *context) {
             tty->writePCB = nextPCB;
         }
     } else if (tty->lenLeftToWrite > TEST_LENGTH) {
-        TracePrintf(3, "current user context pc is %p\n", context->pc);
+        TracePrintf(4, "current user context pc is %p\n", context->pc);
         TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
         tty->writeBuf = tty->writeBuf + TEST_LENGTH;
         tty->lenLeftToWrite = tty->lenLeftToWrite - TEST_LENGTH;

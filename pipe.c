@@ -58,17 +58,19 @@ void DoPipeRead(UserContext *context) {
         LoadNextProc(context, BLOCK);
     }
 
-    PipeBuffer *pipe_buf = pipe->bufs->head->data;
+    PipeBuffer *pipe_buf = (PipeBuffer *)pipe->bufs->head->data;
 
     int read, remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
-    for (read = 0; read < len && pipe->len; read++, remain--, pipe->len--, pipe->base++, buf++) {
-        if (!remain) {
+    for (read = 0; read < len && pipe->len > 0; read++, remain--, pipe->len--, pipe->base++, buf++) {
+        if (remain <= 0) {
             free(pipe_buf->buf);
             free(queuePop(pipe->bufs));
             pipe_buf = pipe->bufs->head->data; 
             pipe->base = pipe_buf->buf;
-            remain = pipe_buf->len - (pipe->base - pipe_buf->buf);
+            remain = pipe_buf->len;
+
         }
+	TracePrintf(2, "DoPipeRead: len: %d, remain %d, char %u\n", pipe->len, remain, *((char *)pipe->base));
         *((char *)buf) = *((char *)pipe->base);
     }
     context->regs[0] = read;
