@@ -147,7 +147,7 @@ void MemoryHandler(UserContext *context) {
                 KillProc(current_process);
                 LoadNextProc(context, BLOCK);
             }
-			if (current_process->cow.refCount[pageNum] && 
+	    if (current_process->cow.refCount[pageNum] && 
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
     			TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
 				copyOnWrite(pageNum, current_process); 
@@ -164,8 +164,8 @@ void MemoryHandler(UserContext *context) {
             // Check first to see if it was a copy on write issue, ie. attempt to write to a CoW page
             if (current_process->cow.refCount[pageNum] && 
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
-    			TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
-            	copyOnWrite(pageNum, current_process); 
+    		 TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
+            	 copyOnWrite(pageNum, current_process); 
             } 
 			else {
                 // Otherwise it was truly a bad memory access.

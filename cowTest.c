@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 		TracePrintf(3, "==========> cowTest: stackvar = %d\n", stackVar);
 		TracePrintf(3, "==========> cowTest: now to change some variables and get some new frames\n");
 		stackVar--;
+		TracePrintf(3, "==========> cowTest: changed stackVar, but not heapVar\n");
 		(*heapVar)--;
 		
 		TracePrintf(3, "==========> cowTest: decremented the variables\n");

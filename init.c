@@ -137,7 +137,8 @@ int CopyRegion1(PCB *pcb)
 
 int CoWRegion1(PCB *pcb) {
     TracePrintf(1, "CoWRegion1: Entering\n");
-	for (int vpn = 0; vpn < MAX_PT_LEN; vpn++) {
+    int limit = (DOWN_TO_PAGE((int)current_process->user_context.sp)>>PAGESHIFT) - MAX_PT_LEN;
+    for (int vpn = 0; vpn < limit; vpn++) {
         // Only do the following for non text frames
         if (current_process->cow.pageTable[vpn].prot != (PROT_READ|PROT_EXEC)) {
             current_process->cow.pageTable[vpn].prot = PROT_READ;
@@ -153,8 +154,34 @@ int CoWRegion1(PCB *pcb) {
             
 			}
             (*(pcb->cow.refCount[vpn]))++;
-		}
+	}
     }
+    int vpn = limit;
+    TracePrintf(2, "CowRegion1: vpn is set to: %d\n", vpn);
+
+    pZeroTable[PF_COPIER].valid = 1;
+    pZeroTable[PF_COPIER].prot = (PROT_READ | PROT_WRITE);
+
+    for (vpn; vpn < MAX_PT_LEN; vpn++) {
+	TracePrintf(2, "CowRegion1: vpn: %d. %d.\n", vpn, MAX_PT_LEN);
+	if (current_process->cow.pageTable[vpn].valid) {
+            int newPfn = getNextFrame();
+	    TracePrintf(2, "After getNext\n");
+            pZeroTable[PF_COPIER].pfn = newPfn;
+            
+	    WriteRegister(REG_TLB_FLUSH, PF_COPIER << PAGESHIFT);
+            memcpy(PF_COPIER << PAGESHIFT, VMEM_1_BASE + (vpn << PAGESHIFT), PAGESIZE);
+	    TracePrintf(2, "After memcpy\n");
+            pcb->cow.pageTable[vpn].valid = 1;
+            pcb->cow.pageTable[vpn].prot = current_process->cow.pageTable[vpn].prot;
+            pcb->cow.pageTable[vpn].pfn = newPfn;
+	}
+    }
+
+    pZeroTable[PF_COPIER].prot = PROT_NONE;
+    pZeroTable[PF_COPIER].valid = 0;
+
+
     TracePrintf(1, "CoWRegion1: Exiting\n");
 }
 
@@ -316,7 +343,3 @@ void PageTableInit(PCB * idlePCB)
         }
     }
 
-    void LoadProgramTest() {
-        //	LoadProgram("./initIdle", NULL, p_pcb); 
-
-    }
