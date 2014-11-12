@@ -15,7 +15,7 @@ void
 queuePush(Queue *queue,
         void *data) {
 
-    TracePrintf(2, "queuePush: data is at %p\n", data);
+    TracePrintf(4, "queuePush: data is at %p\n", data);
 
     queue->tail = listAppend(queue->tail, data);
     if (queue->tail->next)
@@ -29,7 +29,7 @@ void *
 queuePop(Queue *queue) {
     if (queue->head) {
 
-        TracePrintf(1, "QueuePop: Data returned\n");
+        TracePrintf(4, "QueuePop: Data returned\n");
 
         List *node = queue->head;
         void *data = node->data;
@@ -39,11 +39,11 @@ queuePop(Queue *queue) {
             queue->head->prev = NULL;
         else
             queue->tail = NULL;
-        TracePrintf(1, "QueuePop: Data returned %p\n", node);
+        TracePrintf(4, "QueuePop: Data returned %p\n", node);
         free(node);
-        TracePrintf(1, "QueuePop: Data returned\n");
+        TracePrintf(4, "QueuePop: Data returned\n");
         queue->length--;
-        TracePrintf(1, "QueuePop: Data returned: %p\n", data);
+        TracePrintf(4, "QueuePop: Data returned: %p\n", data);
         return data;
     }
 
@@ -94,9 +94,9 @@ queueRemove(Queue *queue,
 
 int
 queueIsEmpty(Queue *queue) {
-    TracePrintf(2, "queueIsEmpty: queue->head = %p, queue->length = %d\n", queue->head, queue->length);
+    TracePrintf(4, "queueIsEmpty: queue->head = %p, queue->length = %d\n", queue->head, queue->length);
     if (queue->head == NULL) {
-        TracePrintf(2, "queueIsEmpty: queue is empty\n");
+        TracePrintf(4, "queueIsEmpty: queue is empty\n");
     }
     return (queue->head == NULL);
 }
