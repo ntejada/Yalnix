@@ -201,13 +201,15 @@ void TtyReceiveHandler(UserContext *context) {
     //DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF 0 OR TOTALOVERFLOW IS 0
     int len = 0;
     int overFlowLeft = tty->totalOverflowLen;
-    while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
+    int lenReturned;
+	while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
         reading_pcb = (PCB*)(tty->readBlocked->head->data);
-        len = reading_pcb->user_context.regs[2];
+        reading_pcb->user_context.regs[0]=0;
+		len = reading_pcb->user_context.regs[2];
         //memset(reading_pcb->readBuf, 0, sizeof(reading_pcb->readBuf));
-        ReadFromBuffer(tty, reading_pcb->readBuf, len);
-        TracePrintf(1, "reading_pcb->readBuf first char %c and is located at %d\n", *((char*)(reading_pcb->readBuf)), ((int)(reading_pcb->readBuf)>>PAGESHIFT));
-        queuePush(ready_queue, queuePop(tty->readBlocked));
+        lenReturned = ReadFromBuffer(tty, reading_pcb->readBuf, len);
+       	reading_pcb->user_context.regs[0] = lenReturned; 
+		queuePush(ready_queue, queuePop(tty->readBlocked));
         overFlowLeft -= len;                       
     }    	
     TracePrintf(1, "TtyReceiveHandler: Exiting\n");

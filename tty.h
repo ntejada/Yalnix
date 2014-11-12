@@ -40,6 +40,6 @@ extern TTY ttys[];
 extern void InitTTY(void);
 extern void DoTtyRead(UserContext *);
 extern void DoTtyWrite(UserContext *);
-extern void ReadFromBuffer(TTY*, char *, int);
+extern int ReadFromBuffer(TTY*, char *, int);
 
 #endif
