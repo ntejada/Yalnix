@@ -1,5 +1,25 @@
 Shuo Zheng, Nic Tejada, Garrett Watumull
 
+CHECKPOINT 6:
+
+We have implemented pipes, cvars, and locks effectively.
+
+New Programs:
+
+pipe.* - contains all syscalls that corresond to a pipe
+
+cvar.* - contains all syscalls related to a cvar
+
+lock.* - contains all syscalls related to a lock
+
+resource.* - this is the overarching file that helps to manage locks, cvars, and pipes. In order to make reclaim work, every lock, pipe, or cvar id is a certain modulus of 3. So to determine what type of sync primitive or pipe the user wants to reclaim, we mod the ID by 3, and then reclaim the corresponding resource. We also have a resource struct that allows us to search our queues of locks, cvars, and pipes to find the resource corresponding to the id.  This allows us to search the queues without having to cast to specific resources in each different case, thereby reducing the amount of repeated code. 
+
+CoW is working after changing our trap memory, but we still need to stress test it. We will be implementing a ps call, semaphores, and probably shared memory to execute the bridge problem. 
+
+Would it be sufficient to make global data in region 1 a shared memory location for all forked processes? This way they all can access the cars on bridge count and all see each others modifications? We believe this would work, but don't know if you wanted a more sophisticated manner of allocated shared memory rather than just making all global memory shared for this problem. 
+
+***************************************************************
+
 CHECKPOINT 5:
 
 We believe we have essentially implemented TtyRead and TtyWrite. 
