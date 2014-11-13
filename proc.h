@@ -65,7 +65,7 @@ extern PCB *current_process;
 extern Queue *ready_queue;
 extern Queue *delay_queue;
 extern Queue *wait_queue;
-
+extern Queue *process_queue;
 
 /* Prototypes of process helper functions */
 extern void PCB_Init(PCB *);

@@ -14,6 +14,9 @@
 #include "std.h"
 #include "frames.h"
 PCB *current_process;
+
+Queue *process_queue;
+
 Queue *ready_queue;
 Queue *delay_queue;
 Queue *wait_queue;
@@ -59,12 +62,12 @@ void DoFork(UserContext *context) {
     if (queueIsEmpty(child->parent->children))
 	TracePrintf(3, "DoFork: parent queue empty.\n");
 
-
     child->status = RUNNING;
     
     // Return 0 to child and arm the child for execution.
     child->user_context = *context;
     queuePush(ready_queue, child);
+    queuePush(process_queue, child);
     KernelContextSwitch(ForkKernel, current_process, child);
  
     // Return child's pid to parent and resume execution of the parent.
@@ -213,16 +216,18 @@ void KillProc(PCB *pcb) {
         if (parent->status == WAITING) {
             queueRemove(wait_queue, parent);
             queuePush(ready_queue, parent);
-        }
+        } else {
+	    ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
+	    zombie->id = pcb->id;
+	    zombie->status = pcb->status;
+	    queuePush(parent->deadChildren, zombie);
+	    
 
-        ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
-        zombie->id = pcb->id;
-        zombie->status = pcb->status;
-        queuePush(parent->deadChildren, zombie);
+	}
     }
 
 
-    for(List *child = current_process->children->head; child; child = child->next)
+    for (List *child = current_process->children->head; child; child = child->next)
         ((PCB *) child->data)->parent = NULL;
 
 

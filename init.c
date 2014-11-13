@@ -33,6 +33,8 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     idlePCB->id = pidCount++;
     current_process = idlePCB;
 
+    
+
     PageTableInit(idlePCB);
     idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn;
     idlePCB->kStackPages[1] =  pZeroTable[(KERNEL_STACK_BASE>>PAGESHIFT)+1].pfn;
@@ -43,6 +45,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
     // Initialize Queues                                                                                             
     TracePrintf(1, "Initialize queues\n");
+    process_queue = queueNew();
     ready_queue = queueNew();
     delay_queue = queueNew();
     wait_queue = queueNew();
@@ -59,6 +62,10 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     queuePush(ready_queue, initPCB);
     TracePrintf(1, "Init Process Id: %d\n", initPCB->id);
     TracePrintf(1, "pidCount: %d\n", pidCount);
+
+    queuePush(process_queue, idlePCB);
+    queuePush(process_queue, initPCB);
+
 
     char* args[3];
     args[0]="1";
