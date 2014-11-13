@@ -134,6 +134,13 @@ int ReclaimPipe(Pipe *pipe) {
     if (!queueIsEmpty(pipe->waiting)) {
         return ERROR;
     } else {
+        // Clear and free all buffers in pipe
+        PipeBuffer *pipe_buf;
+        while (!queueIsEmpty(pipe->bufs)) {
+            pipe_buf = (queuePop(pipe->bufs));
+            free(pipe_buf->buf);
+            free(pipe_buf);
+        }
         queueRemove(pipes, pipe);
         free(pipe->waiting);
         free(pipe);
