@@ -50,7 +50,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     delay_queue = queueNew();
     wait_queue = queueNew();
     InitResources();
-
+    
     // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));
     memset(initPCB, 0, sizeof(PCB));
@@ -63,6 +63,7 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     TracePrintf(1, "Init Process Id: %d\n", initPCB->id);
     TracePrintf(1, "pidCount: %d\n", pidCount);
 
+    // Push first two processes onto overall process queue.
     queuePush(process_queue, idlePCB);
     queuePush(process_queue, initPCB);
 

@@ -22,7 +22,9 @@
 #define RUNNING 1
 #define BLOCKED 2
 #define WAITING 3
+#define DEAD 4
 #define NEW 12
+
 
 
 #define BLOCK 1
@@ -57,6 +59,7 @@ struct pcb_t {
 struct zcb_t {
     int id;
     int status;
+    int exit_status;
 };
 
 extern unsigned int pidCount; // Counter for next PID

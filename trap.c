@@ -178,12 +178,7 @@ void TtyReceiveHandler(UserContext *context) {
     TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
     int j;
 
-
     
-
-
-
-
     while(readLen>1) { 
         if(buf[readLen-1] == '\n'){
             TracePrintf(4, "TtyReceiveHandler: getting rid of new line character\n");
@@ -203,13 +198,11 @@ void TtyReceiveHandler(UserContext *context) {
         readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
         TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
     }
-    //free(buf);
-    //get length that process at head of readBlocked queue wants
-    //DOESN'T POP IF THERE IS A HEAD THAT HAS LENGTH OF 0 OR TOTALOVERFLOW IS 0
+
     int len = 0;
     int overFlowLeft = tty->totalOverflowLen;
     int lenReturned;
-	while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
+    while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
         reading_pcb = (PCB*)(tty->readBlocked->head->data);
         reading_pcb->user_context.regs[0]=0;
 		len = reading_pcb->user_context.regs[2];

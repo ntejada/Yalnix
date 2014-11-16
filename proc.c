@@ -208,10 +208,21 @@ void LoadNextProc(UserContext *context, int block) {
     }
 }
 
+void DoPS() {
+    for (List *process = process_queue->head; process; process = process->next) {
+	if (((ZCB *) process->data)->status == DEAD) {
+	    // Indicate zombie process
+	} else {
+	    // Print pid normally
+	}
+    }
+}
+
 void KillProc(PCB *pcb) {
     TracePrintf(2, "KillProc\n");
 
     PCB *parent = pcb->parent;
+
     if (parent) {
         if (parent->status == WAITING) {
             queueRemove(wait_queue, parent);
@@ -219,10 +230,10 @@ void KillProc(PCB *pcb) {
         } else {
 	    ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
 	    zombie->id = pcb->id;
-	    zombie->status = pcb->status;
+	    zombie->status = DEAD;
+	    zombie->exit_status = pcb->status;
 	    queuePush(parent->deadChildren, zombie);
-	    
-
+	    queuePush(process_queue, zombie);
 	}
     }
 
@@ -235,6 +246,11 @@ void KillProc(PCB *pcb) {
         queueRemove(pcb->parent->children, pcb);
     }
 
+    // Update process queue
+    queueRemove(process_queue, pcb);
+    
+    
+
     FreePCB(pcb);
 }
 
@@ -244,7 +260,9 @@ void FreePCB(PCB *pcb) {
     }
 
     while(!queueIsEmpty(pcb->deadChildren)) {
-        free(queuePop(pcb->deadChildren));
+	ZCB *zombie = queuePop(pcb->deadChildren);
+	queueRemove(process_queue, zombie);
+	free(zombie)
     }
 
     free(pcb->children);
