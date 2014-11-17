@@ -69,9 +69,11 @@ void KernelCallHandler(UserContext *context) {
         case YALNIX_TTY_WRITE:
             DoTtyWrite(context);
             break;
+	    /*
         case YALNIX_CUSTOM_0:
 	    DoSpoon(context);
 	    break;
+	    */
 #ifdef LINUX
         case YALNIX_PIPE_INIT:
             DoPipeInit(context);
