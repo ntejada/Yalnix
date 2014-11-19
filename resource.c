@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "lock.h"
 #include "cvar.h"
+#include "sem.h"
 #include "pipe.h"
 #include "std.h"
 #include "util/queue.h"
