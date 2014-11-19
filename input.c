@@ -10,8 +10,12 @@ BufferReadCheck(void *buf, int len) {
     char *ptr = (char *) buf;
     for (int i = 0; i < len; i++, ptr++) {
 		int page = DOWN_TO_PAGE(ptr-VMEM_1_BASE) >> PAGESHIFT;
-		// Has no read permissions
-		char* buffer = (char*) buf;
+
+		if (!(ptr >= VMEM_1_BASE && ptr <= VMEM_1_LIMIT)) {
+		    TracePrintf(1, "BufferReadCheck: Address issued not in Region 1\n");
+		    return ERROR;
+		}
+
 		if (current_process->pageTable[page].prot == PROT_NONE || !current_process->pageTable[page].valid) {
 		    TracePrintf(1, "BufferReadCheck: Does not have read permissions for page %d\n", page);
 		    return ERROR;
@@ -27,9 +31,15 @@ BufferWriteCheck(void *buf, int len) {
     char *ptr = (char *) buf;
     for (int i = 0; i < len; i++, ptr++) {
         int page = DOWN_TO_PAGE(ptr) >> PAGESHIFT;
+	// Check to make sure it's in region 1.
+	if (!(ptr >= VMEM_1_BASE && ptr <= VMEM_1_LIMIT)) {
+	    TracePrintf(1, "BufferWriteCheck: Address issued not in Region 1\n");
+	    return ERROR;
+	}
+	
         // Has no read permissions                                                                                                          
-        if (current_process->pageTable[page].prot != PROT_READ | PROT_WRITE) {
-            TracePrintf(1, "BufferReadCheck: Does not have write permission for page %d\n", page);
+        if (current_process->pageTable[page].prot != PROT_READ | PROT_WRITE || !current_process->pageTable[page].valid) {
+            TracePrintf(1, "BufferWriteCheck: Does not have write permission for page %d\n", page);
             return ERROR;
         }
     }
