@@ -16,5 +16,6 @@ extern void queuePush(Queue *, void *);
 extern void * queuePop(Queue *);
 extern int queueIsEmpty(Queue *);
 extern void queueRemove(Queue *, void *);
+extern int queueContains(Queue *, void *);
 
 #endif /*!_queue_h*/

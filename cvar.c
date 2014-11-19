@@ -34,6 +34,11 @@ void DoCvarInit(UserContext *context) {
 
 void DoCvarSignal(UserContext *context) {
     Cvar *cvar = (Cvar *) GetResource(context->regs[0]);
+    if (cvar == NULL) {
+        TracePrintf(2, "DoCvarWait: No Cvar found.\n");
+        context->regs[0] = ERROR;
+        return;
+    }
 
     PCB *pcb = queuePop(cvar->waiting);
     if (pcb) {
@@ -46,6 +51,11 @@ void DoCvarSignal(UserContext *context) {
 
 void DoCvarBroadcast(UserContext *context) {
     Cvar *cvar = (Cvar *) GetResource(context->regs[0]);
+    if (cvar == NULL) {
+        TracePrintf(2, "DoCvarWait: No Cvar found.\n");
+        context->regs[0] = ERROR;
+        return;
+    }
 
     if (queueIsEmpty(cvar->waiting)) {
         context->regs[0] = ERROR;
@@ -103,17 +113,3 @@ int ReclaimCvar(Cvar *cvar) {
     }
 }
 
-/*
-int CvarOntoLockQueue(CV_Helper *cv_h) {
-    Lock *lock = (Lock *) GetResource(cv_h->lock_id);
-
-    if (lock == NULL) {
-        TracePrintf(2, "PutCvarOnLockQueue: Lock not found.\n");
-        return ERROR;
-    }
-
-    lock->cvars--;
-    queuePush(lock->waiting, cv_h->pcb);
-    return SUCCESS;
-}
-*/

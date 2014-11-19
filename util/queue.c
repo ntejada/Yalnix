@@ -59,8 +59,6 @@ queuePop(Queue *queue) {
 void
 queueRemove(Queue *queue, 
         void *data) {
-
-
     List *list = queue->head;
 
     // Move to where the data is.
@@ -99,4 +97,12 @@ queueIsEmpty(Queue *queue) {
         TracePrintf(4, "queueIsEmpty: queue is empty\n");
     }
     return (queue->head == NULL);
+}
+
+int
+queueContains(Queue *queue, void *data) {
+    List *list;
+    // Move to where the data is.
+    for (list = queue->head; list && list->data != data; list = list->next);
+    return (NULL != list);
 }

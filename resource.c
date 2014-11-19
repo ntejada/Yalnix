@@ -10,6 +10,7 @@ void InitResources() {
     locks = queueNew();
     cvars = queueNew();
     pipes = queueNew();
+    sems = queueNew();
 }
 
 void *GetResource(int res_id) {
@@ -20,6 +21,9 @@ void *GetResource(int res_id) {
             break;
         case CVAR:
             queue = cvars;
+            break;
+        case SEM:
+            queue = sems;
             break;
         case PIPE:
             queue = pipes;
@@ -54,6 +58,9 @@ void DoReclaim(UserContext *context) {
             break;
         case CVAR:
             context->regs[0] = ReclaimCvar((Cvar *) resource);
+            break;
+        case SEM:
+            context->regs[0] = ReclaimSem((Sem *) resource);
             break;
         case PIPE:
             context->regs[0] = ReclaimPipe((Pipe *) resource);

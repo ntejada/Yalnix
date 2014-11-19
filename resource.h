@@ -11,10 +11,11 @@
 #include <hardware.h>
 #include "util/queue.h"
 
-#define NUM_RESOURCE_TYPES 3
+#define NUM_RESOURCE_TYPES 4
 #define LOCK 0
 #define CVAR 1
-#define PIPE 2
+#define SEM  2
+#define PIPE 3
 
 typedef struct resource_t {
     int id;
