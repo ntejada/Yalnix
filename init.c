@@ -3,6 +3,8 @@
 #include "proc.h"
 #include "frames.h"
 #include "load.h"
+#include "tty.h"
+#include "resource.h"
 
 struct pte pZeroTable[MAX_PT_LEN];
 int vmem_on;
@@ -20,15 +22,18 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 {
 
     InitTrapVector();
+    InitTTY();
     availableFramesListInit(pmem_size);
     //
     // Set up idlePCB                                                                                                 
-    PCB *idlePCB = (PCB*)malloc(sizeof(PCB));
+    PCB *idlePCB = (PCB*) malloc(sizeof(PCB));
     memset(idlePCB, 0, sizeof(PCB));
     PCB_Init(idlePCB);
     idlePCB->status = RUNNING;
     idlePCB->id = pidCount++;
     current_process = idlePCB;
+
+    
 
     PageTableInit(idlePCB);
     idlePCB->kStackPages[0] = pZeroTable[KERNEL_STACK_BASE>>PAGESHIFT].pfn;
@@ -40,10 +45,12 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
     // Initialize Queues                                                                                             
     TracePrintf(1, "Initialize queues\n");
+    process_queue = queueNew();
     ready_queue = queueNew();
     delay_queue = queueNew();
     wait_queue = queueNew();
-
+    InitResources();
+    
     // Set up initPCB
     PCB *initPCB = (PCB*)malloc(sizeof(PCB));
     memset(initPCB, 0, sizeof(PCB));
@@ -55,6 +62,11 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
     queuePush(ready_queue, initPCB);
     TracePrintf(1, "Init Process Id: %d\n", initPCB->id);
     TracePrintf(1, "pidCount: %d\n", pidCount);
+
+    // Push first two processes onto overall process queue.
+    queuePush(process_queue, idlePCB);
+    queuePush(process_queue, initPCB);
+
 
     char* args[3];
     args[0]="1";
@@ -77,6 +89,10 @@ void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt)
 
         return;
     } else {
+        // Default to init if not starting process given at yalnix command line
+        if (!cmd_args[0]) {
+            cmd_args[0] = "./initInit";
+        }
         args[1]=cmd_args[0];
         TracePrintf(1, "%s\n", cmd_args[0]);
         rc = LoadProgram(cmd_args[0], args, initPCB);

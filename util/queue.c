@@ -6,16 +6,16 @@
 Queue *
 queueNew() {
     Queue *queue = malloc(sizeof(Queue));
-        queue->head = queue->tail = NULL;
+    queue->head = queue->tail = NULL;
     queue->length = 0;
     return queue;
 }
 
 void
 queuePush(Queue *queue,
-          void *data) {
+        void *data) {
 
-    TracePrintf(2, "queuePush\n");
+    TracePrintf(4, "queuePush: data is at %p\n", data);
 
     queue->tail = listAppend(queue->tail, data);
     if (queue->tail->next)
@@ -27,13 +27,11 @@ queuePush(Queue *queue,
 
 void *
 queuePop(Queue *queue) {
-
-
     if (queue->head) {
-        
 
+        TracePrintf(4, "QueuePop: Data returned\n");
 
-	List *node = queue->head;
+        List *node = queue->head;
         void *data = node->data;
 
         queue->head = node->next;
@@ -41,12 +39,14 @@ queuePop(Queue *queue) {
             queue->head->prev = NULL;
         else
             queue->tail = NULL;
+        TracePrintf(4, "QueuePop: Data returned %p\n", node);
         free(node);
+        TracePrintf(4, "QueuePop: Data returned\n");
         queue->length--;
-        TracePrintf(1, "QueuePop: Data returned: %p\n", data);
+        TracePrintf(4, "QueuePop: Data returned: %p\n", data);
         return data;
     }
-    
+
     return NULL;
 }
 
@@ -58,11 +58,9 @@ queuePop(Queue *queue) {
 
 void
 queueRemove(Queue *queue, 
-	        void *data) {
-
-
+        void *data) {
     List *list = queue->head;
-    
+
     // Move to where the data is.
     while (list && list->data != data) {
         list = list->next;
@@ -74,9 +72,9 @@ queueRemove(Queue *queue,
             queue->head = list->next;
             if (queue->head) {
                 queue->head->prev = NULL;
-	    } else {
-		queue->tail = NULL;
-	    }
+            } else {
+                queue->tail = NULL;
+            }
         } else if (list == queue->tail) {
             queue->tail = list->prev;
             if (queue->tail) {
@@ -94,9 +92,17 @@ queueRemove(Queue *queue,
 
 int
 queueIsEmpty(Queue *queue) {
-    TracePrintf(2, "queue->head = %p, queue->length = %d\n", queue->head, queue->length);
+    TracePrintf(4, "queueIsEmpty: queue->head = %p, queue->length = %d\n", queue->head, queue->length);
     if (queue->head == NULL) {
-        TracePrintf(2, "queueIsEmpty: queue is empty\n");
+        TracePrintf(4, "queueIsEmpty: queue is empty\n");
     }
     return (queue->head == NULL);
+}
+
+int
+queueContains(Queue *queue, void *data) {
+    List *list;
+    // Move to where the data is.
+    for (list = queue->head; list && list->data != data; list = list->next);
+    return (NULL != list);
 }

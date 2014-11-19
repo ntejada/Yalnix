@@ -16,6 +16,10 @@
 #include "std.h"
 #include "frames.h"
 #include "init.h"
+#include "tty.h"
+#include "lock.h"
+#include "cvar.h"
+#include "pipe.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -60,57 +64,62 @@ void KernelCallHandler(UserContext *context) {
         case YALNIX_DELAY:
             DoDelay(context);
             break;
-            /*
-               case YALNIX_TTY_READ:
-               doTtyRead(context);
-               break;
-               case YALNIX_TTY_WRITE:
-               doTtyWrite(context);
-               break;
-
-
+        case YALNIX_TTY_READ:
+            DoTtyRead(context);
+            break;
+        case YALNIX_TTY_WRITE:
+            DoTtyWrite(context);
+            break;
+	    /*
+        case YALNIX_CUSTOM_0:
+	    DoSpoon(context);
+	    break;
+	    */
+        case YALNIX_CUSTOM_1:
+	    DoPS(context);
+	    break;
 #ifdef LINUX
-case YALNIX_PIPE_INIT:
-doPipeInit(context);
-break;
-case YALNIX_PIPE_READ:
-doPipeRead(context);
-break;
-case YALNIX_PIPE_WRITE:
-doPipeWrite(context);
-break;
-case YALNIX_LOCK_INIT:
-doLockInit(context);
-break;
-case YALNIX_LOCK_ACQUIRE:
-doLockAcquire(context);
-break;
-case YALNIX_LOCK_RELEASE:
-doLockRelease(context);
-break;
-case YALNIX_CVAR_INIT:
-doCvarWait(context);
-break;
-case YALNIX_CVAR_SIGNAL:
-doCvarSignal(context);
-break;
-case YALNIX_CVAR_BROADCAST:
-doCvarBroadcast(context);
-break;
-case YALNIX_CVAR_WAIT:
-doCvarWait(context);
-break;
-case YALNIX_RECLAIM:
-doReclaim(context);
-break;
+        case YALNIX_PIPE_INIT:
+            DoPipeInit(context);
+            break;
+        case YALNIX_PIPE_READ:
+            DoPipeRead(context);
+            break;
+        case YALNIX_PIPE_WRITE:
+            DoPipeWrite(context);
+            break;
+        case YALNIX_LOCK_INIT:
+            DoLockInit(context);
+            break;
+        case YALNIX_LOCK_ACQUIRE:
+            DoLockAcquire(context);
+            break;
+        case YALNIX_LOCK_RELEASE:
+            DoLockRelease(context);
+            break;
+        case YALNIX_CVAR_INIT:
+            DoCvarInit(context);
+            break;
+        case YALNIX_CVAR_SIGNAL:
+            DoCvarSignal(context);
+            break;
+        case YALNIX_CVAR_BROADCAST:
+            DoCvarBroadcast(context);
+            break;
+        case YALNIX_CVAR_WAIT:
+            DoCvarWait(context);
+            break;
+        case YALNIX_RECLAIM:
+            DoReclaim(context);
+            break;
 #endif // LINUX
-*/
     }
 }
 
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
     DelayUpdate();
+    DelayPop();
     LoadNextProc(context, NO_BLOCK);
 }
 
@@ -185,7 +194,6 @@ void MemoryHandler(UserContext *context) {
 	       copyOnWrite(pageNum, current_process);
 	   }
 	   break;
-	
     }
     
 	TracePrintf(1, "TrapMemory: pc is %p\n", context->pc);
@@ -194,11 +202,84 @@ void MemoryHandler(UserContext *context) {
 
 void TtyReceiveHandler(UserContext *context) {
     // Pass into a buffer that holds input
+    TracePrintf(4, "TtyReceiveHandler\n");
+    int tty_id = context->code;
+    TTY* tty = &(ttys[tty_id]);
+    PCB * reading_pcb;
+    // Move everything on input line into tty's buffer in memory
+    int readLen;
+    // void *buf = (void *)malloc(READ_LEN*sizeof(char));
+    char *buf = (char *)malloc(READ_LEN*sizeof(char));
+    readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
+    TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
+    int j;
+
+    
+    while(readLen>1) { 
+        if(buf[readLen-1] == '\n'){
+            TracePrintf(4, "TtyReceiveHandler: getting rid of new line character\n");
+            buf[readLen-1]='\0';
+            readLen--;
+        }   
+        Overflow *over = (Overflow *) malloc(sizeof(Overflow));
+        over->addr = over->base = buf;
+        for(j = 0; j < READ_LEN; j++){
+            TracePrintf(4, "TtyReceiveHandler: %d char is %hu or char %c\n", j, buf[j], buf[j]);
+        }
+        over->len = readLen;
+        tty->totalOverflowLen += readLen;
+        queuePush(tty->overflow, over);
+        buf = (char *)malloc(READ_LEN*sizeof(char));
+        //memset(buf, 0, sizeof(buf));
+        readLen = TtyReceive(tty_id, (void*)buf, READ_LEN); 
+        TracePrintf(4, "TtyReceiveHandler: readLen is %d\n", readLen);
+    }
+
+    int len = 0;
+    int overFlowLeft = tty->totalOverflowLen;
+    int lenReturned;
+    while(!queueIsEmpty(tty->readBlocked) && overFlowLeft > 0) {
+        reading_pcb = (PCB*)(tty->readBlocked->head->data);
+        reading_pcb->user_context.regs[0]=0;
+		len = reading_pcb->user_context.regs[2];
+        //memset(reading_pcb->readBuf, 0, sizeof(reading_pcb->readBuf));
+        lenReturned = ReadFromBuffer(tty, reading_pcb->readBuf, len);
+       	reading_pcb->user_context.regs[0] = lenReturned; 
+		queuePush(ready_queue, queuePop(tty->readBlocked));
+        overFlowLeft -= len;                       
+    }    	
+    TracePrintf(4, "TtyReceiveHandler: Exiting\n");
 }
 
 void TtyTransmitHandler(UserContext *context) {
     // Write out to Tty
+    int tty_id = context->code;
+    TTY* tty = &(ttys[tty_id]);
+    TracePrintf(4, "TtyTransmitHandler: tty_id is %d and has %d left to transmit\n", tty_id, tty->lenLeftToWrite);
+    if (tty->lenLeftToWrite == 0) {
+        TracePrintf(4, "TtyTransmitHandler: Terminal %d finished writing for PCB->id: %d\n", tty_id, tty->writePCB->id);
+        free(tty->writeBase);
+        queuePush(ready_queue, tty->writePCB);
+        tty->writePCB = NULL;
+        tty->writeBuf = NULL;
+        if(!queueIsEmpty(tty->writeBlocked)){
+            PCB* nextPCB = (PCB*)queuePop(tty->writeBlocked);
+            queuePush(ready_queue, (void*)nextPCB);
+            tty->writePCB = nextPCB;
+        }
+    } else if (tty->lenLeftToWrite > TEST_LENGTH) {
+        TracePrintf(4, "current user context pc is %p\n", context->pc);
+        TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
+        tty->writeBuf = tty->writeBuf + TEST_LENGTH;
+        tty->lenLeftToWrite = tty->lenLeftToWrite - TEST_LENGTH;
+    } else {
+        TtyTransmit(tty_id, tty->writeBuf, tty->lenLeftToWrite);
+        tty->lenLeftToWrite = 0;
+    }
+    current_process->user_context = *context;
 }
+
+
 
 void DiskHandler(UserContext *context) {
     InvalidTrapHandler(context);
@@ -213,3 +294,6 @@ void InvalidTrapHandler(UserContext *context) {
     LoadNextProc(context, BLOCK);
 
 }
+
+
+

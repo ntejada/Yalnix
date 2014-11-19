@@ -22,7 +22,9 @@
 #define RUNNING 1
 #define BLOCKED 2
 #define WAITING 3
+#define DEAD 4
 #define NEW 12
+
 
 
 #define BLOCK 1
@@ -45,7 +47,7 @@ struct pcb_t {
     int status;         /* Running, blocked, or exit status */
     PCB *parent;        /* Pointer to the parent's PCB */
     int clock_count;    /* Remain time to wait after a Delay() call */
-
+	char *readBuf;
     /* Process's page table */
     COWPageTable cow;
 
@@ -64,6 +66,7 @@ struct pcb_t {
 struct zcb_t {
     int id;
     int status;
+    int exit_status;
 };
 
 extern unsigned int pidCount; // Counter for next PID
@@ -72,7 +75,7 @@ extern PCB *current_process;
 extern Queue *ready_queue;
 extern Queue *delay_queue;
 extern Queue *wait_queue;
-
+extern Queue *process_queue;
 
 /* Prototypes of process helper functions */
 extern void PCB_Init(PCB *);
@@ -82,11 +85,13 @@ extern void Ready(PCB *);
 
 /* Prototypes of process do-functions */
 extern void DoFork(UserContext *);
+//extern void DoSpoon(UserContext *);
 extern void DoExec(UserContext *);
 extern void DoExit(UserContext *);
 extern void DoWait(UserContext *);
 extern void DoGetPid(UserContext *);
 extern void DoBrk(UserContext *);
+extern void DoPS(UserContext *);
 extern void DoDelay(UserContext *);
 extern void LoadNextProc(UserContext *, int);
 extern void KillProc(PCB *);

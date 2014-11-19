@@ -15,6 +15,9 @@
 #include "frames.h"
 
 PCB *current_process;
+
+Queue *process_queue;
+
 Queue *ready_queue;
 Queue *delay_queue;
 Queue *wait_queue;
@@ -81,6 +84,12 @@ void DoFork(UserContext *context) {
 		context->regs[0] = newPid;
 	}
 }
+/*
+void DoSpoon(UserContext *context) {
+
+
+}
+*/
 
 void DoExec(UserContext *context) {
 	TracePrintf(5, "DoExec\n");
@@ -96,9 +105,14 @@ void DoExec(UserContext *context) {
 }
 
 void DoExit(UserContext *context) {
-	if (current_process->parent) {
-		current_process->status = context->regs[0];
-	}
+    if (1 == current_process->id) {
+	TracePrintf(1, "Do Exit: init program exiting. Now calling halt.\n");
+	Halt();
+    }
+    
+    if (current_process->parent) {
+        current_process->status = context->regs[0];
+    }
 
 	TracePrintf(2, "DoExit\n");
 
@@ -120,10 +134,11 @@ void DoWait(UserContext *context) {
 			LoadNextProc(context, BLOCK);
 		}
 
-		ZCB *child = queuePop(current_process->deadChildren);
-		*((int *)context->regs[0]) = child->status;
-		context->regs[0] = child->id;
-	}
+        ZCB *child = queuePop(current_process->deadChildren);
+	queueRemove(process_queue, child);
+        *((int *)context->regs[0]) = child->status;
+        context->regs[0] = child->id;
+    }
 }
 
 void DoGetPid(UserContext *context) {
@@ -172,11 +187,24 @@ void DoBrk(UserContext *context) {
 
 }
 
+void DoPS(UserContext *context) {
+    TracePrintf(3, "DoPS: In DoPS\n");
+    for (List *process = process_queue->head; process; process = process->next) {
+        if (((ZCB *) process->data)->status == DEAD) {
+            TracePrintf(1, "PID: %d. DEAD\n", ((ZCB *) process->data)->id);
+        } else {
+            TracePrintf(1, "PID: %d.\n", ((PCB *) process->data)->id);
+        }
+    }
+    context->regs[0] = SUCCESS;
+    return;
+}
+
+
 void DoDelay(UserContext *context) {
 	TracePrintf(1, "in DoDelay\n");
 	current_process->clock_count = context->regs[0];
 	TracePrintf(1, "Delay: %d\n", context->regs[0]);
-	TracePrintf(1, "Delay: %p\n", context->pc);
 	DelayAdd(current_process);
 	LoadNextProc(context, BLOCK);
 }
@@ -202,6 +230,8 @@ void LoadNextProc(UserContext *context, int block) {
         KernelContextSwitch(MyKCS, current_process, next);
         TracePrintf(1, "LoadNextProc: Got past MyKCS\n");
         *context = current_process->user_context;
+		
+		TracePrintf(3, "LoadNextProc: current user context pc is %p\n", context->pc);
     }
 }
 
@@ -209,26 +239,33 @@ void KillProc(PCB *pcb) {
     TracePrintf(2, "KillProc\n");
 
     PCB *parent = pcb->parent;
+
     if (parent) {
         if (parent->status == WAITING) {
             queueRemove(wait_queue, parent);
             queuePush(ready_queue, parent);
-        }
+	}
+	ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
+	zombie->id = pcb->id;
+	zombie->status = DEAD;
+	zombie->exit_status = pcb->status;
+	queuePush(parent->deadChildren, zombie);
+	queuePush(process_queue, zombie);
 
-        ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
-        zombie->id = pcb->id;
-        zombie->status = pcb->status;
-        queuePush(parent->deadChildren, zombie);
     }
 
 
-    for(List *child = current_process->children->head; child; child = child->next)
+    for (List *child = current_process->children->head; child; child = child->next)
         ((PCB *) child->data)->parent = NULL;
-
 
     if (pcb->parent) {
         queueRemove(pcb->parent->children, pcb);
     }
+
+    // Update process queue
+    queueRemove(process_queue, pcb);
+    
+    
 
     FreePCB(pcb);
 }
@@ -240,7 +277,9 @@ void FreePCB(PCB *pcb) {
     }
 
     while(!queueIsEmpty(pcb->deadChildren)) {
-        free(queuePop(pcb->deadChildren));
+	ZCB *zombie = queuePop(pcb->deadChildren);
+	queueRemove(process_queue, zombie);
+	free(zombie);
     }
 
     free(pcb->children);
