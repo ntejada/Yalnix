@@ -184,8 +184,8 @@ extern int CvarBroadcast _PARAMS((int));
 
 extern int Reclaim _PARAMS((int));
 
-extern int Custom0 _PARAMS((int,int,int,int));
-extern int Custom1 _PARAMS((int,int,int,int));
+    extern int Custom0 _PARAMS((void));
+extern int Custom1 _PARAMS((void));
 extern int Custom2 _PARAMS((int,int,int,int));
 
 /*

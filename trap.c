@@ -74,6 +74,9 @@ void KernelCallHandler(UserContext *context) {
 	    DoSpoon(context);
 	    break;
 	    */
+        case YALNIX_CUSTOM_1:
+	    DoPS(context);
+	    break;
 #ifdef LINUX
         case YALNIX_PIPE_INIT:
             DoPipeInit(context);

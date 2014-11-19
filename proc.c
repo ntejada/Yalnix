@@ -80,6 +80,12 @@ void DoFork(UserContext *context) {
 	context->regs[0] = pid;
     }
 }
+/*
+void DoSpoon(UserContext *context) {
+
+
+}
+*/
 
 void DoExec(UserContext *context) {
     TracePrintf(5, "DoExec\n");
@@ -125,6 +131,7 @@ void DoWait(UserContext *context) {
         }
 
         ZCB *child = queuePop(current_process->deadChildren);
+	queueRemove(process_queue, child);
         *((int *)context->regs[0]) = child->status;
         context->regs[0] = child->id;
     }
@@ -177,6 +184,20 @@ void DoBrk(UserContext *context) {
 
 }
 
+void DoPS(UserContext *context) {
+    TracePrintf(3, "DoPS: In DoPS\n");
+    for (List *process = process_queue->head; process; process = process->next) {
+        if (((ZCB *) process->data)->status == DEAD) {
+            TracePrintf(1, "PID: %d. DEAD\n", ((ZCB *) process->data)->id);
+        } else {
+            TracePrintf(1, "PID: %d.\n", ((PCB *) process->data)->id);
+        }
+    }
+    context->regs[0] = SUCCESS;
+    return;
+}
+
+
 void DoDelay(UserContext *context) {
     TracePrintf(1, "in DoDelay.\n");
     
@@ -208,16 +229,6 @@ void LoadNextProc(UserContext *context, int block) {
     }
 }
 
-void DoPS() {
-    for (List *process = process_queue->head; process; process = process->next) {
-	if (((ZCB *) process->data)->status == DEAD) {
-	    // Indicate zombie process
-	} else {
-	    // Print pid normally
-	}
-    }
-}
-
 void KillProc(PCB *pcb) {
     TracePrintf(2, "KillProc\n");
 
@@ -227,20 +238,19 @@ void KillProc(PCB *pcb) {
         if (parent->status == WAITING) {
             queueRemove(wait_queue, parent);
             queuePush(ready_queue, parent);
-        } else {
-	    ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
-	    zombie->id = pcb->id;
-	    zombie->status = DEAD;
-	    zombie->exit_status = pcb->status;
-	    queuePush(parent->deadChildren, zombie);
-	    queuePush(process_queue, zombie);
 	}
+	ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
+	zombie->id = pcb->id;
+	zombie->status = DEAD;
+	zombie->exit_status = pcb->status;
+	queuePush(parent->deadChildren, zombie);
+	queuePush(process_queue, zombie);
+
     }
 
 
     for (List *child = current_process->children->head; child; child = child->next)
         ((PCB *) child->data)->parent = NULL;
-
 
     if (pcb->parent) {
         queueRemove(pcb->parent->children, pcb);
@@ -262,7 +272,7 @@ void FreePCB(PCB *pcb) {
     while(!queueIsEmpty(pcb->deadChildren)) {
 	ZCB *zombie = queuePop(pcb->deadChildren);
 	queueRemove(process_queue, zombie);
-	free(zombie)
+	free(zombie);
     }
 
     free(pcb->children);

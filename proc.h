@@ -78,11 +78,13 @@ extern void Ready(PCB *);
 
 /* Prototypes of process do-functions */
 extern void DoFork(UserContext *);
+//extern void DoSpoon(UserContext *);
 extern void DoExec(UserContext *);
 extern void DoExit(UserContext *);
 extern void DoWait(UserContext *);
 extern void DoGetPid(UserContext *);
 extern void DoBrk(UserContext *);
+extern void DoPS(UserContext *);
 extern void DoDelay(UserContext *);
 extern void LoadNextProc(UserContext *, int);
 extern void KillProc(PCB *);

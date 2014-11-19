@@ -30,9 +30,9 @@ KERNEL_INCS = $(KERNEL_SRCS:.c=.h) std.h
 
 #List all user programs here.
 
-USER_APPS = initIdle initInit brkTest forkTest forkExecTest exit56 printfTest printfTestExec receiveTest receiveForkTest torture pipeTest #zero bigstack
+USER_APPS = initIdle initInit brkTest forkTest forkExecTest exit56 printfTest printfTestExec receiveTest receiveForkTest torture pipeTest zero psTest #bigstack
 #List all user program source files here.  SHould be the same as the previous list, with ".c" added to each file
-USER_SRCS = initIdle.c initInit.c brkTest.c forkTest.c forkExecTest.c exit56.c printfTest.c printfTestExec.c receiveTest.c receiveForkTest.c torture.c pipeTest.c #./test/zero.c ./test/bigstack.c
+USER_SRCS = initIdle.c initInit.c brkTest.c forkTest.c forkExecTest.c exit56.c printfTest.c printfTestExec.c receiveTest.c receiveForkTest.c torture.c pipeTest.c zero.c psTest.c #./test/bigstack.c
 
 #List the objects to be formed form the user  source files here.  Should be the same as the prvious list, replacing ".c" with ".o"
 USER_OBJS = $(USER_SRCS:.c=.o)
