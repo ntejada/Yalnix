@@ -47,12 +47,15 @@ struct pcb_t {
     int status;         /* Running, blocked, or exit status */
     PCB *parent;        /* Pointer to the parent's PCB */
     int clock_count;    /* Remain time to wait after a Delay() call */
-	char *readBuf;
+    char *readBuf;
     /* Process's page table */
     COWPageTable cow;
 
     /* Kernel stack pfns associated with this process */
     int kStackPages[KERNEL_STACK_MAXSIZE >> PAGESHIFT];
+
+    int DataPageStart;
+    int NumberDataPages;
 
     /* Process control data */
     Queue *children;     /* List of children */  // PCBs

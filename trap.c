@@ -70,11 +70,11 @@ void KernelCallHandler(UserContext *context) {
         case YALNIX_TTY_WRITE:
             DoTtyWrite(context);
             break;
-	    /*
+
         case YALNIX_CUSTOM_0:
 	    DoSpoon(context);
 	    break;
-	    */
+
         case YALNIX_CUSTOM_1:
 	    DoPS(context);
 	    break;
