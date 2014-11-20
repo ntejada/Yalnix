@@ -5,7 +5,7 @@ main(int argc, char *argv[]) {
     rc = Fork();
     if (0 == rc) {
 	TracePrintf(1, "pcTest: In child. Calling PS\n");
-		Custom1();
+	Custom1();
 	Exit(13);
     } else {
 	TracePrintf(1, "pcTest: In parent: about to call ps, then delay, then ps, then wait, then ps\n");

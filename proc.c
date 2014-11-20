@@ -69,12 +69,14 @@ void DoFork(UserContext *context) {
 	// Return 0 to child and arm the child for execution.
 	child->user_context = *context;
 	queuePush(ready_queue, child);
+	queuePush(process_queue, child);
 	TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
 	KernelContextSwitch(ForkKernel, current_process, child);
 	
 	// Return child's pid to parent and resume execution of the parent.
 	if (current_process->id == newPid) {
 		TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc);
+		
 		*context = current_process->user_context;
 		context->regs[0] = 0;
 	
@@ -84,12 +86,46 @@ void DoFork(UserContext *context) {
 		context->regs[0] = newPid;
 	}
 }
-/*
+
 void DoSpoon(UserContext *context) {
+        // Get an available process id.                                                                                       
+        int newPid = pidCount++;
+        PCB *child = (PCB *)malloc(sizeof(PCB));
+
+        // If for any reason we can't fork, return ERROR to calling process.                                                  
+        if (!newPid || !child) {
+                context->regs[0] = ERROR;
+                return;
+        }
+
+        PCB_Init(child);
+        child->id = newPid;
+        child->parent = current_process;
+        queuePush(child->parent->children, child);
+        if (queueIsEmpty(child->parent->children))
+                TracePrintf(3, "DoFork: parent queue empty.\n");
 
 
+        child->status = RUNNING;
+
+        // Return 0 to child and arm the child for execution.                                                                 
+        child->user_context = *context;
+        queuePush(ready_queue, child);
+        queuePush(process_queue, child);
+        TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
+        KernelContextSwitch(SpoonKernel, current_process, child);
+
+        // Return child's pid to parent and resume execution of the parent.                                                   
+        if (current_process->id == newPid) {
+                TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc)\
+;
+		*context = current_process->user_context;
+                context->regs[0] = 0;
+	} else {
+                context->regs[0] = newPid;
+        }
 }
-*/
+
 
 void DoExec(UserContext *context) {
 	TracePrintf(5, "DoExec\n");

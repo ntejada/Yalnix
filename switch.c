@@ -59,7 +59,7 @@ KernelContext *ForkKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_p
     return kc_in;
 }
 
-/*
+
 KernelContext *SpoonKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb) {
     PCB *curr = (PCB *) p_curr_pcb;
     PCB *child = (PCB *) p_next_pcb;
@@ -69,9 +69,9 @@ KernelContext *SpoonKernel(KernelContext *kc_in, void *p_curr_pcb, void *p_next_
     child->kernel_context = *kc_in;
 
     CopyStack(child);
-    //CoWRegion1(child);
+    CoWRegion1(child);
     CoW_PreserveGlobal(child);
 
     return kc_in;
 }
-*/
+

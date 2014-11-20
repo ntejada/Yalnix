@@ -172,6 +172,9 @@ int CoWRegion1(PCB *pcb) {
             (*(pcb->cow.refCount[vpn]))++;
 	}
     }
+
+
+    // Don't copy on write the stack. Just allocate new frames because the stack will almost certainly change
     int vpn = limit;
     TracePrintf(2, "CowRegion1: vpn is set to: %d\n", vpn);
 
@@ -201,6 +204,26 @@ int CoWRegion1(PCB *pcb) {
     TracePrintf(1, "CoWRegion1: Exiting\n");
 }
 
+int CoW_PreserveGlobal(PCB *pcb) {
+
+    TracePrintf(2, "CoW_PreserveGlobal: Entering\n");
+
+    for (int vpn = current_process->DataPageStart; vpn < current_process->NumberDataPages; vpn++) {
+
+	current_process->cow.pageTable[vpn].prot = PROT_READ | PROT_WRITE;
+	pcb->cow.pageTable[vpn].prot = PROT_READ | PROT_WRITE;
+
+    }
+
+    TracePrintf(2, "CoW_PreserveGlobal: Exiting\n");
+    return SUCCESS;
+
+}
+
+
+
+
+
 int copyOnWrite(int pageNum, PCB* pcb){
 // Go ahead and change permissions
     TracePrintf(3, "copyOnWrite: called with pcb id %d and pageNum %d and refCount %d and PC %p\n", pcb->id, pageNum, *pcb->cow.refCount[pageNum], pcb->user_context.pc);
@@ -223,11 +246,10 @@ int copyOnWrite(int pageNum, PCB* pcb){
         pZeroTable[PF_COPIER].prot = PROT_NONE;
         pZeroTable[PF_COPIER].valid = 0;
     	pcb->cow.refCount[pageNum]=NULL;
-	} 
-	else {
-        free(pcb->cow.refCount[pageNum]);
-    	pcb->cow.refCount[pageNum] = NULL;
-	}
+    } else {
+	free(pcb->cow.refCount[pageNum]);
+	pcb->cow.refCount[pageNum] = NULL;
+    }
 	TracePrintf(3, "copyOnWrite: Exiting\n"); 
 	return SUCCESS;
 }
@@ -331,22 +353,6 @@ void PageTableInit(PCB * idlePCB)
     unsigned int reg_one_limit = (VMEM_1_LIMIT-VMEM_1_BASE)>>PAGESHIFT;		
     struct pte * reg_one_table = idlePCB->cow.pageTable;
 
-
-    /*
-    // Map invalid pages in Region 1.	
-    for(i = VMEM_0_BASE>>PAGESHIFT; i < (VMEM_0_LIMIT>>PAGESHIFT); i++) {
-    // Create valid entry for idle process.
-    if (i == ((VMEM_0_LIMIT>>PAGESHIFT) - 1)) {
-    reg_one_table[i].valid = 1;
-    reg_one_table[i].pfn = getNextFrame(); 
-    reg_one_table[i].prot = (PROT_READ|PROT_WRITE);
-    TracePrintf(1, "====Created valid entry in region 1. Page: %d\n", i);
-    } else {
-    reg_one_table[i].valid = 0;
-    TracePrintf(1, "======Just created invalid page table entry in region 1. Page: %d.\n", i);
-    }
-    }
-    */
     WriteRegister(REG_PTBR1, (unsigned int) reg_one_table);	
     WriteRegister(REG_PTLR1, reg_one_limit);
     }
