@@ -271,6 +271,11 @@ void LoadNextProc(UserContext *context, int block) {
 void KillProc(PCB *pcb) {
     TracePrintf(2, "KillProc\n");
 
+    if (1 == current_process->id) {
+        TracePrintf(1, "KillProc: init program being killed. Now calling halt.\n");
+        Halt();
+    }
+
     PCB *parent = pcb->parent;
 
     if (parent) {
