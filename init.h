@@ -34,6 +34,7 @@ void DoIdle(void);
 void LoadProgramTest();
 int CopyStack(PCB *);
 int CopyRegion1(PCB *);
+int CoW_PreserveGlobal(PCB *);
 int copyOnWrite(int pageNum, PCB* pcb);
 
 #endif

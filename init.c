@@ -207,12 +207,12 @@ int CoWRegion1(PCB *pcb) {
 int CoW_PreserveGlobal(PCB *pcb) {
 
     TracePrintf(2, "CoW_PreserveGlobal: Entering\n");
+    TracePrintf(2, "Cowpreserve: DataPageStart: %d. NumberDataPages: %d.\n", current_process->DataPageStart, current_process->NumberDataPages);
+    for (int vpn = current_process->DataPageStart; vpn < current_process->NumberDataPages + current_process->DataPageStart; vpn++) {
 
-    for (int vpn = current_process->DataPageStart; vpn < current_process->NumberDataPages; vpn++) {
-
-	current_process->cow.pageTable[vpn].prot = PROT_READ | PROT_WRITE;
-	pcb->cow.pageTable[vpn].prot = PROT_READ | PROT_WRITE;
-
+	current_process->cow.pageTable[vpn].prot = (PROT_READ | PROT_WRITE);
+	pcb->cow.pageTable[vpn].prot = (PROT_READ | PROT_WRITE);
+	TracePrintf(2, "CoW_PreserveGlobal: Current Page: %d. Current prot: %d.\n", vpn, pcb->cow.pageTable[vpn].prot);
     }
 
     TracePrintf(2, "CoW_PreserveGlobal: Exiting\n");

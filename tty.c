@@ -19,7 +19,7 @@ void InitTTY() {
 }
 
 void DoTtyRead(UserContext *context) {
-	TracePrintf(1, "DoTtyRead: called\n");
+    TracePrintf(1, "DoTtyRead: called\n");
     int tty_id = context->regs[0];
     
     if (tty_id >= NUM_TERMINALS || tty_id < 0) {
@@ -27,6 +27,13 @@ void DoTtyRead(UserContext *context) {
 		context->regs[0] = ERROR;
 		return;
     } 
+
+    else if (BufferWriteCheck(context->regs[1], context->regs[2]) == ERROR) {
+        TracePrintf(1, "DoTtyWrite: buffer given not valid. Killing current process.\n");
+        KillProc(current_process);
+        LoadNextProc(context, BLOCK);
+    }
+
 	
     current_process->readBuf = (char*)malloc(sizeof(char)*context->regs[2]);
     int len = context->regs[2];
@@ -41,25 +48,28 @@ void DoTtyRead(UserContext *context) {
         ReadFromBuffer(tty, current_process->readBuf, len);
     } else {
         TracePrintf(1, "DoTtyRead: overflow is empty\n");
-		current_process->user_context = *context;
+	current_process->user_context = *context;
         queuePush(tty->readBlocked, current_process);
-		LoadNextProc(context, BLOCK);
-	}
+	LoadNextProc(context, BLOCK);
+    }
+
     strcpy(context->regs[1], current_process->readBuf);
-	free(current_process->readBuf);
-	TracePrintf(1, "DoTtyRead: exiting\n");
+    free(current_process->readBuf);
+    TracePrintf(1, "DoTtyRead: exiting\n");
 }
 
 void DoTtyWrite(UserContext *context) {
-	TracePrintf(1, "DoTtyWrite: called\n");
+    TracePrintf(1, "DoTtyWrite: called\n");
     int tty_id = context->regs[0];
     char *buf = (char*)(context->regs[1]);
 	
     int len = context->regs[2];
+
     if (tty_id >= NUM_TERMINALS || tty_id < 0) {
-		TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
-		context->regs[0] = ERROR;
+	TracePrintf(1, "DoTtyWrite: tty_id: %d outside of acceptable range\n", tty_id);
+	context->regs[0] = ERROR;
 	return;
+    
     } 
     else if (BufferReadCheck(buf, len) == ERROR) {
 	TracePrintf(1, "DoTtyWrite: buffer given not valid. Killing current process.\n");
@@ -78,21 +88,23 @@ void DoTtyWrite(UserContext *context) {
 	
     tty->writeBase = tty->writeBuf = (char*)(malloc(len*sizeof(char)));
     strcpy(tty->writeBase, buf);
-	TracePrintf(1, "TtyWrite: memcpy to writebase which has address of %p\n", tty->writeBase);
-    	if (len > TEST_LENGTH) {
-		TracePrintf(3, "TtyWrite: write length is over MAX_LINE.\n");
-		TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
-		tty->writeBuf = tty->writeBuf + TEST_LENGTH;
-		tty->lenLeftToWrite = len - TEST_LENGTH;
+    
+    TracePrintf(1, "TtyWrite: memcpy to writebase which has address of %p\n", tty->writeBase);
+    if (len > TEST_LENGTH) {
+	TracePrintf(3, "TtyWrite: write length is over MAX_LINE.\n");
+	TtyTransmit(tty_id, tty->writeBuf, TEST_LENGTH);
+	tty->writeBuf = tty->writeBuf + TEST_LENGTH;
+	tty->lenLeftToWrite = len - TEST_LENGTH;
+    
     } else { 
-		tty->lenLeftToWrite = 0;
-		TtyTransmit(tty_id, tty->writeBuf, len);
+	tty->lenLeftToWrite = 0;
+	TtyTransmit(tty_id, tty->writeBuf, len);
     	TracePrintf(1, "TtyWrite: nothing left to write after transmit\n");
-	}
+    }
 
     tty->writePCB = current_process;
     LoadNextProc(context, BLOCK);
-	TracePrintf(1, "DoTtyWrite: exiting\n");
+    TracePrintf(1, "DoTtyWrite: exiting\n");
 }
 
 int ReadFromBuffer(TTY* tty, char *buf, int len) {
