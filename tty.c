@@ -27,13 +27,13 @@ void DoTtyRead(UserContext *context) {
 		context->regs[0] = ERROR;
 		return;
     } 
-    /*
-    else if (BufferWriteCheck(context->regs[1], context->regs[2]) == ERROR) {
+
+    else if (BufferCheck(context->regs[1], context->regs[2]) == ERROR) {
         TracePrintf(1, "DoTtyWrite: buffer given not valid. Returning with an error.\n");
 	context->regs[0] = ERROR;
 	return;
     }
-    */
+
 	
     current_process->readBuf = (char*)malloc(sizeof(char)*context->regs[2]);
     int len = context->regs[2];
@@ -72,13 +72,13 @@ void DoTtyWrite(UserContext *context) {
 	return;
     
     } 
-    /*
-    else if (BufferReadCheck(buf, len) == ERROR) {
+    
+    else if (BufferCheck(buf, len) == ERROR) {
 	TracePrintf(1, "DoTtyWrite: buffer given not valid. Returning with an error. Hello Pr. Smith.\n");
 	context->regs[0] = ERROR;
 	return;
     }
-    */
+    
     TTY* tty = &(ttys[tty_id]); 
 
     if (tty->writePCB) { // Process currently writing to terminal. So block process.

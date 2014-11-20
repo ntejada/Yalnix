@@ -5,7 +5,7 @@
 
 
 int 
-BufferReadCheck(void *buf, int len) {
+BufferCheck(void *buf, int len) {
 
     char *ptr = (char *) buf;
     for (int i = 0; i < len; i++, ptr++) {
@@ -25,23 +25,3 @@ BufferReadCheck(void *buf, int len) {
 }
 
 
-int 
-BufferWriteCheck(void *buf, int len) {
-
-    char *ptr = (char *) buf;
-    for (int i = 0; i < len; i++, ptr++) {
-        int page = DOWN_TO_PAGE(ptr) >> PAGESHIFT;
-	// Check to make sure it's in region 1.
-	if (!(ptr >= VMEM_1_BASE && ptr <= VMEM_1_LIMIT)) {
-	    TracePrintf(1, "BufferWriteCheck: Address issued not in Region 1\n");
-	    return ERROR;
-	}
-	
-        // Has no read permissions                                                                                                          
-        if (current_process->cow.pageTable[page].prot != PROT_READ | PROT_WRITE || !current_process->cow.pageTable[page].valid) {
-            TracePrintf(1, "BufferWriteCheck: Does not have write permission for page %d\n", page);
-            return ERROR;
-        }
-    }
-    return SUCCESS;
-}

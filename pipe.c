@@ -53,7 +53,7 @@ void DoPipeRead(UserContext *context) {
     int len = context->regs[2];
 
 
-    if (BufferWriteCheck(buf, len) == ERROR) {
+    if (BufferCheck(buf, len) == ERROR) {
 	TracePrintf(1, "DoPipeRead: buffer given not valid. Returning with an error. SEAN SMITH!\n");
 	context->regs[0] = ERROR;
 	return;
@@ -99,7 +99,7 @@ void DoPipeWrite(UserContext *context) {
         return;
     }
 
-    if (BufferReadCheck(buf, len) == ERROR) {
+    if (BufferCheck(buf, len) == ERROR) {
         TracePrintf(1, "DoPipeRead: buffer given not valid. Returning with an error. Hi Sean.\n");
 	context->regs[0] = ERROR;
 	return;
