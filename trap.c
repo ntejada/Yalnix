@@ -141,11 +141,15 @@ void MemoryHandler(UserContext *context) {
     TracePrintf(1, "Trap Memory\n");
     int pageNum = (DOWN_TO_PAGE((int)context->addr - VMEM_1_BASE)>>PAGESHIFT);
     int sp = DOWN_TO_PAGE(current_process->user_context.sp - VMEM_1_BASE)>>PAGESHIFT;
+
 	TracePrintf(2, "TrapMemory: This page has the valid bit set to %d and %d prots and pfn %d\n", current_process->cow.pageTable[pageNum].valid, current_process->cow.pageTable[pageNum].prot, current_process->cow.pageTable[pageNum].pfn);
 	TracePrintf(2, "TrapMemory: Read Write is %d and Read is %d\n", (PROT_READ | PROT_WRITE), PROT_READ);
+	TracePrintf(2, "TrapMemory: Read Exec is %d\n", (PROT_READ | PROT_EXEC));
 	TracePrintf(2, "TrapMemory: MAPERR = %d, ACCERR = %d, this error = %d\n", YALNIX_MAPERR, YALNIX_ACCERR, context->code);
+
     TracePrintf(2, "TrapMemory: New stack pointer = %d. Old stack pointer = %d\n", pageNum, sp);	
     TracePrintf(2, "TrapMemory: Context addr: %p\n", context->addr);
+
     switch (context->code) {
         case YALNIX_MAPERR:
 
@@ -158,25 +162,36 @@ void MemoryHandler(UserContext *context) {
             }
 	    if (current_process->cow.refCount[pageNum] && 
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
-    			TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
-				copyOnWrite(pageNum, current_process); 
-				WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_ALL); 
+
+    		TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
+		copyOnWrite(pageNum, current_process); 
+
+		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
             	break;
-			}
-            for (sp; sp <= pageNum; sp++) {
+		
+      	    }
+	    
+            for (pageNum; pageNum < sp; pageNum++) {
                 current_process->cow.pageTable[pageNum].valid = 1;
                 current_process->cow.pageTable[pageNum].pfn = getNextFrame();
                 current_process->cow.pageTable[pageNum].prot = (PROT_READ | PROT_WRITE);
+		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
+
             }
+	    
             break;
         case YALNIX_ACCERR:
             // Check first to see if it was a copy on write issue, ie. attempt to write to a CoW page
             if (current_process->cow.refCount[pageNum] && 
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
+
     		 TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
-            	 copyOnWrite(pageNum, current_process); 
-            } 
-			else {
+            	 copyOnWrite(pageNum, current_process);
+		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
+
+
+		 break;
+            } else {
                 // Otherwise it was truly a bad memory access.
                 TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
                 TracePrintf(1, "Memory Error: Killing Current Process\n");
@@ -188,14 +203,35 @@ void MemoryHandler(UserContext *context) {
 
             break;
        default:
+	   // Hardware giving bad errors outside of MAPERR and ACCERR so must check for everything.
 	   if (current_process->cow.refCount[pageNum] &&
 	       current_process->cow.pageTable[pageNum].prot == PROT_READ) {
 	       TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
 	       copyOnWrite(pageNum, current_process);
+		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
+
+
+
+	   } else if (current_process->cow.pageTable[pageNum - 1].valid == 1) {
+	       TracePrintf(1, "Memory Error: Attempt to extend stack too close to heap\n");
+
+	       current_process->status = KILL;
+	       KillProc(current_process);
+	       LoadNextProc(context, BLOCK);
+
+	   } else {
+
+	       // Otherwise it was truly a bad memory access.                                                                
+	       TracePrintf(1, "Memory Error: Tried to access page without correct permissions\n");
+	       TracePrintf(1, "Memory Error: Killing Current Process\n");
+
+	       current_process->status = KILL;
+	       KillProc(current_process);
+	       LoadNextProc(context, BLOCK);
+	       
 	   }
 	   break;
     }
-    
 	TracePrintf(1, "TrapMemory: pc is %p\n", context->pc);
 	TracePrintf(1, "TrapMemory: exiting\n");
 }
