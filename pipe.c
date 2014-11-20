@@ -51,7 +51,13 @@ void DoPipeRead(UserContext *context) {
 
     void *buf = context->regs[1];
     int len = context->regs[2];
-    // TODO check integrity of buf pointer?
+
+
+    if (BufferWriteCheck(buf, len) == ERROR) {
+	TracePrintf(1, "DoPipeRead: buffer given not valid. Returning with an error. SEAN SMITH!\n");
+	context->regs[0] = ERROR;
+	return;
+    }
 
     while (!pipe->len) {
         queuePush(pipe->waiting, current_process);
@@ -92,7 +98,13 @@ void DoPipeWrite(UserContext *context) {
         context->regs[0] = ERROR;
         return;
     }
-    // TODO check integrity of buf pointer?
+
+    if (BufferReadCheck(buf, len) == ERROR) {
+        TracePrintf(1, "DoPipeRead: buffer given not valid. Returning with an error. Hi Sean.\n");
+	context->regs[0] = ERROR;
+	return;
+    }
+
 
     PipeBuffer *pipe_buf = malloc(sizeof(PipeBuffer));
     if (pipe_buf == NULL) {

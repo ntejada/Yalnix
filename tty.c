@@ -29,9 +29,9 @@ void DoTtyRead(UserContext *context) {
     } 
 
     else if (BufferWriteCheck(context->regs[1], context->regs[2]) == ERROR) {
-        TracePrintf(1, "DoTtyWrite: buffer given not valid. Killing current process.\n");
-        KillProc(current_process);
-        LoadNextProc(context, BLOCK);
+        TracePrintf(1, "DoTtyWrite: buffer given not valid. Returning with an error.\n");
+	context->regs[0] = ERROR;
+	return;
     }
 
 	
@@ -55,6 +55,7 @@ void DoTtyRead(UserContext *context) {
 
     strcpy(context->regs[1], current_process->readBuf);
     free(current_process->readBuf);
+    context->regs[0] = SUCCESS;
     TracePrintf(1, "DoTtyRead: exiting\n");
 }
 
@@ -72,9 +73,9 @@ void DoTtyWrite(UserContext *context) {
     
     } 
     else if (BufferReadCheck(buf, len) == ERROR) {
-	TracePrintf(1, "DoTtyWrite: buffer given not valid. Killing current process.\n");
-	KillProc(current_process);
-	LoadNextProc(context, BLOCK);
+	TracePrintf(1, "DoTtyWrite: buffer given not valid. Returning with an error. Hello Pr. Smith.\n");
+	context->regs[0] = ERROR;
+	return;
     }
     TTY* tty = &(ttys[tty_id]); 
 
@@ -103,6 +104,8 @@ void DoTtyWrite(UserContext *context) {
     }
 
     tty->writePCB = current_process;
+    context->regs[0] = SUCCESS;
+
     LoadNextProc(context, BLOCK);
     TracePrintf(1, "DoTtyWrite: exiting\n");
 }
