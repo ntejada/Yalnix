@@ -118,7 +118,7 @@ void KernelCallHandler(UserContext *context) {
 
 void ClockHandler(UserContext *context) {
     TracePrintf(2, "In the ClockHandler\n");
-    TracePrintf(4, "%d frames in use\n", (frame_list - frame_list_bp)); 
+    TracePrintf(2, "%d frames in use\n", (frame_list - frame_list_bp)); 
 	DelayUpdate();
     DelayPop();
     LoadNextProc(context, NO_BLOCK);

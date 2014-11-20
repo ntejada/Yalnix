@@ -112,17 +112,14 @@ void DoSpoon(UserContext *context) {
         child->user_context = *context;
         queuePush(ready_queue, child);
         queuePush(process_queue, child);
-        TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
         KernelContextSwitch(SpoonKernel, current_process, child);
 
         // Return child's pid to parent and resume execution of the parent.                                                   
         if (current_process->id == newPid) {
-                TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc)\
-;
-		*context = current_process->user_context;
-                context->regs[0] = 0;
+			*context = current_process->user_context;
+            context->regs[0] = 0;
 	} else {
-                context->regs[0] = newPid;
+            context->regs[0] = newPid;
         }
 }
 
@@ -154,7 +151,7 @@ void DoExit(UserContext *context) {
 
 	KillProc(current_process);
 
-	TracePrintf(2, "Finished the murder\n");
+	TracePrintf(2, "DoExit: Finished the murder\n");
 	LoadNextProc(context, BLOCK);
 }
 
