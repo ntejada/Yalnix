@@ -1,0 +1,461 @@
+** Yalnix level 3 tracing enabled **
+** User Prog level 3 tracing enabled **
+Yalnix     Kernel brk point changed to 0x36000
+Yalnix     frames list init frame_list is at 0x2e340
+Yalnix     ==========Just created pte for page 0 with read and exec rights
+Yalnix     ==========Just created pte for page 1 with read and exec rights
+Yalnix     ==========Just created pte for page 2 with read and exec rights
+Yalnix     ==========Just created pte for page 3 with read and exec rights
+Yalnix     ==========Just created pte for page 4 with read and exec rights
+Yalnix     ==========Just created pte for page 5 with read and exec rights
+Yalnix     ==========Just created pte for page 6 with read and exec rights
+Yalnix     ==========Just created pte for page 7 with read and exec rights
+Yalnix     ==========Just created pte for page 8 with read and exec rights
+Yalnix     ==========Just created pte for page 9 with read and exec rights
+Yalnix     ==========Just created pte for page 10 with read and exec rights
+Yalnix     ==========Just created pte for page 11 with read and exec rights
+Yalnix     ==========Just created pte for page 12 with read and exec rights
+Yalnix     ==========Just created pte for page 13 with read and exec rights
+Yalnix     ==========Just created pte for page 14 with read and exec rights
+Yalnix     ==========Just created pte for page 15 with read and exec rights
+Yalnix     ==========Just created pte for page 16 with read and exec rights
+Yalnix     ==========Just created pte for page 17 with read and exec rights
+Yalnix     ==========Just created pte for page 18 with read and exec rights
+Yalnix     ==========Just created pte for page 19 with read and exec rights
+Yalnix     ==========Just created pte for page 20 with read and exec rights
+Yalnix     ==========Just created pte for page 21 with read and write rights
+Yalnix     ==========Just created pte for page 22 with read and write rights
+Yalnix     ==========Just created pte for page 23 with read and write rights
+Yalnix     ==========Just created pte for page 24 with read and write rights
+Yalnix     ==========Just created pte for page 25 with read and write rights
+Yalnix     ==========Just created pte for page 26 with read and write rights
+Yalnix     ==========Just created pte for page 27. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 28. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 29. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 30. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 31. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 32. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 33. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 34. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 35. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 36. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 37. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 38. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 39. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 40. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 41. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 42. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 43. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 44. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 45. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 46. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 47. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 48. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 49. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 50. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 51. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 52. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 53. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 54. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 55. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 56. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 57. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 58. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 59. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 60. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 61. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 62. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 63. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 64. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 65. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 66. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 67. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 68. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 69. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 70. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 71. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 72. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 73. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 74. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 75. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 76. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 77. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 78. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 79. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 80. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 81. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 82. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 83. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 84. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 85. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 86. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 87. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 88. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 89. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 90. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 91. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 92. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 93. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 94. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 95. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 96. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 97. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 98. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 99. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 100. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 101. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 102. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 103. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 104. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 105. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 106. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 107. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 108. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 109. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 110. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 111. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 112. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 113. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 114. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 115. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 116. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 117. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 118. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 119. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 120. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 121. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 122. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 123. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 124. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 125. It is invalid and has no rights
+Yalnix     ==========Just created pte for page 126 with read and write rights
+Yalnix     ==========Just created pte for page 127 with read and write rights
+Yalnix     Initialize queues
+Yalnix     Init Process Id: 1
+Yalnix     pidCount: 2
+Yalnix     First Switch called. 
+Yalnix     CopyStack
+Yalnix     getNextFrame: base pointer set to 129
+Yalnix     getNextFrame: base pointer set to 130
+Yalnix     Current Process Id: 0
+Yalnix     idlePCB
+Yalnix     prog_size 4, text 2 data 1 bss 1 pages
+Yalnix     LoadProgram: heap_size 4, stack_size 1
+Yalnix     saving arg 0 = '1'
+Yalnix     saving arg 1 = 'idle'
+Yalnix     getNextFrame: base pointer set to 131
+Yalnix     LoadProg: text page 0: valid with frame 130 and read write prots
+Yalnix     getNextFrame: base pointer set to 132
+Yalnix     LoadProg: text page 1: valid with frame 131 and read write prots
+Yalnix     getNextFrame: base pointer set to 133
+Yalnix     data page 2: valid with frame 132 and read write prots
+Yalnix     getNextFrame: base pointer set to 134
+Yalnix     data page 3: valid with frame 133 and read write prots
+Yalnix     getNextFrame: base pointer set to 135
+Yalnix     stack page 127: valid with frame 134 and read write prots
+Yalnix     changed the protections
+Yalnix     PID 0 PTABLE ===== pte 2 has pfn 132 and has valid bit set to 1
+Yalnix     PID 0 PTABLE ===== pte 3 has pfn 133 and has valid bit set to 1
+Yalnix     PID 0 PTABLE ===== pte 4 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 5 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 6 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 7 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 8 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 9 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 10 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 11 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 12 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 13 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 14 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 15 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 16 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 17 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 18 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 19 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 20 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 21 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 22 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 23 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 24 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 25 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 26 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 27 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 28 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 29 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 30 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 31 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 32 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 33 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 34 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 35 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 36 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 37 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 38 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 39 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 40 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 41 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 42 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 43 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 44 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 45 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 46 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 47 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 48 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 49 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 50 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 51 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 52 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 53 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 54 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 55 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 56 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 57 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 58 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 59 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 60 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 61 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 62 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 63 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 64 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 65 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 66 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 67 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 68 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 69 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 70 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 71 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 72 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 73 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 74 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 75 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 76 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 77 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 78 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 79 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 80 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 81 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 82 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 83 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 84 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 85 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 86 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 87 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 88 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 89 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 90 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 91 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 92 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 93 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 94 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 95 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 96 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 97 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 98 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 99 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 100 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 101 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 102 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 103 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 104 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 105 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 106 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 107 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 108 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 109 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 110 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 111 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 112 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 113 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 114 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 115 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 116 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 117 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 118 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 119 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 120 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 121 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 122 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 123 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 124 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 125 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 126 has pfn 0 and has valid bit set to 0
+Yalnix     PID 0 PTABLE ===== pte 127 has pfn 134 and has valid bit set to 1
+Yalnix     rc: 0, idlePCB pc: 1048864
+User Prog  in idle
+Yalnix     In the ClockHandler
+Yalnix     LoadNextProc: Next Process Id: 1
+Yalnix     Current Process Id: 1
+Yalnix     bigstack
+Yalnix     prog_size 4, text 2 data 1 bss 1 pages
+Yalnix     LoadProgram: heap_size 4, stack_size 1
+Yalnix     saving arg 0 = '1'
+Yalnix     saving arg 1 = 'bigstack'
+Yalnix     getNextFrame: base pointer set to 136
+Yalnix     LoadProg: text page 0: valid with frame 135 and read write prots
+Yalnix     getNextFrame: base pointer set to 137
+Yalnix     LoadProg: text page 1: valid with frame 136 and read write prots
+Yalnix     getNextFrame: base pointer set to 138
+Yalnix     data page 2: valid with frame 137 and read write prots
+Yalnix     getNextFrame: base pointer set to 139
+Yalnix     data page 3: valid with frame 138 and read write prots
+Yalnix     getNextFrame: base pointer set to 140
+Yalnix     stack page 127: valid with frame 139 and read write prots
+Yalnix     changed the protections
+Yalnix     PID 1 PTABLE ===== pte 2 has pfn 137 and has valid bit set to 1
+Yalnix     PID 1 PTABLE ===== pte 3 has pfn 138 and has valid bit set to 1
+Yalnix     PID 1 PTABLE ===== pte 4 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 5 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 6 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 7 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 8 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 9 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 10 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 11 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 12 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 13 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 14 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 15 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 16 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 17 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 18 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 19 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 20 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 21 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 22 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 23 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 24 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 25 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 26 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 27 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 28 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 29 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 30 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 31 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 32 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 33 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 34 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 35 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 36 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 37 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 38 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 39 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 40 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 41 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 42 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 43 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 44 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 45 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 46 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 47 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 48 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 49 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 50 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 51 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 52 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 53 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 54 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 55 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 56 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 57 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 58 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 59 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 60 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 61 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 62 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 63 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 64 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 65 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 66 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 67 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 68 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 69 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 70 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 71 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 72 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 73 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 74 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 75 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 76 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 77 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 78 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 79 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 80 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 81 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 82 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 83 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 84 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 85 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 86 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 87 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 88 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 89 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 90 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 91 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 92 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 93 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 94 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 95 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 96 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 97 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 98 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 99 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 100 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 101 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 102 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 103 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 104 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 105 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 106 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 107 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 108 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 109 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 110 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 111 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 112 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 113 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 114 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 115 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 116 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 117 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 118 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 119 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 120 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 121 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 122 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 123 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 124 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 125 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 126 has pfn 0 and has valid bit set to 0
+Yalnix     PID 1 PTABLE ===== pte 127 has pfn 139 and has valid bit set to 1
+Yalnix     rc: 0, bigstack pc: 1048864
+Yalnix     Trap Memory
+Yalnix     TrapMemory: This page has the valid bit set to 0 and 0 prots and pfn 0
+Yalnix     TrapMemory: Read Write is 3 and Read is 1
+Yalnix     TrapMemory: Read Exec is 5
+Yalnix     TrapMemory: MAPERR = 1, ACCERR = 0, this error = 1
+Yalnix     TrapMemory: New stack pointer = 126. Old stack pointer = 127
+Yalnix     TrapMemory: Context addr: 0x1fd6d0
+Yalnix     getNextFrame: base pointer set to 141
+Yalnix     TrapMemory: pc is 0x100265
+Yalnix     TrapMemory: exiting
+User Prog  &big_buffer[0] = 1fd6f8; big_buffer[0] = a
+User Prog  &big_buffer[512] = 1fd8f8; big_buffer[512] = a
+User Prog  &big_buffer[1024] = 1fdaf8; big_buffer[1024] = a
+User Prog  &big_buffer[1536] = 1fdcf8; big_buffer[1536] = a
+User Prog  &big_buffer[2048] = 1fdef8; big_buffer[2048] = a
+User Prog  &big_buffer[2560] = 1fe0f8; big_buffer[2560] = a
+User Prog  &big_buffer[3072] = 1fe2f8; big_buffer[3072] = a
+User Prog  &big_buffer[3584] = 1fe4f8; big_buffer[3584] = a
+User Prog  &big_buffer[4096] = 1fe6f8; big_buffer[4096] = a
+User Prog  &big_buffer[4608] = 1fe8f8; big_buffer[4608] = a
+User Prog  &big_buffer[5120] = 1feaf8; big_buffer[5120] = a
+User Prog  &big_buffer[5632] = 1fecf8; big_buffer[5632] = a
+User Prog  &big_buffer[6144] = 1feef8; big_buffer[6144] = a
+User Prog  &big_buffer[6656] = 1ff0f8; big_buffer[6656] = a
+User Prog  &big_buffer[7168] = 1ff2f8; big_buffer[7168] = a
+User Prog  &big_buffer[7680] = 1ff4f8; big_buffer[7680] = a
+User Prog  &big_buffer[8192] = 1ff6f8; big_buffer[8192] = a
+User Prog  &big_buffer[8704] = 1ff8f8; big_buffer[8704] = a
+User Prog  &big_buffer[9216] = 1ffaf8; big_buffer[9216] = a
+User Prog  &big_buffer[9728] = 1ffcf8; big_buffer[9728] = a
+Yalnix     Do Exit: init program exiting. Now calling halt.
