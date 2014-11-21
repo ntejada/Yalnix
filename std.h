@@ -18,4 +18,7 @@
 
 #define TEST_LENGTH 5
 
+#define Spoon Custom0
+#define PS Custom1
+
 #endif

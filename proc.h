@@ -88,7 +88,7 @@ extern void Ready(PCB *);
 
 /* Prototypes of process do-functions */
 extern void DoFork(UserContext *);
-//extern void DoSpoon(UserContext *);
+extern void DoSpoon(UserContext *);
 extern void DoExec(UserContext *);
 extern void DoExit(UserContext *);
 extern void DoWait(UserContext *);

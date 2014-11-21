@@ -23,199 +23,199 @@ Queue *delay_queue;
 Queue *wait_queue;
 
 void PCB_Init(PCB *pcb) {
-	pcb->children = queueNew();
-	pcb->deadChildren = queueNew();
-	for(int i=0; i<MAX_PT_LEN; i++){
-		pcb->cow.pageTable[i].valid=0;
-	}
+    pcb->children = queueNew();
+    pcb->deadChildren = queueNew();
+    for(int i=0; i<MAX_PT_LEN; i++){
+        pcb->cow.pageTable[i].valid=0;
+    }
 
 }
 
 unsigned int pidCount = 0;
 
 void RestoreState(PCB *proc, UserContext *context) {
-	*context = proc->user_context;
+    *context = proc->user_context;
 }
 
 void SaveState(PCB *proc, UserContext *context) {
-	proc->user_context = *context;
+    proc->user_context = *context;
 }
 
 void Ready(PCB *proc) {
-	queuePush(ready_queue, proc);
+    queuePush(ready_queue, proc);
 }
 
 void DoFork(UserContext *context) {
-	// Get an available process id.
-	int newPid = pidCount++;    
-	PCB *child = (PCB *)malloc(sizeof(PCB));
+    // Get an available process id.
+    int newPid = pidCount++;    
+    PCB *child = (PCB *)malloc(sizeof(PCB));
 
-	// If for any reason we can't fork, return ERROR to calling process.
-	if (!newPid || !child) {
-		context->regs[0] = ERROR;
-		return;
-	}
+    // If for any reason we can't fork, return ERROR to calling process.
+    if (!newPid || !child) {
+        context->regs[0] = ERROR;
+        return;
+    }
 
-	PCB_Init(child);
-	child->id = newPid;
-	child->parent = current_process;
-	queuePush(child->parent->children, child);
-	if (queueIsEmpty(child->parent->children))
-		TracePrintf(3, "DoFork: parent queue empty.\n");
+    PCB_Init(child);
+    child->id = newPid;
+    child->parent = current_process;
+    queuePush(child->parent->children, child);
+    if (queueIsEmpty(child->parent->children))
+        TracePrintf(3, "DoFork: parent queue empty.\n");
 
 
-	child->status = RUNNING;
+    child->status = RUNNING;
 
-	// Return 0 to child and arm the child for execution.
-	child->user_context = *context;
-	queuePush(ready_queue, child);
-	queuePush(process_queue, child);
-	TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
-	KernelContextSwitch(ForkKernel, current_process, child);
-	
-	// Return child's pid to parent and resume execution of the parent.
-	if (current_process->id == newPid) {
-		TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc);
-		
-		*context = current_process->user_context;
-		context->regs[0] = 0;
-	
-	}
+    // Return 0 to child and arm the child for execution.
+    child->user_context = *context;
+    queuePush(ready_queue, child);
+    queuePush(process_queue, child);
+    TracePrintf(1, "DoFork: child pc is %p after fork\n", child->user_context.pc);
+    KernelContextSwitch(ForkKernel, current_process, child);
 
-	else {
-		context->regs[0] = newPid;
-	}
+    // Return child's pid to parent and resume execution of the parent.
+    if (current_process->id == newPid) {
+        TracePrintf(1, "DoFork: PCB %d pc is %p after fork\n", current_process->id, current_process->user_context.pc);
+
+        *context = current_process->user_context;
+        context->regs[0] = 0;
+
+    }
+
+    else {
+        context->regs[0] = newPid;
+    }
 }
 
 void DoSpoon(UserContext *context) {
-        // Get an available process id.                                                                                       
-        int newPid = pidCount++;
-        PCB *child = (PCB *)malloc(sizeof(PCB));
+    // Get an available process id.                                                                                       
+    int newPid = pidCount++;
+    PCB *child = (PCB *)malloc(sizeof(PCB));
 
-        // If for any reason we can't fork, return ERROR to calling process.                                                  
-        if (!newPid || !child) {
-                context->regs[0] = ERROR;
-                return;
-        }
+    // If for any reason we can't fork, return ERROR to calling process.                                                  
+    if (!newPid || !child) {
+        context->regs[0] = ERROR;
+        return;
+    }
 
-        PCB_Init(child);
-        child->id = newPid;
-        child->parent = current_process;
-        queuePush(child->parent->children, child);
-        if (queueIsEmpty(child->parent->children))
-                TracePrintf(3, "DoFork: parent queue empty.\n");
+    PCB_Init(child);
+    child->id = newPid;
+    child->parent = current_process;
+    queuePush(child->parent->children, child);
+    if (queueIsEmpty(child->parent->children))
+        TracePrintf(3, "DoFork: parent queue empty.\n");
 
 
-        child->status = RUNNING;
+    child->status = RUNNING;
 
-        // Return 0 to child and arm the child for execution.                                                                 
-        child->user_context = *context;
-        queuePush(ready_queue, child);
-        queuePush(process_queue, child);
-        KernelContextSwitch(SpoonKernel, current_process, child);
+    // Return 0 to child and arm the child for execution.                                                                 
+    child->user_context = *context;
+    queuePush(ready_queue, child);
+    queuePush(process_queue, child);
+    KernelContextSwitch(SpoonKernel, current_process, child);
 
-        // Return child's pid to parent and resume execution of the parent.                                                   
-        if (current_process->id == newPid) {
-			*context = current_process->user_context;
-            context->regs[0] = 0;
-	} else {
-            context->regs[0] = newPid;
-        }
+    // Return child's pid to parent and resume execution of the parent.                                                   
+    if (current_process->id == newPid) {
+        *context = current_process->user_context;
+        context->regs[0] = 0;
+    } else {
+        context->regs[0] = newPid;
+    }
 }
 
 
 void DoExec(UserContext *context) {
-	TracePrintf(5, "DoExec\n");
-	current_process->user_context = *context;
-	TracePrintf(5, "DoExec: LoadProgram\n");
-	int rc = LoadProgram(context->regs[0], context->regs[1], current_process);
-	TracePrintf(5, "DoExec: finished LoadProgram\n");
-	if (rc != SUCCESS) {
-		current_process->user_context.regs[0] = ERROR;
-	}
-	*context = current_process->user_context;
-	TracePrintf(5, "Finished DoExec\n");
+    TracePrintf(5, "DoExec\n");
+    current_process->user_context = *context;
+    TracePrintf(5, "DoExec: LoadProgram\n");
+    int rc = LoadProgram(context->regs[0], context->regs[1], current_process);
+    TracePrintf(5, "DoExec: finished LoadProgram\n");
+    if (rc != SUCCESS) {
+        current_process->user_context.regs[0] = ERROR;
+    }
+    *context = current_process->user_context;
+    TracePrintf(5, "Finished DoExec\n");
 }
 
 void DoExit(UserContext *context) {
     if (1 == current_process->id) {
-	TracePrintf(1, "Do Exit: init program exiting. Now calling halt.\n");
-	Halt();
+        TracePrintf(1, "Do Exit: init program exiting. Now calling halt.\n");
+        Halt();
     }
-    
+
     if (current_process->parent) {
         current_process->status = context->regs[0];
     }
 
-	TracePrintf(2, "DoExit\n");
+    TracePrintf(2, "DoExit\n");
 
-	KillProc(current_process);
+    KillProc(current_process);
 
-	TracePrintf(2, "DoExit: Finished the murder\n");
-	LoadNextProc(context, BLOCK);
+    TracePrintf(2, "DoExit: Finished the murder\n");
+    LoadNextProc(context, BLOCK);
 }
 
 void DoWait(UserContext *context) {
-	if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
-		TracePrintf(2, "DoWait: PCB %d Has no children. Returning Error.\n", current_process->id);
-		TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);
-		context->regs[0] = ERROR;
-	} else {
-		if (queueIsEmpty(current_process->deadChildren)) {
-			current_process->status = WAITING;
-			queuePush(wait_queue, current_process);
-			LoadNextProc(context, BLOCK);
-		}
+    if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
+        TracePrintf(2, "DoWait: PCB %d Has no children. Returning Error.\n", current_process->id);
+        TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);
+        context->regs[0] = ERROR;
+    } else {
+        if (queueIsEmpty(current_process->deadChildren)) {
+            current_process->status = WAITING;
+            queuePush(wait_queue, current_process);
+            LoadNextProc(context, BLOCK);
+        }
 
         ZCB *child = queuePop(current_process->deadChildren);
-	queueRemove(process_queue, child);
+        queueRemove(process_queue, child);
         *((int *)context->regs[0]) = child->status;
         context->regs[0] = child->id;
     }
 }
 
 void DoGetPid(UserContext *context) {
-	context->regs[0] = current_process->id;
+    context->regs[0] = current_process->id;
 }
 
 void DoBrk(UserContext *context) {
 
-	void * addr = (void*)context->regs[0];
-	int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
-	int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
+    void * addr = (void*)context->regs[0];
+    int newPageBrk = (UP_TO_PAGE(addr-VMEM_1_BASE)>>PAGESHIFT);
+    int spPage = (DOWN_TO_PAGE((context->sp)-VMEM_1_BASE)>>PAGESHIFT) - 1; // ( - 1 to account for page in between stack and heap)
 
-	TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
-	if(newPageBrk>=spPage){
-		TracePrintf(1, "User Brk error: addr %p is above allocatable region - interferes with the stack\n", addr);
-		context->regs[0]=ERROR;
-		return;
-	}
-	TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
-	for(int i = 0; i<spPage; i++){
-		//map pages before new brk
-		if(i<newPageBrk && current_process->cow.pageTable[i].valid==0){
-			current_process->cow.pageTable[i].valid=1;
-			current_process->cow.pageTable[i].pfn = getNextFrame();
-			current_process->cow.pageTable[i].prot = (PROT_READ | PROT_WRITE);
-			TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
-					i, current_process->cow.pageTable[i].pfn);
-		}
-		//unmap pages after new brk
-		if(i>=newPageBrk && (current_process->cow.pageTable[i].valid == 1)){
-			TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->cow.pageTable[i].pfn); 
-			current_process->cow.pageTable[i].valid=0;
-			if(ERROR == addFrame(current_process->cow.pageTable[i].pfn)){
-				TracePrintf(1, "Too Many Frames\n");
-				context->regs[0]=ERROR;
-				return;
-			}
-			current_process->cow.pageTable[i].pfn = -1;
+    TracePrintf(2, "DoBrk: Called with brk addr %p, page %d\n", addr, newPageBrk);
+    if(newPageBrk>=spPage){
+        TracePrintf(1, "User Brk error: addr %p is above allocatable region - interferes with the stack\n", addr);
+        context->regs[0]=ERROR;
+        return;
+    }
+    TracePrintf(1, "DoBrk: sp page is set at %d\n", spPage); 
+    for(int i = 0; i<spPage; i++){
+        //map pages before new brk
+        if(i<newPageBrk && current_process->cow.pageTable[i].valid==0){
+            current_process->cow.pageTable[i].valid=1;
+            current_process->cow.pageTable[i].pfn = getNextFrame();
+            current_process->cow.pageTable[i].prot = (PROT_READ | PROT_WRITE);
+            TracePrintf(2, "===============DoBrk: page %d mapped with pfn %d and read and write prots\n",\
+                    i, current_process->cow.pageTable[i].pfn);
+        }
+        //unmap pages after new brk
+        if(i>=newPageBrk && (current_process->cow.pageTable[i].valid == 1)){
+            TracePrintf(2, "===============DoBrk: page %d was valid with pfn %d\n", i, current_process->cow.pageTable[i].pfn); 
+            current_process->cow.pageTable[i].valid=0;
+            if(ERROR == addFrame(current_process->cow.pageTable[i].pfn)){
+                TracePrintf(1, "Too Many Frames\n");
+                context->regs[0]=ERROR;
+                return;
+            }
+            current_process->cow.pageTable[i].pfn = -1;
 
-			TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
-		}
-	}
-	context->regs[0]= SUCCESS;
-	return;
+            TracePrintf(2, "===============DoBrk: page %d unmapped\n", i);
+        }
+    }
+    context->regs[0]= SUCCESS;
+    return;
 
 
 }
@@ -235,27 +235,27 @@ void DoPS(UserContext *context) {
 
 
 void DoDelay(UserContext *context) {
-	TracePrintf(1, "in DoDelay\n");
-	current_process->clock_count = context->regs[0];
-	TracePrintf(1, "Delay: %d\n", context->regs[0]);
-	DelayAdd(current_process);
-	LoadNextProc(context, BLOCK);
+    TracePrintf(1, "in DoDelay\n");
+    current_process->clock_count = context->regs[0];
+    TracePrintf(1, "Delay: %d\n", context->regs[0]);
+    DelayAdd(current_process);
+    LoadNextProc(context, BLOCK);
 }
 
 void LoadNextProc(UserContext *context, int block) {
-	DelayPop();
-	if (!queueIsEmpty(ready_queue)) {
-		if (current_process)  {
-			current_process->user_context = *context;
-			if (block == NO_BLOCK) {
-				queuePush(ready_queue, current_process);
-			}
-		}
+    DelayPop();
+    if (!queueIsEmpty(ready_queue)) {
+        if (current_process)  {
+            current_process->user_context = *context;
+            if (block == NO_BLOCK) {
+                queuePush(ready_queue, current_process);
+            }
+        }
 
-		PCB *next = queuePop(ready_queue);
-		TracePrintf(1, "LoadNextProc: Next Process Id: %d\n", next->id);
-		if(next->id == 2) 
-			TracePrintf(3, "LoadNextProc: PCB has %p child\n", next->parent->children->head);
+        PCB *next = queuePop(ready_queue);
+        TracePrintf(1, "LoadNextProc: Next Process Id: %d\n", next->id);
+        if(next->id == 2) 
+            TracePrintf(3, "LoadNextProc: PCB has %p child\n", next->parent->children->head);
         WriteRegister(REG_PTBR1, (unsigned int) &(next->cow.pageTable)); 
         WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
 
@@ -263,8 +263,8 @@ void LoadNextProc(UserContext *context, int block) {
         KernelContextSwitch(MyKCS, current_process, next);
         TracePrintf(1, "LoadNextProc: Got past MyKCS\n");
         *context = current_process->user_context;
-		
-		TracePrintf(3, "LoadNextProc: current user context pc is %p\n", context->pc);
+
+        TracePrintf(3, "LoadNextProc: current user context pc is %p\n", context->pc);
     }
 }
 
@@ -282,13 +282,13 @@ void KillProc(PCB *pcb) {
         if (parent->status == WAITING) {
             queueRemove(wait_queue, parent);
             queuePush(ready_queue, parent);
-	}
-	ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
-	zombie->id = pcb->id;
-	zombie->status = DEAD;
-	zombie->exit_status = pcb->status;
-	queuePush(parent->deadChildren, zombie);
-	queuePush(process_queue, zombie);
+        }
+        ZCB *zombie = (ZCB *) malloc(sizeof(ZCB));
+        zombie->id = pcb->id;
+        zombie->status = DEAD;
+        zombie->exit_status = pcb->status;
+        queuePush(parent->deadChildren, zombie);
+        queuePush(process_queue, zombie);
 
     }
 
@@ -302,8 +302,8 @@ void KillProc(PCB *pcb) {
 
     // Update process queue
     queueRemove(process_queue, pcb);
-    
-    
+
+
 
     FreePCB(pcb);
 }
@@ -315,9 +315,9 @@ void FreePCB(PCB *pcb) {
     }
 
     while(!queueIsEmpty(pcb->deadChildren)) {
-	ZCB *zombie = queuePop(pcb->deadChildren);
-	queueRemove(process_queue, zombie);
-	free(zombie);
+        ZCB *zombie = queuePop(pcb->deadChildren);
+        queueRemove(process_queue, zombie);
+        free(zombie);
     }
 
     free(pcb->children);
