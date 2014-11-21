@@ -3,11 +3,19 @@
 #include "resource.h"
 #include "std.h"
 #include "proc.h"
+#include "cvar.h"
 
 Queue *cvars;
 unsigned int cvar_count = 0;
 
 void DoCvarInit(UserContext *context) {
+
+    if (BufferCheck(context->regs[0], INT_LENGTH) == ERROR || BufferWriteCheck(context->regs[0], INT_LENGTH) == ERROR) {
+        TracePrintf(1, "DoCvarInit: Pointer given not valid. Returning Error\n");
+        context->regs[0] = ERROR;
+        return;
+    }
+
     Cvar *cvar = malloc(sizeof(Cvar));
     if (cvar == NULL) {	
         TracePrintf(2, "CvarInit: malloc error.\n");

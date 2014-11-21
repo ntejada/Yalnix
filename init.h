@@ -26,15 +26,9 @@ extern void *kernel_data_start;
 extern struct pte pZeroTable[MAX_PT_LEN];
 extern struct pte *pOneTable;
 
-void SetKernelData(void *, void *);
-void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt); 
-int SetKernelBrk(void *);
-void PageTableInit(PCB*);
-void DoIdle(void);
-void LoadProgramTest();
-int CopyStack(PCB *);
-int CopyRegion1(PCB *);
-int CoW_PreserveGlobal(PCB *);
-int copyOnWrite(int pageNum, PCB* pcb);
+extern void SetKernelData(void *, void *);
+extern void KernelStart(char * cmd_args[], unsigned int pmem_size, UserContext *uctxt); 
+extern int SetKernelBrk(void *);
+extern void PageTableInit(PCB*);
 
 #endif

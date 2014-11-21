@@ -156,6 +156,14 @@ void DoExit(UserContext *context) {
 }
 
 void DoWait(UserContext *context) {
+
+    if (BufferCheck(context->regs[0], INT_LENGTH) == ERROR || BufferWriteCheck(context->regs[0], INT_LENGTH) == ERROR) {
+        TracePrintf(1, "DoWait: Pointer given not valid. Returning Error\n");
+        context->regs[0] = ERROR;
+        return;
+    }
+
+
 	if (queueIsEmpty(current_process->children) && queueIsEmpty(current_process->deadChildren)) {
 		TracePrintf(2, "DoWait: PCB %d Has no children. Returning Error.\n", current_process->id);
 		TracePrintf(2, "DoWait: Children queue count: %d, deadChildren count: %d\n", current_process->children->length, current_process->deadChildren->length);

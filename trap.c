@@ -15,11 +15,12 @@
 #include "util/list.h"
 #include "std.h"
 #include "frames.h"
-#include "init.h"
+#include "copy.h"
 #include "tty.h"
 #include "lock.h"
 #include "cvar.h"
 #include "pipe.h"
+#include "init.h"
 
 void *trapVector[TRAP_VECTOR_SIZE];
 
@@ -165,7 +166,7 @@ void MemoryHandler(UserContext *context) {
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
 
     		TracePrintf(2, "TrapMemory: YALNIX_MAPERR - copyOnWrite\n");
-		copyOnWrite(pageNum, current_process); 
+		CopyOnWrite(pageNum, current_process); 
 
 		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
             	break;
@@ -187,7 +188,7 @@ void MemoryHandler(UserContext *context) {
                 current_process->cow.pageTable[pageNum].prot == PROT_READ) {
 
     		 TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
-            	 copyOnWrite(pageNum, current_process);
+            	 CopyOnWrite(pageNum, current_process);
 		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
 
 
@@ -208,7 +209,7 @@ void MemoryHandler(UserContext *context) {
 	   if (current_process->cow.refCount[pageNum] &&
 	       current_process->cow.pageTable[pageNum].prot == PROT_READ) {
 	       TracePrintf(2, "TrapMemory: YALNIX_ACCERR- copyOnWrite\n");
-	       copyOnWrite(pageNum, current_process);
+	       CopyOnWrite(pageNum, current_process);
 		WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1); 
 
 

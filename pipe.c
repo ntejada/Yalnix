@@ -2,11 +2,19 @@
 #include "pipe.h"
 #include "proc.h"
 #include "std.h"
+#include "input.h"
 
 Queue *pipes;
 unsigned int pipe_count = 0;
 
 void DoPipeInit(UserContext *context) {
+
+    if (BufferCheck(context->regs[0], INT_LENGTH) == ERROR || BufferWriteCheck(context->regs[0], INT_LENGTH) == ERROR) {
+        TracePrintf(1, "DoPipeInit: Pointer given not valid. Returning Error\n");
+        context->regs[0] = ERROR;
+        return;
+    }
+
     Pipe *pipe= malloc(sizeof(Pipe));
     if (pipe == NULL) {	
         TracePrintf(2, "PipeInit: malloc error.\n");
@@ -53,7 +61,7 @@ void DoPipeRead(UserContext *context) {
     int len = context->regs[2];
 
 
-    if (BufferCheck(buf, len) == ERROR) {
+    if (BufferCheck(buf, len) == ERROR || BufferWriteCheck(buf, len) == ERROR) {
 	TracePrintf(1, "DoPipeRead: buffer given not valid. Returning with an error. SEAN SMITH!\n");
 	context->regs[0] = ERROR;
 	return;

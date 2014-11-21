@@ -17,5 +17,6 @@
 #define ERROR (-1)
 
 #define TEST_LENGTH 5
+#define INT_LENGTH 4
 
 #endif
