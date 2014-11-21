@@ -1,7 +1,9 @@
+int resource_cnt;
+
 int
 main(int argc, char *argv[]) {
 
-    int rc, resource_cnt;
+    int rc;
 
     int lock, cvar;
     LockInit(&lock);
@@ -10,7 +12,7 @@ main(int argc, char *argv[]) {
     for (int i = 0; i < 6; i++) {
 
 	TracePrintf(2, "Producer: forking off child %d\n", i+1);
-	rc = Fork();
+	rc = Custom0();
 
 	if (0 == rc) {
 	    TracePrintf(2, "Producer: Process %d trying to acquire lock\n", GetPid());
@@ -29,6 +31,7 @@ main(int argc, char *argv[]) {
 
 
 	    Acquire(lock);
+	    TracePrintf(2, "Producer: Process %d reacquired lock. Resource count is %d. Will decrement it then leave and signal next\n", GetPid(), resource_cnt);
 	    resource_cnt--;
 	    Release(lock);
 	    CvarSignal(cvar);
@@ -38,9 +41,10 @@ main(int argc, char *argv[]) {
     }
 
     TracePrintf(2, "Producer: Parent done with while loop\n");
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++) {
+	Custom1();
 	Wait(&rc);
-
+    }
     TracePrintf(2, "Producer: Parent done waiting for children. Reclaiming cvar and lock\n");
     Reclaim(lock);
     Reclaim(cvar);
