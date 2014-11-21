@@ -2,11 +2,19 @@
 #include "resource.h"
 #include "std.h"
 #include "proc.h"
+#include "input.h"
 
 Queue *locks;
 unsigned int lock_count = 0;
 
 void DoLockInit(UserContext *context) {
+    
+    if (BufferCheck(context->regs[0], INT_LENGTH) == ERROR || BufferWriteCheck(context->regs[0], INT_LENGTH) == ERROR) {
+	TracePrintf(1, "DoLockInit: Pointer given not valid. Returning Error\n");
+	context->regs[0] = ERROR;
+	return;
+    }
+
     Lock *lock = malloc(sizeof(Lock));
     if (lock == NULL) {
         TracePrintf(2, "CreateLock, malloc error\n");

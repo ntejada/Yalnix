@@ -3,7 +3,9 @@
 #include "frames.h"
 #include <hardware.h>
 #include "switch.h"
+#include "copy.h"
 #include "init.h"
+
 
 KernelContext *MyKCS(KernelContext *kc_in, void *p_curr_pcb, void *p_next_pcb) 
 {

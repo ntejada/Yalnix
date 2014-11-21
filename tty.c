@@ -28,7 +28,7 @@ void DoTtyRead(UserContext *context) {
 		return;
     } 
 
-    else if (BufferCheck(context->regs[1], context->regs[2]) == ERROR) {
+    else if (BufferCheck(context->regs[1], context->regs[2]) == ERROR || BufferWriteCheck(context->regs[1], context->regs[2]) == ERROR) {
         TracePrintf(1, "DoTtyWrite: buffer given not valid. Returning with an error.\n");
 	context->regs[0] = ERROR;
 	return;
