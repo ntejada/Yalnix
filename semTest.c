@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
                     if (1 == i) {
                         if (ERROR == rc) {
                             TtyPrintf(0, "Double SemDown failed as expected\n");
+                            TtyPrintf(0, "Successfully requested sem\n");
                         } else {
                             TtyPrintf(0, "Double SemDown succeeded as unexpected behavior\n");
                             Exit(1);
