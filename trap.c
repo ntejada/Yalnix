@@ -19,6 +19,7 @@
 #include "tty.h"
 #include "lock.h"
 #include "cvar.h"
+#include "sem.h"
 #include "pipe.h"
 #include "init.h"
 
@@ -107,6 +108,15 @@ void KernelCallHandler(UserContext *context) {
             break;
         case YALNIX_CVAR_WAIT:
             DoCvarWait(context);
+            break;
+        case YALNIX_SEM_INIT:
+            DoSemInit(context);
+            break;
+        case YALNIX_SEM_UP:
+            DoSemUp(context);
+            break;
+        case YALNIX_SEM_DOWN:
+            DoSemDown(context);
             break;
         case YALNIX_RECLAIM:
             DoReclaim(context);

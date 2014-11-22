@@ -103,7 +103,7 @@ void DoSpoon(UserContext *context) {
     child->parent = current_process;
     queuePush(child->parent->children, child);
     if (queueIsEmpty(child->parent->children))
-        TracePrintf(3, "DoFork: parent queue empty.\n");
+        TracePrintf(3, "DoSpoon: parent queue empty.\n");
 
 
     child->status = RUNNING;

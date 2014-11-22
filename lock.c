@@ -56,7 +56,7 @@ void DoLockRelease(UserContext *context) {
 
 int LockAcquire(Lock *lock) {
     if (lock == NULL) {
-        TracePrintf(2, "Acquire: Lock not found.\n");
+        TracePrintf(2, "LockAcquire: Lock not found.\n");
         return ERROR;
     } else if (lock->owner && lock->owner != current_process) {
         queuePush(lock->waiting, current_process);

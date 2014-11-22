@@ -7,6 +7,7 @@ Queue *sems;
 unsigned int sem_count = 0;
 
 void DoSemInit(UserContext *context) {
+    TracePrintf(2, "DoSemInit\n");
     Sem *sem = malloc(sizeof(Sem));
     if (sem == NULL) {	
         TracePrintf(2, "DoSemInit: malloc error.\n");
@@ -40,6 +41,7 @@ void DoSemInit(UserContext *context) {
 }
 
 void DoSemUp(UserContext *context) {
+    TracePrintf(2, "DoSemUp\n");
     Sem *sem = (Sem *) GetResource(context->regs[0]);
     if (sem == NULL) {
         TracePrintf(2, "DoSemUp: No Sem found.\n");
@@ -70,6 +72,7 @@ void DoSemUp(UserContext *context) {
 }
 
 void DoSemDown(UserContext *context) {
+    TracePrintf(2, "DoSemDown\n");
     Sem *sem = (Sem *) GetResource(context->regs[0]);
     if (sem == NULL) {
         TracePrintf(2, "DoSemDown: No Sem found.\n");

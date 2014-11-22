@@ -118,8 +118,8 @@ int CoW_PreserveGlobal(PCB *pcb) {
     }
 
     TracePrintf(2, "CoW_PreserveGlobal: Exiting\n");
+    WriteRegister(REG_TLB_FLUSH, TLB_FLUSH_1);
     return SUCCESS;
-
 }
 
 int CopyOnWrite(int pageNum, PCB* pcb){
