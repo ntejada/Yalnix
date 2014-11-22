@@ -36,13 +36,13 @@ int main(int argc, char *argv[]) {
                             TtyPrintf(0, "Double SemDown succeeded as unexpected behavior\n");
                             Exit(1);
                         }
-                    }
-                    
-                    if (SUCCESS == rc) {
-                        TtyPrintf(0, "Successfully requested sem\n");
                     } else {
-                        TtyPrintf(0, "Error on requesting sem\n");
-                        Exit(1);
+                        if (SUCCESS == rc) {
+                            TtyPrintf(0, "Successfully requested sem\n");
+                        } else {
+                            TtyPrintf(0, "Error on requesting sem\n");
+                            Exit(1);
+                        }
                     }
 
                     rc = SemUp(sem);
