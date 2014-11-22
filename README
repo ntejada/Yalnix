@@ -1,5 +1,23 @@
 Shuo Zheng, Nic Tejada, Garrett Watumull
 
+CHECKPOINT 7:
+
+We have finished implementing our additional features as well as more thoroughly testing our OS. Some new files include:
+
+copy.* - we have moved our CoW functions and our copying of the stack and region 1 from our init program to these new files.
+
+sem.* - this file contains our sem implementation 
+
+Some explanation to our additional features:
+
+We have implemented CoW, a PS syscall, semaphoares, and a Spoon method for keeping global data shared across all forked processes. We believe CoW is fully working, and you will be able to follow its implementation in copy.c, trap.c (Trap Memory), and switch.c. Our PS syscall can be called in user programs using the PS() command. Like most OS's, we keep track of zombie processes until the parents calls wait on them. The DoPS() function can be found in proc.c, but keeping track of the current processes is scattered throughout our code although most of it can be found in DoFork, DoExit, DoWait, and KillProc. Our semaphores can be found in sem.c, and this implementation should be pretty straightforward. Functions using semaphores include, SemInit, SemUp, SemDown, and Reclaim. This spoon method can be found in copy.c, proc.c and switch.c. The only difference between this and fork is setting the global data to have protections of read and write. Because CoW shares pages that are global data, we don't need to do anything else other than change these protections and store the location of the global data into the PCB while executing LoadProg. 
+
+We have encountered some strangeness in our Spoon method when executing our producer.c program. Processes can successfully access global data and update shared variables.  But when using TtyPrintf, the strings stored in global data somehow are interfering with global data in weird ways, causing erratic print behavior. Odd characters pop up on the terminals as well as some print statements are executing twice on multiple terminals. When using TtyWrite, however, no such behavior is witnessed. This is shown in producerWrite.c.
+
+We recommend running with lk initially set to 1. As you increase this number, there will be more TracePrints, as we have tried to provide helpful debugging print statements as higher levels of lk. Increasing this number could also give you a better idea of what functions are being called and when those functions are called.
+
+**************************************************************
+
 CHECKPOINT 6:
 
 We have implemented pipes, cvars, and locks effectively.
